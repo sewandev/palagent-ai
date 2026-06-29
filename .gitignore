@@ -1,0 +1,25 @@
+# Rust
+target/
+src-tauri/target/
+src-tauri/gen/
+
+# Node/JS Frontend
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS Files
+.DS_Store
+Thumbs.db
