@@ -1,27 +1,37 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Rust
+target/
+src-tauri/target/
+src-tauri/gen/
 
-node_modules
-dist
-dist-ssr
-*.local
+# Node/JS Frontend
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+# IDEs / Editors
+.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+*.swp
 
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Agent/AGY Customizations
+.agents/
 skills-lock.json
-.agents/*
+
+# Temporary/Test Palworld files
+*.test.json
+*.test_both.json
+*.sav_cli.json
+*.tmp.json
+Player_*.json
+Level.*.json
