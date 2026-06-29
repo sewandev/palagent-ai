@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PalSync AI LiveAgent</title>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- Left Sidebar -->
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-logo">PalSync AI</span>
+        </div>
+
+        <div class="input-group">
+          <span class="section-title">Partida Guardada</span>
+          <input id="save-dir-input" class="input-field" placeholder="Ruta a la carpeta de guardados..." />
+          <button id="btn-detect-save" class="btn btn-secondary">Detectar Automáticamente</button>
+          <button id="btn-load-save" class="btn">Cargar Partida</button>
+        </div>
+
+        <div class="input-group" style="flex-grow: 1;">
+          <span class="section-title">Jugadores</span>
+          <div id="player-list-container" class="player-list">
+            <div class="empty-state">No hay jugadores cargados</div>
+          </div>
+        </div>
+
+        <div class="status-indicator">
+          <div id="status-dot" class="status-dot"></div>
+          <span id="status-text">Listo</span>
+        </div>
+      </aside>
+
+      <!-- Center Main Content -->
+      <main class="main-content">
+        <div class="editor-card">
+          <div class="editor-header">
+            <div id="active-player-name" class="editor-title">Selecciona un Jugador</div>
+            <div id="active-container-type" style="font-size: 12px; color: var(--accent-cyan); font-weight: 600; text-transform: uppercase;">Mochila Común</div>
+          </div>
+
+          <div class="inventory-container">
+            <div id="inventory-grid-container" class="inventory-grid">
+              <div class="empty-state">Carga una partida para visualizar el inventario</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Console Logs -->
+        <div class="console-card">
+          <div class="console-header">
+            <span>Terminal de Operaciones</span>
+            <span id="console-clear" style="cursor: pointer; text-decoration: underline;">Limpiar</span>
+          </div>
+          <div id="console-logs-container" class="console-logs">
+            <div class="log-entry info">[SISTEMA] Listo para iniciar. Por favor, selecciona la ruta de guardados.</div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right Edit Panel -->
+      <aside class="edit-panel">
+        <div class="panel-header">Detalles de Slot</div>
+        
+        <div id="edit-slot-empty" class="empty-state">
+          Selecciona un slot para editarlo
+        </div>
+
+        <div id="edit-slot-form" style="display: none; flex-direction: column; gap: 16px;">
+          <div class="input-group" style="position: relative;">
+            <span class="section-title">ID del Objeto</span>
+            <input id="item-id-input" class="input-field" placeholder="Ej: wood" />
+            <div id="item-autocomplete" class="autocomplete-list" style="display: none;"></div>
+          </div>
+
+          <div class="input-group">
+            <span class="section-title">Cantidad</span>
+            <input id="item-count-input" class="input-field" type="number" min="0" max="9999" placeholder="Ej: 100" />
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button id="btn-save-slot" class="btn" style="flex-grow: 1;">Aplicar Slot</button>
+            <button id="btn-delete-slot" class="btn btn-secondary" style="background: var(--error-color); color: #fff; border: none;">Borrar</button>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 15px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+            <span class="section-title">Limpieza Rápida</span>
+            <button id="btn-clean-seeds" class="btn btn-secondary">Limpiar Todas las Semillas</button>
+            <button id="btn-clean-materials" class="btn btn-secondary">Limpiar Piedras y Maderas</button>
+          </div>
+        </div>
+
+        <div style="flex-grow: 1;"></div>
+
+        <button id="btn-apply-sav" class="btn" style="width: 100%; background: linear-gradient(135deg, var(--success-color), var(--accent-blue)); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+          Guardar en Level.sav
+        </button>
+      </aside>
+    </div>
+  </body>
+</html>

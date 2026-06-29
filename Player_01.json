@@ -1,0 +1,1239 @@
+{
+	"header": {
+		"magic": 1396790855,
+		"save_game_version": 3,
+		"package_file_version_ue4": 522,
+		"package_file_version_ue5": 1008,
+		"engine_version_major": 5,
+		"engine_version_minor": 1,
+		"engine_version_patch": 1,
+		"engine_version_changelist": 0,
+		"engine_version_branch": "++UE5+Release-5.1",
+		"custom_version_format": 3,
+		"custom_versions": [
+			[
+				"40d2fba7-4b48-4ce5-b038-5a75884e499e",
+				7
+			],
+			[
+				"fcf57afa-5076-4283-b9a9-e658ffa02d32",
+				76
+			],
+			[
+				"0925477b-763d-4001-9d91-d6730b75b411",
+				1
+			],
+			[
+				"4288211b-4548-16c6-1a76-67b2507a2a00",
+				1
+			],
+			[
+				"1ab9cecc-0000-6913-0000-4875203d51fb",
+				101
+			],
+			[
+				"4cef9221-470e-d43a-7e60-3d8c16995726",
+				1
+			],
+			[
+				"a1c4d3f6-5b2e-7a8d-9f6e-4b3cd7e1a8b2",
+				0
+			],
+			[
+				"3a1f7b2e-7b9d-6e8c-4c2a-9f1d85b3e4f1",
+				1
+			],
+			[
+				"134a157e-d5e2-49a3-8d4e-843c98fe9e31",
+				1
+			],
+			[
+				"e2717c7e-52f5-44d3-950c-5340b315035e",
+				9
+			],
+			[
+				"11310aed-2e55-4d61-af67-9aa3c5a1082c",
+				17
+			],
+			[
+				"a7820cfb-20a7-4359-8c54-2c149623cf50",
+				21
+			],
+			[
+				"f6dfbb78-bb50-a0e4-4018-b84d60cbaf23",
+				2
+			],
+			[
+				"24bb7af3-5646-4f83-1f2f-2dc249ad96ff",
+				5
+			],
+			[
+				"76a52329-0923-45b5-98ae-d841cf2f6ad8",
+				5
+			],
+			[
+				"5fbc6907-55c8-40ae-8e67-f1845efff13f",
+				1
+			],
+			[
+				"82e77c4e-3323-43a5-b46b-13c597310df3",
+				0
+			],
+			[
+				"7f3847e4-5ec8-4e9a-84e8-a69aad16bc39",
+				1
+			],
+			[
+				"fb3a59e2-445e-403f-aaab-d5e4d2ee1e01",
+				1
+			],
+			[
+				"00000000-0000-0000-0000-000000000000",
+				1
+			],
+			[
+				"12eab47e-ff5a-1b9a-bc71-aa710ed633df",
+				1
+			],
+			[
+				"636f6bc2-d5c4-4ed9-993a-c408419e8b62",
+				1
+			],
+			[
+				"841d9449-4ba8-258a-7596-6e80dc37f5bf",
+				1
+			],
+			[
+				"47ee66dc-9946-43d1-8de8-cd6b822a949a",
+				1
+			],
+			[
+				"c82548a0-8e5c-4a06-bcea-e2b521b58851",
+				2
+			],
+			[
+				"0ffcf66c-1190-4899-b160-9cf84a46475e",
+				1
+			],
+			[
+				"de000b38-ced7-4949-992d-df9769c3c1c0",
+				1
+			],
+			[
+				"c75f4992-ff2c-4dc3-816c-d6796dea8981",
+				1
+			],
+			[
+				"03c025d9-d888-4ef2-b0fa-87136ae606c7",
+				1
+			],
+			[
+				"9c54d522-a826-4fbe-9421-074661b482d0",
+				44
+			],
+			[
+				"b0d832e4-1f89-4f0d-accf-7eb736fd4aa2",
+				10
+			],
+			[
+				"e1c64328-a22c-4d53-a36c-8e866417bd8c",
+				0
+			],
+			[
+				"375ec13c-06e4-48fb-b500-84f0262a717e",
+				4
+			],
+			[
+				"e4b068ed-f494-42e9-a231-da0b2e46bb41",
+				40
+			],
+			[
+				"cffc743f-43b0-4480-9391-14df171d2073",
+				37
+			],
+			[
+				"b02b49b5-bb20-44e9-a304-32b752e40360",
+				3
+			],
+			[
+				"a4e4105c-59a1-49b5-a7c5-40c4547edfee",
+				0
+			],
+			[
+				"39c831c9-5ae6-47dc-9a44-9c173e1c8e7c",
+				0
+			],
+			[
+				"78f01b33-ebea-4f98-b9b4-84eaccb95aa2",
+				20
+			],
+			[
+				"6631380f-2d4d-43e0-8009-cf276956a95a",
+				0
+			],
+			[
+				"12f88b9f-8875-4afc-a67c-d90c383abd29",
+				45
+			],
+			[
+				"7b5ae74c-d270-4c10-a958-57980b212a5a",
+				13
+			],
+			[
+				"d7296918-1dd6-4bdd-9de2-64a83cc13884",
+				3
+			],
+			[
+				"c2a15278-bfe7-4afe-6c17-90ff531df755",
+				1
+			],
+			[
+				"6eaca3d4-40ec-4cc1-b786-8bed09428fc5",
+				3
+			],
+			[
+				"29e575dd-e0a3-4627-9d10-d276232cdcea",
+				17
+			],
+			[
+				"af43a65d-7fd3-4947-9873-3e8ed9c1bb05",
+				15
+			],
+			[
+				"6b266cec-1ec7-4b8f-a30b-e4d90942fc07",
+				1
+			],
+			[
+				"0df73d61-a23f-47ea-b727-89e90c41499a",
+				1
+			],
+			[
+				"601d1886-ac64-4f84-aa16-d3de0deac7d6",
+				80
+			],
+			[
+				"5b4c06b7-2463-4af8-805b-bf70cdf5d0dd",
+				10
+			],
+			[
+				"e7086368-6b23-4c58-8439-1b7016265e91",
+				4
+			],
+			[
+				"9dffbcd6-494f-0158-e221-12823c92a888",
+				10
+			],
+			[
+				"f2aed0ac-9afe-416f-8664-aa7ffa26d6fc",
+				1
+			],
+			[
+				"174f1f0b-b4c6-45a5-b13f-2ee8d0fb917d",
+				10
+			],
+			[
+				"35f94a83-e258-406c-a318-09f59610247c",
+				41
+			],
+			[
+				"b68fc16e-8b1b-42e2-b453-215c058844fe",
+				1
+			],
+			[
+				"b2e18506-4273-cfc2-a54e-f4bb758bba07",
+				1
+			],
+			[
+				"64f58936-fd1b-42ba-ba96-7289d5d0fa4e",
+				1
+			],
+			[
+				"697dd581-e64f-41ab-aa4a-51ecbeb7b628",
+				88
+			],
+			[
+				"d89b5e42-24bd-4d46-8412-aca8df641779",
+				41
+			],
+			[
+				"59da5d52-1232-4948-b878-597870b8e98b",
+				8
+			],
+			[
+				"26075a32-730f-4708-88e9-8c32f1599d05",
+				0
+			],
+			[
+				"6f0ed827-a609-4895-9c91-998d90180ea4",
+				2
+			],
+			[
+				"30d58be3-95ea-4282-a6e3-b159d8ebb06a",
+				1
+			],
+			[
+				"717f9ee7-e9b0-493a-88b3-91321b388107",
+				16
+			],
+			[
+				"430c4d19-7154-4970-8769-9b69df90b0e5",
+				15
+			],
+			[
+				"aafe32bd-5395-4c14-b66a-5e251032d1dd",
+				1
+			],
+			[
+				"23afe18e-4ce1-4e58-8d61-c252b953beb7",
+				11
+			],
+			[
+				"a462b7ea-f499-4e3a-99c1-ec1f8224e1b2",
+				4
+			],
+			[
+				"2eb5fdbd-01ac-4d10-8136-f38f3393a5da",
+				5
+			],
+			[
+				"509d354f-f6e6-492f-a749-85b2073c631c",
+				0
+			],
+			[
+				"b6e31b1c-d29f-11ec-857e-9f856f9970e2",
+				1
+			],
+			[
+				"4a56eb40-10f5-11dc-92d3-347eb2c96ae7",
+				2
+			],
+			[
+				"d78a4a00-e858-4697-baa8-19b5487d46b4",
+				18
+			],
+			[
+				"5579f886-933a-4c1f-83ba-087b6361b92f",
+				2
+			],
+			[
+				"612fbe52-da53-400b-910d-4f919fb1857c",
+				1
+			],
+			[
+				"a4237a36-caea-41c9-8fa2-18f858681bf3",
+				5
+			],
+			[
+				"804e3f75-7088-4b49-a4d6-8c063c7eb6dc",
+				5
+			],
+			[
+				"1ed048f4-2f2e-4c68-89d0-53a4f18f102d",
+				1
+			],
+			[
+				"fb680af2-59ef-4ba3-baa8-19b573c8443d",
+				2
+			],
+			[
+				"9950b70e-b41a-4e17-bbcc-fa0d57817fd6",
+				1
+			],
+			[
+				"ab965196-45d8-08fc-b7d7-228d78ad569e",
+				1
+			]
+		],
+		"save_game_class_name": "/Script/Pal.PalWorldPlayerSaveGame"
+	},
+	"properties": {
+		"Version": {
+			"id": null,
+			"value": 100,
+			"type": "IntProperty"
+		},
+		"Timestamp": {
+			"struct_type": "DateTime",
+			"struct_id": "00000000-0000-0000-0000-000000000000",
+			"id": null,
+			"value": 639183428590240000,
+			"type": "StructProperty"
+		},
+		"SaveData": {
+			"struct_type": "PalWorldPlayerSaveData",
+			"struct_id": "00000000-0000-0000-0000-000000000000",
+			"id": null,
+			"value": {
+				"PlayerUId": {
+					"struct_type": "Guid",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": "00000000-0000-0000-0000-000000000001",
+					"type": "StructProperty"
+				},
+				"IndividualId": {
+					"struct_type": "PalInstanceID",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"PlayerUId": {
+							"struct_type": "Guid",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": "00000000-0000-0000-0000-000000000001",
+							"type": "StructProperty"
+						},
+						"InstanceId": {
+							"struct_type": "Guid",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": "a9ed0c84-48c5-8ec5-baca-cf84fc15997e",
+							"type": "StructProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"LastTransform": {
+					"struct_type": "Transform",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"Rotation": {
+							"struct_type": "Quat",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"x": -0.0,
+								"y": 0.0,
+								"z": -0.14252647597634235,
+								"w": 0.9897909898790578
+							},
+							"type": "StructProperty"
+						},
+						"Translation": {
+							"struct_type": "Vector",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"x": -350668.7384026759,
+								"y": 259406.26292659726,
+								"z": 4109.715088013362
+							},
+							"type": "StructProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"PlayerCharacterMakeData": {
+					"struct_type": "PalPlayerDataCharacterMakeInfo",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"BodyMeshName": {
+							"id": null,
+							"value": "TypeA",
+							"type": "NameProperty"
+						},
+						"HeadMeshName": {
+							"id": null,
+							"value": "type1",
+							"type": "NameProperty"
+						},
+						"HairMeshName": {
+							"id": null,
+							"value": "Type7",
+							"type": "NameProperty"
+						},
+						"ArmVolume": {
+							"id": null,
+							"value": -0.10526317358016968,
+							"type": "FloatProperty"
+						},
+						"TorsoVolume": {
+							"id": null,
+							"value": -0.08187133073806763,
+							"type": "FloatProperty"
+						},
+						"LegVolume": {
+							"id": null,
+							"value": -0.34502923488616943,
+							"type": "FloatProperty"
+						},
+						"HairColor": {
+							"struct_type": "LinearColor",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"r": -0.8887078166007996,
+								"g": 0.33842238783836365,
+								"b": 1.4123090505599976,
+								"a": 1.0
+							},
+							"type": "StructProperty"
+						},
+						"BrowColor": {
+							"struct_type": "LinearColor",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"r": -0.8856608271598816,
+								"g": 0.34608933329582214,
+								"b": 1.0607320070266724,
+								"a": 1.0
+							},
+							"type": "StructProperty"
+						},
+						"BodyColor": {
+							"struct_type": "LinearColor",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"r": 0.0019235395593568683,
+								"g": 0.7399896383285522,
+								"b": 1.7000000476837158,
+								"a": 1.0
+							},
+							"type": "StructProperty"
+						},
+						"BodySubsurfaceColor": {
+							"struct_type": "LinearColor",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"r": 1.7999999523162842,
+								"g": 0.2974798083305359,
+								"b": 0.18305455148220062,
+								"a": 1.0
+							},
+							"type": "StructProperty"
+						},
+						"EyeColor": {
+							"struct_type": "LinearColor",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"r": -0.3712520897388458,
+								"g": 0.9858532547950745,
+								"b": 0.9491780400276184,
+								"a": 1.0
+							},
+							"type": "StructProperty"
+						},
+						"EyeMaterialName": {
+							"id": null,
+							"value": "Type001",
+							"type": "NameProperty"
+						},
+						"VoiceID": {
+							"id": null,
+							"value": 1,
+							"type": "IntProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"OtomoCharacterContainerId": {
+					"struct_type": "PalContainerId",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"ID": {
+							"struct_type": "Guid",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": "decfaff8-4ed2-157d-e7db-b296e16ab608",
+							"type": "StructProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"InventoryInfo": {
+					"struct_type": "PalPlayerDataInventoryInfo",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"CommonContainerId": {
+							"struct_type": "PalContainerId",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"ID": {
+									"struct_type": "Guid",
+									"struct_id": "00000000-0000-0000-0000-000000000000",
+									"id": null,
+									"value": "835e102d-4b5b-4023-6c8f-6b8f5a4281a0",
+									"type": "StructProperty"
+								}
+							},
+							"type": "StructProperty"
+						},
+						"DropSlotContainerId": {
+							"struct_type": "PalContainerId",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"ID": {
+									"struct_type": "Guid",
+									"struct_id": "00000000-0000-0000-0000-000000000000",
+									"id": null,
+									"value": "2b41b38a-4a99-2d94-ac9e-02a40eae7a0d",
+									"type": "StructProperty"
+								}
+							},
+							"type": "StructProperty"
+						},
+						"EssentialContainerId": {
+							"struct_type": "PalContainerId",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"ID": {
+									"struct_type": "Guid",
+									"struct_id": "00000000-0000-0000-0000-000000000000",
+									"id": null,
+									"value": "0d9fa1b7-44e8-1808-e502-92859c6d40c2",
+									"type": "StructProperty"
+								}
+							},
+							"type": "StructProperty"
+						},
+						"WeaponLoadOutContainerId": {
+							"struct_type": "PalContainerId",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"ID": {
+									"struct_type": "Guid",
+									"struct_id": "00000000-0000-0000-0000-000000000000",
+									"id": null,
+									"value": "83a9f946-4b64-0b6b-9438-cdab72ac7339",
+									"type": "StructProperty"
+								}
+							},
+							"type": "StructProperty"
+						},
+						"PlayerEquipArmorContainerId": {
+							"struct_type": "PalContainerId",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"ID": {
+									"struct_type": "Guid",
+									"struct_id": "00000000-0000-0000-0000-000000000000",
+									"id": null,
+									"value": "90c75f3c-4033-5b4c-4c30-30b9d690a9fe",
+									"type": "StructProperty"
+								}
+							},
+							"type": "StructProperty"
+						},
+						"FoodEquipContainerId": {
+							"struct_type": "PalContainerId",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": {
+								"ID": {
+									"struct_type": "Guid",
+									"struct_id": "00000000-0000-0000-0000-000000000000",
+									"id": null,
+									"value": "26323104-41a6-666e-a549-4089f7d9c2f4",
+									"type": "StructProperty"
+								}
+							},
+							"type": "StructProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"TechnologyPoint": {
+					"id": null,
+					"value": 11,
+					"type": "IntProperty"
+				},
+				"UnlockedRecipeTechnologyNames": {
+					"array_type": "NameProperty",
+					"id": null,
+					"value": {
+						"values": [
+							"Workbench",
+							"Product_Axe_Grade_01",
+							"Product_Pickaxe_Grade_01",
+							"HandTorch",
+							"Battle_MeleeWeapon_Bat",
+							"SkinChange",
+							"GlobalPalStorage",
+							"PalBox",
+							"Special_PalSphere_Grade_01",
+							"Product_Cooking_Grade_01",
+							"Infra_ItemChest_Grade_01",
+							"RepairBench",
+							"Wooden_houseset",
+							"Infra_PlayerBed_Grade_01"
+						]
+					},
+					"type": "ArrayProperty"
+				},
+				"PalStorageContainerId": {
+					"struct_type": "PalContainerId",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"ID": {
+							"struct_type": "Guid",
+							"struct_id": "00000000-0000-0000-0000-000000000000",
+							"id": null,
+							"value": "92a54e1d-4e45-6479-938a-3786be6f6735",
+							"type": "StructProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"RecordData": {
+					"struct_type": "PalLoggedinPlayerSaveDataRecordData",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"TribeCaptureCount": {
+							"id": null,
+							"value": 2,
+							"type": "IntProperty"
+						},
+						"PalCaptureCount": {
+							"key_type": "NameProperty",
+							"value_type": "IntProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "Sheepball",
+									"value": 1
+								},
+								{
+									"key": "PinkCat",
+									"value": 1
+								}
+							],
+							"type": "MapProperty"
+						},
+						"PalCaptureBonusCount": {
+							"key_type": "NameProperty",
+							"value_type": "IntProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "Sheepball",
+									"value": 1
+								},
+								{
+									"key": "PinkCat",
+									"value": 1
+								}
+							],
+							"type": "MapProperty"
+						},
+						"PaldeckUnlockFlag": {
+							"key_type": "NameProperty",
+							"value_type": "BoolProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "Sheepball",
+									"value": true
+								},
+								{
+									"key": "PinkCat",
+									"value": true
+								}
+							],
+							"type": "MapProperty"
+						},
+						"PalCaptureBonusExpTableIndex": {
+							"id": null,
+							"value": 2,
+							"type": "IntProperty"
+						},
+						"RelicObtainForInstanceFlag": {
+							"key_type": "NameProperty",
+							"value_type": "BoolProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "F6974F26465A10C0BFC891962D02BE0D",
+									"value": true
+								}
+							],
+							"type": "MapProperty"
+						},
+						"RelicPossessNum": {
+							"id": null,
+							"value": 1,
+							"type": "IntProperty"
+						},
+						"NoteObtainForInstanceFlag": {
+							"key_type": "NameProperty",
+							"value_type": "BoolProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "Day1-1",
+									"value": true
+								},
+								{
+									"key": "Day2",
+									"value": true
+								}
+							],
+							"type": "MapProperty"
+						},
+						"FastTravelPointUnlockFlag": {
+							"key_type": "NameProperty",
+							"value_type": "BoolProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "6E03F8464BAD9E458B843AA30BE1CC8F",
+									"value": true
+								}
+							],
+							"type": "MapProperty"
+						},
+						"BuildingObjectMapObjectInstanceIds": {
+							"array_type": "StructProperty",
+							"id": null,
+							"value": {
+								"prop_name": "BuildingObjectMapObjectInstanceIds",
+								"prop_type": "StructProperty",
+								"values": [
+									"184b6be8-4200-794d-be50-fb9e676e9adf"
+								],
+								"type_name": "Guid",
+								"id": "00000000-0000-0000-0000-000000000000"
+							},
+							"type": "ArrayProperty"
+						},
+						"CraftItemCount": {
+							"key_type": "NameProperty",
+							"value_type": "IntProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "Bat",
+									"value": 1
+								},
+								{
+									"key": "Baked_Berries",
+									"value": 11
+								},
+								{
+									"key": "Axe_Tier_00",
+									"value": 1
+								},
+								{
+									"key": "PalSphere",
+									"value": 1
+								},
+								{
+									"key": "Pickaxe_Tier_00",
+									"value": 1
+								}
+							],
+							"type": "MapProperty"
+						},
+						"FindAreaFlagMap": {
+							"key_type": "NameProperty",
+							"value_type": "BoolProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "Grass_001",
+									"value": true
+								}
+							],
+							"type": "MapProperty"
+						},
+						"AreaBonusExpTableIndex": {
+							"id": null,
+							"value": 1,
+							"type": "IntProperty"
+						},
+						"NPCTalkCountMap": {
+							"key_type": "NameProperty",
+							"value_type": "IntProperty",
+							"key_struct_type": null,
+							"value_struct_type": null,
+							"id": null,
+							"value": [
+								{
+									"key": "904C55D64A3780944F2FA19BB427D8AF",
+									"value": 2
+								}
+							],
+							"type": "MapProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"SkinInventoryInfo": {
+					"struct_type": "PalSkinInventoryInfo",
+					"struct_id": "00000000-0000-0000-0000-000000000000",
+					"id": null,
+					"value": {
+						"InGameData": {
+							"array_type": "StructProperty",
+							"id": null,
+							"value": {
+								"prop_name": "InGameData",
+								"prop_type": "StructProperty",
+								"values": [
+									{
+										"SkinName": {
+											"id": null,
+											"value": "PinkCat_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "WeaselDragon_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "LazyDragon_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "SkyDragon_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "PlantSlime_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "Penguin_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "NegativeKoala_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "CatMage_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "JetDragon_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "WeaselDragon_Skin002",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "Anubis_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "IceHorse_Skin002",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "BlackGriffon_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "PinkCat_Skin003",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "KendoFrog_Skin001",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "WeaselDragon_Fire_Skin002",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "PinkCat_Skin004",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "WeaselDragon_Skin003",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "WeaselDragon_Fire_Skin003",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "LilyQueen_Skin002",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "LilyQueen_Dark_Skin002",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									},
+									{
+										"SkinName": {
+											"id": null,
+											"value": "WeaselDragon_Skin004",
+											"type": "NameProperty"
+										},
+										"Num": {
+											"id": null,
+											"value": 1,
+											"type": "IntProperty"
+										}
+									}
+								],
+								"type_name": "PalSkinInGameItemData",
+								"id": "00000000-0000-0000-0000-000000000000"
+							},
+							"type": "ArrayProperty"
+						}
+					},
+					"type": "StructProperty"
+				},
+				"OrderedQuestArray": {
+					"array_type": "StructProperty",
+					"id": null,
+					"value": {
+						"prop_name": "OrderedQuestArray",
+						"prop_type": "StructProperty",
+						"values": [
+							{
+								"QuestName": {
+									"id": null,
+									"value": "Main_CraftPalSphere",
+									"type": "NameProperty"
+								},
+								"BlockIndex": {
+									"id": null,
+									"value": 0,
+									"type": "IntProperty"
+								},
+								"IntegerMap": {
+									"key_type": "NameProperty",
+									"value_type": "IntProperty",
+									"key_struct_type": null,
+									"value_struct_type": null,
+									"id": null,
+									"value": [],
+									"type": "MapProperty"
+								},
+								"StringMap": {
+									"key_type": "NameProperty",
+									"value_type": "StrProperty",
+									"key_struct_type": null,
+									"value_struct_type": null,
+									"id": null,
+									"value": [],
+									"type": "MapProperty"
+								}
+							}
+						],
+						"type_name": "PalOrderedQuestSaveData",
+						"id": "00000000-0000-0000-0000-000000000000"
+					},
+					"type": "ArrayProperty"
+				},
+				"CompletedQuestArray": {
+					"array_type": "NameProperty",
+					"id": null,
+					"value": {
+						"values": [
+							"Main_UnlockFastTravel",
+							"Main_PickupWood",
+							"Main_GainStatus",
+							"Main_BuildWorkBench",
+							"Main_UnlockPalSphere",
+							"Main_CollectCrystal"
+						]
+					},
+					"type": "ArrayProperty"
+				}
+			},
+			"type": "StructProperty"
+		}
+	},
+	"trailer": "AAAAAA=="
+}
