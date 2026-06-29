@@ -1,4 +1,4 @@
-mod save_editor;
+pub mod save_editor;
 
 use std::process::Command;
 use save_editor::{PlayerInfo, InventoryItem};
