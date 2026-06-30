@@ -11,11 +11,4 @@ Only the latest release receives security fixes. Older versions are not maintain
 
 ## Reporting a Vulnerability
 
-**Do not open a public GitHub issue for security vulnerabilities.**
-
-Report security issues privately by emailing **ejaramillopalma@hotmail.com** with:
-- A description of the vulnerability
-- Steps to reproduce
-- Potential impact
-
-You can expect an acknowledgment within 72 hours and a fix or mitigation plan within 7 days depending on severity.
+Please report security issues or vulnerabilities by opening a GitHub Issue in the repository. We will review and address them as quickly as possible.
