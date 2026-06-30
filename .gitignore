@@ -35,3 +35,13 @@ skills-lock.json
 *.tmp.json
 Player_*.json
 Level.*.json
+
+# Project Plan
+plan_proyecto_palworld_tauri.md
+
+# Added by cargo
+
+/target
+oo2core_9_win64.dll
+out.txt
+
