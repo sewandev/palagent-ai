@@ -20,6 +20,12 @@
 
 ---
 
+> [!TIP]
+> **1-Click AI Installation (Zero-Touch)**
+> If you are using an AI assistant (like Claude Code, Antigravity CLI, Windsurf, Cursor, etc.), you don't need to install anything manually. Just copy-paste this prompt to your AI assistant:
+>
+> *"Download the latest release from `https://api.github.com/repos/sewandev/palsync-ai-liveagent/releases/latest`, run the setup command for `<your_cli_name>` (e.g., `antigravity-cli`, `vscode-copilot`, `cursor`, `windsurf`, etc.), and notify me when the PalSync MCP server is ready."*
+
 ## Installation & Setup
 
 ```bash
