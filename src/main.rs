@@ -1588,43 +1588,43 @@ fn find_chest_containers(level_bytes: &[u8]) -> Vec<([u8; 16], String, (i32, i32
 
                     let search_start = abs_idx.saturating_sub(2000);
                     let mut chest_type = "Chest/Storage".to_string();
-                        let map_obj_pat = b"MapObjectId\x00";
-                        if let Some(mo_offset) = level_bytes[search_start..abs_idx]
-                            .windows(map_obj_pat.len())
-                            .position(|w| w == map_obj_pat)
-                        {
-                            let mut temp_off = search_start + mo_offset + map_obj_pat.len();
-                            let t = read_string_at(level_bytes, &mut temp_off);
-                            if t == "StrProperty" || t == "NameProperty" {
-                                temp_off += 8;
-                                temp_off += 1;
-                                chest_type = read_string_at(level_bytes, &mut temp_off);
-                            }
+                    let map_obj_pat = b"MapObjectId\x00";
+                    if let Some(mo_offset) = level_bytes[search_start..abs_idx]
+                        .windows(map_obj_pat.len())
+                        .position(|w| w == map_obj_pat)
+                    {
+                        let mut temp_off = search_start + mo_offset + map_obj_pat.len();
+                        let t = read_string_at(level_bytes, &mut temp_off);
+                        if t == "StrProperty" || t == "NameProperty" {
+                            temp_off += 8;
+                            temp_off += 1;
+                            chest_type = read_string_at(level_bytes, &mut temp_off);
                         }
-
-                        let mut coords = (0, 0, 0);
-                        let trans_pat = b"translation\x00";
-                        if let Some(t_offset) = level_bytes[search_start..abs_idx + 1000]
-                            .windows(trans_pat.len())
-                            .position(|w| w == trans_pat)
-                        {
-                            let mut temp_off = search_start + t_offset + trans_pat.len();
-                            let t = read_string_at(level_bytes, &mut temp_off);
-                            if t == "StructProperty" {
-                                temp_off += 8;
-                                let st_type = read_string_at(level_bytes, &mut temp_off);
-                                if st_type == "Vector" {
-                                    temp_off += 16 + 1;
-                                    coords = extract_vector_coords(level_bytes, &mut temp_off);
-                                }
-                            }
-                        }
-
-                        results.push((guid, chest_type, coords));
                     }
+
+                    let mut coords = (0, 0, 0);
+                    let trans_pat = b"translation\x00";
+                    if let Some(t_offset) = level_bytes[search_start..abs_idx + 1000]
+                        .windows(trans_pat.len())
+                        .position(|w| w == trans_pat)
+                    {
+                        let mut temp_off = search_start + t_offset + trans_pat.len();
+                        let t = read_string_at(level_bytes, &mut temp_off);
+                        if t == "StructProperty" {
+                            temp_off += 8;
+                            let st_type = read_string_at(level_bytes, &mut temp_off);
+                            if st_type == "Vector" {
+                                temp_off += 16 + 1;
+                                coords = extract_vector_coords(level_bytes, &mut temp_off);
+                            }
+                        }
+                    }
+
+                    results.push((guid, chest_type, coords));
                 }
             }
         }
+    }
     results
 }
 
@@ -3534,11 +3534,339 @@ fn run_client_request(
     }
 }
 
+fn run_setup_antigravity() {
+    let home_dir = std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .unwrap_or_else(|_| "C:\\".to_string());
+
+    let current_exe =
+        std::env::current_exe().unwrap_or_else(|_| PathBuf::from("palsync-ai-liveagent.exe"));
+    let gemini_config_dir = Path::new(&home_dir).join(".gemini").join("config");
+
+    if let Err(e) = std::fs::create_dir_all(&gemini_config_dir) {
+        println!("Error creating Gemini config directory: {}", e);
+        std::process::exit(1);
+    }
+
+    let mcp_config_path = gemini_config_dir.join("mcp_config.json");
+    let mut mcp_config = if mcp_config_path.exists() {
+        let content = std::fs::read_to_string(&mcp_config_path).unwrap_or_default();
+        serde_json::from_str::<serde_json::Value>(&content)
+            .unwrap_or_else(|_| serde_json::json!({}))
+    } else {
+        serde_json::json!({})
+    };
+
+    if !mcp_config.is_object() {
+        mcp_config = serde_json::json!({});
+    }
+
+    if let Some(obj) = mcp_config.as_object_mut() {
+        let mcp_servers = obj
+            .entry("mcpServers")
+            .or_insert_with(|| serde_json::json!({}));
+        if let Some(servers_obj) = mcp_servers.as_object_mut() {
+            servers_obj.insert(
+                "palsync".to_string(),
+                serde_json::json!({
+                    "command": current_exe.to_string_lossy().replace("\\", "/"),
+                    "args": ["mcp"]
+                }),
+            );
+        }
+    }
+
+    if let Ok(json_str) = serde_json::to_string_pretty(&mcp_config) {
+        if let Err(e) = std::fs::write(&mcp_config_path, json_str) {
+            println!("Error writing mcp_config.json: {}", e);
+            std::process::exit(1);
+        }
+    }
+
+    let rule_content = "\n# PalSync Rules\nYou have access to PalSync telemetry and monitor tools via MCP.\nWhen the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palsync MCP tools to retrieve real-time data instead of guessing.\n";
+
+    let agents_md_path = gemini_config_dir.join("AGENTS.md");
+    let mut agents_content = if agents_md_path.exists() {
+        std::fs::read_to_string(&agents_md_path).unwrap_or_default()
+    } else {
+        String::new()
+    };
+    if !agents_content.contains("PalSync Rules") {
+        agents_content.push_str(rule_content);
+        let _ = std::fs::write(&agents_md_path, agents_content);
+    }
+
+    let gemini_md_path = Path::new(&home_dir).join(".gemini").join("GEMINI.md");
+    let mut gemini_content = if gemini_md_path.exists() {
+        std::fs::read_to_string(&gemini_md_path).unwrap_or_default()
+    } else {
+        String::new()
+    };
+    if !gemini_content.contains("PalSync Rules") {
+        gemini_content.push_str(rule_content);
+        let _ = std::fs::write(&gemini_md_path, gemini_content);
+    }
+
+    let skill_dir = gemini_config_dir.join("skills").join("palsync");
+    let _ = std::fs::create_dir_all(&skill_dir);
+    let skill_file_path = skill_dir.join("SKILL.md");
+    let skill_body = "---\nname: palsync\ndescription: Extract telemetry, stats, IVs, breeding combinations, and base camps from Palworld save files.\n---\n\n# PalSync Skill\n\nThis skill allows the agent to interact with the PalSync MCP server and query real-time Palworld statistics.\nUse the `palsync` tools when:\n- The user asks for the status of base camps or Palbox.\n- The user wants to analyze Pal IVs, stats, or passive skills.\n- The user requests breeding combinations.\n- The user needs to locate items in base chests.\n";
+    let _ = std::fs::write(&skill_file_path, skill_body);
+
+    println!("==================================================");
+    println!("   PALSYNC ANTIGRAVITY-CLI SETUP COMPLETED        ");
+    println!("==================================================");
+    println!(" MCP Config : {}", mcp_config_path.display());
+    println!(" Global Rule: {}", agents_md_path.display());
+    println!(" Skill File : {}", skill_file_path.display());
+    println!("==================================================");
+}
+
+fn run_mcp_loop(world_path: PathBuf) {
+    use std::io::{self, BufRead};
+    let stdin = io::stdin();
+    let mut handle = stdin.lock();
+    let mut line = String::new();
+
+    while let Ok(n) = handle.read_line(&mut line) {
+        if n == 0 {
+            break;
+        }
+        let line_trimmed = line.trim();
+        if line_trimmed.is_empty() {
+            line.clear();
+            continue;
+        }
+
+        if let Ok(req) = serde_json::from_str::<serde_json::Value>(line_trimmed) {
+            let id = req.get("id").cloned();
+            let method = req
+                .get("method")
+                .and_then(|m| m.as_str())
+                .unwrap_or_default();
+
+            match method {
+                "initialize" => {
+                    let resp = serde_json::json!({
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {
+                            "capabilities": {
+                                "tools": {}
+                            },
+                            "protocolVersion": "2024-11-05",
+                            "serverInfo": {
+                                "name": "palsync-ai-liveagent",
+                                "version": "0.1.0"
+                            }
+                        }
+                    });
+                    println!("{}", serde_json::to_string(&resp).unwrap());
+                }
+                "tools/list" => {
+                    let resp = serde_json::json!({
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {
+                            "tools": [
+                                {
+                                    "name": "query_time",
+                                    "description": "Get current in-game day, time, and cycle (day/night)",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                },
+                                {
+                                    "name": "query_settings",
+                                    "description": "Get server configuration and game difficulty settings",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                },
+                                {
+                                    "name": "search_chest",
+                                    "description": "Locate specific items across all base chests",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "query": {
+                                                "type": "string",
+                                                "description": "Item name to search (e.g. Berries, Wood)"
+                                            }
+                                        },
+                                        "required": ["query"]
+                                    }
+                                },
+                                {
+                                    "name": "query_breeding",
+                                    "description": "Analyze available gender combos and potential breeding offspring",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate breeding team"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "query_progress",
+                                    "description": "Check player notes found, fast travel unlocks, and capture progress",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate progress"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "monitor_pals",
+                                    "description": "Get real-time sanity (SAN), satiety (hunger), and HP levels of base/active Pals",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate monitored Pals"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "query_analyzer",
+                                    "description": "Analyze Pal talent IV stats (HP/Atk/Def bonuses) and passive skills",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate Pals"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "query_full",
+                                    "description": "Retrieve the complete world telemetry report including bases, players, and guilds",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate report details"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    });
+                    println!("{}", serde_json::to_string(&resp).unwrap());
+                }
+                "tools/call" => {
+                    let params = req
+                        .get("params")
+                        .cloned()
+                        .unwrap_or_else(|| serde_json::json!({}));
+                    let tool_name = params
+                        .get("name")
+                        .and_then(|n| n.as_str())
+                        .unwrap_or_default();
+                    let arguments = params
+                        .get("arguments")
+                        .cloned()
+                        .unwrap_or_else(|| serde_json::json!({}));
+
+                    let player_uid = arguments.get("player_uid").and_then(|u| u.as_str());
+                    let search_query = arguments
+                        .get("query")
+                        .and_then(|q| q.as_str())
+                        .unwrap_or_default();
+
+                    let text_result = match tool_name {
+                        "query_time" => execute_command_captured(&world_path, "time", false, None),
+                        "query_settings" => {
+                            execute_command_captured(&world_path, "settings", false, None)
+                        }
+                        "search_chest" => execute_command_captured(
+                            &world_path,
+                            &format!("search-chest:{}", search_query),
+                            false,
+                            None,
+                        ),
+                        "query_breeding" => {
+                            execute_command_captured(&world_path, "breeding", false, player_uid)
+                        }
+                        "query_progress" => {
+                            execute_command_captured(&world_path, "progress", false, player_uid)
+                        }
+                        "monitor_pals" => {
+                            execute_command_captured(&world_path, "monitor", false, player_uid)
+                        }
+                        "query_analyzer" => {
+                            execute_command_captured(&world_path, "analyzer", false, player_uid)
+                        }
+                        "query_full" => {
+                            execute_command_captured(&world_path, "full", false, player_uid)
+                        }
+                        _ => format!("Unknown tool: {}", tool_name),
+                    };
+
+                    let resp = serde_json::json!({
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": text_result
+                                }
+                            ]
+                        }
+                    });
+                    println!("{}", serde_json::to_string(&resp).unwrap());
+                }
+                _ => {
+                    if id.is_some() {
+                        let resp = serde_json::json!({
+                            "jsonrpc": "2.0",
+                            "id": id,
+                            "error": {
+                                "code": -32601,
+                                "message": format!("Method not found: {}", method)
+                            }
+                        });
+                        println!("{}", serde_json::to_string(&resp).unwrap());
+                    }
+                }
+            }
+        }
+
+        line.clear();
+    }
+}
+
 fn main() {
     i18n::init(i18n::detect_system_language());
 
     let args_list: Vec<String> = std::env::args().skip(1).collect();
     let is_json = args_list.iter().any(|arg| arg == "--json");
+
+    let has_setup_antigravity =
+        (args_list.len() >= 2 && args_list[0] == "setup" && args_list[1] == "antigravity-cli")
+            || args_list.iter().any(|arg| arg == "--setup-antigravity");
+    let has_mcp = args_list.iter().any(|arg| arg == "mcp" || arg == "--mcp");
+
+    if has_setup_antigravity {
+        run_setup_antigravity();
+        std::process::exit(0);
+    }
 
     let mut world_path_arg = None;
     let mut skip_next = false;
@@ -3684,6 +4012,31 @@ fn main() {
             is_json,
             player_uid_arg.as_deref(),
         );
+        std::process::exit(0);
+    }
+
+    // MCP Mode execution
+    if has_mcp {
+        let world_path = match world_path_arg {
+            Some(ref p) => PathBuf::from(p),
+            None => {
+                let worlds = get_all_detected_worlds();
+                if worlds.is_empty() {
+                    let err_json = serde_json::json!({
+                        "status": "error",
+                        "message": i18n::t("error_detect_save")
+                    });
+                    println!("{}", serde_json::to_string_pretty(&err_json).unwrap());
+                    std::process::exit(1);
+                }
+                if has_select_world {
+                    select_world_interactively(&worlds)
+                } else {
+                    worlds[0].0.clone()
+                }
+            }
+        };
+        run_mcp_loop(world_path);
         std::process::exit(0);
     }
 
