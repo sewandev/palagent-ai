@@ -1,12 +1,12 @@
 ---
-name: palsync
+name: palagent-ai
 description: Extract telemetry, stats, IVs, breeding combinations, and base camps from Palworld save files.
 ---
 
-# PalSync Skill
+# PalAgent AI Skill
 
-This skill allows the agent to interact with the PalSync MCP server and query real-time Palworld statistics.
-Use the `palsync` tools when:
+This skill allows the agent to interact with the PalAgent AI MCP server and query real-time Palworld statistics.
+Use the `palagent-ai` tools when:
 - The user asks for the status of base camps or Palbox.
 - The user wants to analyze Pal IVs, stats, or passive skills.
 - The user requests breeding combinations.

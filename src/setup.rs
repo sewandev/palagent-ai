@@ -28,7 +28,7 @@ pub fn inject_json_mcp(path: &Path, format: McpFormat, command: &str) {
                 let mcp_servers = obj.entry("mcp").or_insert_with(|| serde_json::json!({}));
                 if let Some(servers_obj) = mcp_servers.as_object_mut() {
                     servers_obj.insert(
-                        "palsync".to_string(),
+                        "palagent-ai".to_string(),
                         serde_json::json!({
                             "type": "local",
                             "command": [command, "mcp"],
@@ -43,7 +43,7 @@ pub fn inject_json_mcp(path: &Path, format: McpFormat, command: &str) {
                     .or_insert_with(|| serde_json::json!({}));
                 if let Some(servers_obj) = mcp_servers.as_object_mut() {
                     servers_obj.insert(
-                        "palsync".to_string(),
+                        "palagent-ai".to_string(),
                         serde_json::json!({
                             "type": "stdio",
                             "command": command,
@@ -58,7 +58,7 @@ pub fn inject_json_mcp(path: &Path, format: McpFormat, command: &str) {
                     .or_insert_with(|| serde_json::json!({}));
                 if let Some(servers_obj) = mcp_servers.as_object_mut() {
                     servers_obj.insert(
-                        "palsync".to_string(),
+                        "palagent-ai".to_string(),
                         serde_json::json!({
                             "command": command,
                             "args": ["mcp"]
@@ -84,8 +84,8 @@ pub fn inject_marker_block(path: &Path, content: &str) {
         String::new()
     };
 
-    let begin_marker = "<!-- BEGIN PALSYNC RULES — managed by palsync setup -->";
-    let end_marker = "<!-- END PALSYNC RULES -->";
+    let begin_marker = "<!-- BEGIN PALAGENT-AI RULES — managed by palagent-ai setup -->";
+    let end_marker = "<!-- END PALAGENT-AI RULES -->";
 
     let block = format!("{}\n{}\n{}", begin_marker, content.trim(), end_marker);
 
@@ -115,7 +115,7 @@ pub fn print_setup_complete(
     skill_file: Option<&Path>,
 ) {
     println!("==================================================");
-    println!("   PALSYNC {} SETUP COMPLETED", name.to_uppercase());
+    println!("   PALAGENT-AI {} SETUP COMPLETED", name.to_uppercase());
     println!("==================================================");
     println!(" Permanent Exe: {}", dest_exe.display());
     println!(" MCP Config   : {}", mcp_config.display());
@@ -135,13 +135,13 @@ pub fn run_setup(agent_slug: &str) {
 
     let current_exe = std::env::current_exe().unwrap_or_else(|_| PathBuf::from("palagent-ai.exe"));
 
-    let palsync_dir = home_path.join(".palagent-ai");
-    if let Err(e) = std::fs::create_dir_all(&palsync_dir) {
+    let palagent_dir = home_path.join(".palagent-ai");
+    if let Err(e) = std::fs::create_dir_all(&palagent_dir) {
         println!("Error creating PalAgent directory: {}", e);
         std::process::exit(1);
     }
 
-    let dest_exe = palsync_dir.join("palagent-ai.exe");
+    let dest_exe = palagent_dir.join("palagent-ai.exe");
     if current_exe != dest_exe {
         if let Err(e) = std::fs::copy(&current_exe, &dest_exe) {
             let warn_msg = format!("Could not copy executable to permanent folder: {}", e);
@@ -190,7 +190,7 @@ pub fn run_setup(agent_slug: &str) {
     }
 
     if let Some(dll_path) = found_dll_path {
-        let dest_dll = palsync_dir.join("oo2core_9_win64.dll");
+        let dest_dll = palagent_dir.join("oo2core_9_win64.dll");
         if let Err(e) = std::fs::copy(&dll_path, &dest_dll) {
             let warn_msg = format!(
                 "Could not copy oo2core_9_win64.dll to default folder: {}",
@@ -217,21 +217,21 @@ pub fn run_setup(agent_slug: &str) {
     let command_str = dest_exe.to_string_lossy().replace("\\", "/");
 
     let rule_content = r#"
-# PalSync Rules
-You have access to PalSync telemetry and monitor tools via MCP.
-When the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palsync MCP tools to retrieve real-time data instead of guessing.
+# PalAgent AI Rules
+You have access to PalAgent AI telemetry and monitor tools via MCP.
+When the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palagent-ai MCP tools to retrieve real-time data instead of guessing.
 Always verify the game version and perform live web searches on palworld.gg or wikis to keep your information up-to-date.
 "#;
 
     let skill_body = r#"---
-name: palsync
+name: palagent-ai
 description: Extract telemetry, stats, IVs, breeding combinations, and base camps from Palworld save files.
 ---
 
-# PalSync Skill
+# PalAgent AI Skill
 
-This skill allows the agent to interact with the PalSync MCP server and query real-time Palworld statistics.
-Use the `palsync` tools when:
+This skill allows the agent to interact with the PalAgent AI MCP server and query real-time Palworld statistics.
+Use the `palagent-ai` tools when:
 - The user asks for the status of base camps or Palbox.
 - The user wants to analyze Pal IVs, stats, or passive skills.
 - The user requests breeding combinations.
@@ -281,7 +281,7 @@ Use the `palsync` tools when:
             let gemini_md_path = home_path.join(".gemini").join("GEMINI.md");
             inject_marker_block(&gemini_md_path, rule_content);
 
-            let skill_dir = gemini_config_dir.join("skills").join("palsync");
+            let skill_dir = gemini_config_dir.join("skills").join("palagent-ai");
             std::fs::create_dir_all(&skill_dir).ok();
             std::fs::write(skill_dir.join("SKILL.md"), skill_body).ok();
 
@@ -304,7 +304,7 @@ Use the `palsync` tools when:
 
             let prompts_dir = vscode_user_dir.join("prompts");
             std::fs::create_dir_all(&prompts_dir).ok();
-            let instr_file = prompts_dir.join("palsync.instructions.md");
+            let instr_file = prompts_dir.join("palagent-ai.instructions.md");
             let copilot_body = format!("---\napplyTo: \"**\"\n---\n\n{}", rule_content);
             std::fs::write(&instr_file, copilot_body).ok();
 
@@ -325,7 +325,7 @@ Use the `palsync` tools when:
             let mcp_config_path = cursor_dir.join("mcp.json");
             inject_json_mcp(&mcp_config_path, McpFormat::Servers, &command_str);
 
-            let rule_file = cursor_dir.join("palsync-rules.md");
+            let rule_file = cursor_dir.join("palagent-ai-rules.md");
             let cursor_rules_body = format!("---\nalwaysApply: true\n---\n\n{}", rule_content);
             std::fs::write(&rule_file, cursor_rules_body).ok();
 
@@ -340,7 +340,7 @@ Use the `palsync` tools when:
 
             let memories_dir = codeium_dir.join("memories");
             std::fs::create_dir_all(&memories_dir).ok();
-            let rules_file = memories_dir.join("palsync-rules.md");
+            let rules_file = memories_dir.join("palagent-ai-rules.md");
             std::fs::write(&rules_file, rule_content).ok();
 
             print_setup_complete("Windsurf", &dest_exe, &mcp_config_path, &rules_file, None);
@@ -395,16 +395,16 @@ Use the `palsync` tools when:
                 String::new()
             };
 
-            if !content.contains("[mcp_servers.palsync]") {
+            if !content.contains("[mcp_servers.palagent-ai]") {
                 let toml_append = format!(
-                    "\n[mcp_servers.palsync]\ncommand = \"{}\"\nargs = [\"mcp\"]\n",
+                    "\n[mcp_servers.palagent-ai]\ncommand = \"{}\"\nargs = [\"mcp\"]\n",
                     command_str
                 );
                 content.push_str(&toml_append);
                 let _ = std::fs::write(&config_toml_path, content);
             }
 
-            let instr_file = codex_dir.join("palsync-instructions.md");
+            let instr_file = codex_dir.join("palagent-ai-instructions.md");
             std::fs::write(&instr_file, rule_content).ok();
 
             print_setup_complete("Codex", &dest_exe, &config_toml_path, &instr_file, None);
@@ -429,7 +429,7 @@ Use the `palsync` tools when:
             std::fs::create_dir_all(kiro_dir.join("settings")).ok();
             inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
 
-            let steering_file = kiro_dir.join("steering").join("palsync.md");
+            let steering_file = kiro_dir.join("steering").join("palagent-ai.md");
             std::fs::create_dir_all(kiro_dir.join("steering")).ok();
             std::fs::write(&steering_file, rule_content).ok();
 

@@ -1,10 +1,10 @@
-# PalSync Agent Integration & Setup
+# PalAgent AI Agent Integration & Setup
 
-This guide explains how to register the PalSync MCP server and its system instructions across various AI-native development interfaces and command-line agents.
+This guide explains how to register the PalAgent AI MCP server and its system instructions across various AI-native development interfaces and command-line agents.
 
 ## Automated Installation
 
-You can automatically set up PalSync for any supported agent using the following command:
+You can automatically set up PalAgent AI for any supported agent using the following command:
 
 ```bash
 palagent-ai.exe setup <agent-slug>
@@ -52,7 +52,7 @@ palagent-ai.exe setup vscode-copilot
 ```
 
 **MCP Configuration File**: `%APPDATA%/Code/User/mcp.json`  
-**Instructions Surface**: `%APPDATA%/Code/User/prompts/palsync.instructions.md`  
+**Instructions Surface**: `%APPDATA%/Code/User/prompts/palagent-ai.instructions.md`  
 **Format**: `servers` object  
 
 ---
@@ -65,7 +65,7 @@ palagent-ai.exe setup cursor
 ```
 
 **MCP Configuration File**: `~/.cursor/mcp.json`  
-**Instructions Surface**: `~/.cursor/palsync-rules.md`  
+**Instructions Surface**: `~/.cursor/palagent-ai-rules.md`  
 **Format**: `mcpServers` object  
 
 ---
@@ -129,7 +129,7 @@ palagent-ai.exe setup codex
 ```
 
 **MCP Configuration File**: `~/.codex/config.toml`  
-**Instructions Surface**: `~/.codex/palsync-instructions.md`  
+**Instructions Surface**: `~/.codex/palagent-ai-instructions.md`  
 **Format**: TOML Append  
 
 ---
@@ -155,7 +155,7 @@ palagent-ai.exe setup kiro
 ```
 
 **MCP Configuration File**: `~/.kiro/settings/mcp.json`  
-**Instructions Surface**: `~/.kiro/steering/palsync.md`  
+**Instructions Surface**: `~/.kiro/steering/palagent-ai.md`  
 **Format**: `mcpServers` object  
 
 ---

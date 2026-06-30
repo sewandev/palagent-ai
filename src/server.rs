@@ -117,7 +117,7 @@ pub fn start_host_server(world_path: PathBuf, port: u16, passcode: String) {
     };
 
     println!("==================================================");
-    println!("   PALSYNC TELEMETRY HOST SERVER RUNNING");
+    println!("   PALAGENT-AI TELEMETRY HOST SERVER RUNNING");
     println!("==================================================");
     println!(" Address  : {}", address);
     println!(" Passcode : {}", passcode);

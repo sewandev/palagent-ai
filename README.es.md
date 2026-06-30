@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">PalSync AI LiveAgent</h1>
+  <h1 align="center">PalAgent AI</h1>
 </p>
 
 <p align="center">Telemetría en tiempo real, monitoreo, cruces y buscador de inventario por CLI para Palworld.</p>
