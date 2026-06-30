@@ -23,11 +23,7 @@
 > [!TIP]
 > **Instalación fácil usando la misma IA (la IA hará todo por ti)**
 >
-> *1. Descarga la última versión lanzada desde `https://api.github.com/repos/sewandev/palagent-ai/releases/latest`.*
-> *2. Ejecuta el comando de configuración para `<name_cli>`.*
-> *3. Verifica que el servidor MCP palagent-ai esté listo.*
-> *4. Dile al usuario que debe reiniciar o recargar su CLI/IDE.*
-> *5. Informa al usuario que ya puede preguntar por sus estadísticas de Palworld directamente.*
+> Copia y pega el prompt de [INSTRUCTIONS.es.md](file:///C:/workspace/palsync-ai-liveagent/INSTRUCTIONS.es.md) directamente en tu asistente de IA.
 
 ## Instalación y Configuración
 
