@@ -161,3 +161,54 @@ pub fn log_message(level: &str, message: &str) {
         let _ = writeln!(file, "[{}] [{}] {}", timestamp, level, message);
     }
 }
+
+pub fn detect_local_player_uid() -> Result<(String, u64), String> {
+    let local_appdata = std::env::var("LOCALAPPDATA")
+        .unwrap_or_else(|_| {
+            let home = std::env::var("USERPROFILE").unwrap_or_else(|_| "C:\\".to_string());
+            format!("{}\\AppData\\Local", home)
+        });
+    let save_dir = std::path::Path::new(&local_appdata)
+        .join("Pal")
+        .join("Saved")
+        .join("SaveGames");
+
+    if !save_dir.exists() {
+        return Err(format!("No se encontró el directorio de guardado de Palworld en: {}", save_dir.display()));
+    }
+
+    let mut steam_ids = Vec::new();
+    if let Ok(entries) = std::fs::read_dir(&save_dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let path = entry.path();
+            if path.is_dir() {
+                if let Some(name) = path.file_name().and_then(|s| s.to_str()) {
+                    if name.len() == 17 && name.chars().all(|c| c.is_ascii_digit()) {
+                        if let Ok(steam_id) = name.parse::<u64>() {
+                            if steam_id >= 76561197960265728 {
+                                let modified = path.metadata()
+                                    .and_then(|m| m.modified())
+                                    .unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+                                steam_ids.push((steam_id, modified));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if steam_ids.is_empty() {
+        return Err("No se encontraron carpetas con SteamID válidos.".to_string());
+    }
+
+    steam_ids.sort_by(|a, b| b.1.cmp(&a.1));
+    let steam_id = steam_ids[0].0;
+
+    let account_id = steam_id - 76561197960265728;
+    let hex_str = format!("{:08X}", account_id);
+    let guid = format!("{}-0000-0000-0000-000000000000", hex_str);
+
+    Ok((guid, steam_id))
+}
+

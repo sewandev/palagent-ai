@@ -135,6 +135,7 @@ fn main() {
         .any(|arg| arg == "--list-worlds" || arg == "-l");
     let has_select_world = args_list.iter().any(|arg| arg == "--select-world");
     let has_host = args_list.iter().any(|arg| arg == "--host");
+    let has_local_uid = args_list.iter().any(|arg| arg == "local-uid" || arg == "--local-uid");
 
     let mut connect_arg = None;
     if let Some(pos) = args_list.iter().position(|arg| arg == "--connect") {
@@ -160,6 +161,13 @@ fn main() {
         }
     }
 
+    // Autodetect player UID if not provided and in client mode
+    if player_uid_arg.is_none() && connect_arg.is_some() {
+        if let Ok((guid, _)) = crate::utils::detect_local_player_uid() {
+            player_uid_arg = Some(guid);
+        }
+    }
+
     let mut port_val = 8212;
     if let Some(pos) = args_list.iter().position(|arg| arg == "--port") {
         if pos + 1 < args_list.len() {
@@ -177,6 +185,41 @@ fn main() {
         if pos + 1 < args_list.len() {
             search_chest_query = Some(args_list[pos + 1].clone());
         }
+    }
+
+    if has_local_uid {
+        match crate::utils::detect_local_player_uid() {
+            Ok((guid, steam_id)) => {
+                if is_json {
+                    println!(
+                        "{}",
+                        serde_json::json!({
+                            "status": "success",
+                            "player_uid": guid,
+                            "steam_id": steam_id.to_string()
+                        })
+                    );
+                } else {
+                    println!("Player UID : {}", guid);
+                    println!("Steam ID   : {}", steam_id);
+                }
+            }
+            Err(e) => {
+                if is_json {
+                    println!(
+                        "{}",
+                        serde_json::json!({
+                            "status": "error",
+                            "message": e
+                        })
+                    );
+                } else {
+                    println!("Error: {}", e);
+                }
+                std::process::exit(1);
+            }
+        }
+        std::process::exit(0);
     }
 
     if has_list_worlds {
