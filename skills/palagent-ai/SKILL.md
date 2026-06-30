@@ -40,3 +40,22 @@ Use the `palagent-ai` tools when:
 3. **Compare and Highlight Mismatches**:
    - Compare the user's running version against the latest official version.
    - If the user's version is outdated, notify them of the mismatch and explicitly list key content (such as new Pals, items, islands, or system changes) they are missing.
+
+## Context Window & Performance Optimization Policy
+
+1. **Avoid Full Server Dumps**:
+   - For Dedicated Servers or multiplayer worlds, the global save database contains data for all players and guilds.
+   - Do not invoke `query_full` (which lists all players, bases, and guilds) unless explicitly requested by the user. It can return massive JSON payloads that exceed context window limits or cause slower response times.
+
+2. **Isolate Queries with Player UID**:
+   - Always prefer targeted query tools: `monitor_pals`, `query_progress`, `query_analyzer`, and `query_breeding` using the optional `player_uid` argument.
+   - If the player's UID is unknown, perform a quick initial query or check their local save game filenames (`Players/<PlayerUID>.sav`) to find it.
+
+## Troubleshooting & Decompression Support Policy
+
+1. **Resolve Oodle DLL Missing Errors**:
+   - The save parser depends on `oo2core_9_win64.dll` for decompressed memory signature scanning.
+   - If the tools return a decompression failure or missing DLL error, guide the user to copy `oo2core_9_win64.dll` from their Palworld game directory (typically under `SteamApps/common/Palworld/Binaries/Win64/`) and place it next to their compiled `palagent-ai.exe` executable or in their user path.
+
+2. **Multiple Save Files Conflict**:
+   - If telemetry lists multiple detected game saves or fails to select one, instruct the user to run `palagent-ai.exe --list-worlds` to see all available saves or select one interactively using the `--select-world` flag.
