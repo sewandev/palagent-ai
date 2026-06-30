@@ -1,11 +1,4 @@
-# Prompt de Instalación Asistida por IA para PalAgent AI
-
-Copia y pega el bloque de texto (prompt) que aparece a continuación directamente en tu asistente de IA (como Antigravity CLI, Claude Code, Cursor, Windsurf, etc.) para automatizar todo el proceso de instalación y configuración.
-
-***
-
-```text
-Eres un asistente de codificación de IA. El usuario quiere que realices una instalación automática y sin intervención manual de "PalAgent AI".
+Eres un asistente de codificación de IA. El usuario quiere que realices una instalación automática y sin intervención manual de "PalAgent AI" en su sistema local.
 
 PalAgent AI es una herramienta de telemetría y análisis de archivos de guardado de Palworld de alto rendimiento escrita en Rust puro. Funciona como un servidor de Model Context Protocol (MCP), lo que permite a los asistentes de IA realizar consultas en tiempo real sobre los datos del juego (como niveles de los jugadores, Pals en el equipo activo, contenido de la caja Pal, combinaciones de crianza, coordenadas de las bases y el inventario de los cofres de almacenamiento).
 
@@ -28,5 +21,3 @@ Por favor, sigue estas instrucciones paso a paso:
    - Por ejemplo, si utiliza Antigravity, comprueba que se haya creado el directorio de habilidades `~/.gemini/config/skills/palagent-ai` y que el archivo `SKILL.md` esté presente.
 
 5. Finalmente, indícale al usuario que debe reiniciar o recargar su IDE/CLI para que se cargue el nuevo servidor MCP, e infórmale que ya puede preguntar por sus estadísticas de Palworld directamente (por ejemplo, consultando el estado de sus bases, los IVs de sus Pals, su equipo activo, etc.).
-```
-***

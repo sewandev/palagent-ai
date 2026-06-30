@@ -23,7 +23,8 @@
 > [!TIP]
 > **Easy installation using the AI itself (the AI will do everything for you)**
 >
-> Copy-paste the prompt from `https://raw.githubusercontent.com/sewandev/palagent-ai/main/INSTRUCTIONS.md` directly to your AI assistant.
+> Tell your AI assistant to read and follow the instructions at:
+> `https://raw.githubusercontent.com/sewandev/palagent-ai/main/INSTRUCTIONS.md`
 
 ## Installation & Setup
 

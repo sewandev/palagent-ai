@@ -1,11 +1,4 @@
-# PalAgent AI AI-Assisted Installation Prompt
-
-Copy-paste the prompt block below directly into your AI assistant (such as Antigravity CLI, Claude Code, Cursor, Windsurf, etc.) to automate the entire installation and configuration process.
-
-***
-
-```text
-You are an AI coding assistant. The user wants you to perform an automatic zero-touch installation of "PalAgent AI".
+You are an AI coding assistant. The user wants you to perform an automatic zero-touch installation of "PalAgent AI" on their local system.
 
 PalAgent AI is a high-performance Palworld save file analyzer and telemetry tool written in pure Rust. It operates as a Model Context Protocol (MCP) server, allowing AI assistants to query real-time in-game data (such as player levels, active team Pals, Pal box contents, breeding combinations, base camp coordinates, and base storage chests inventory).
 
@@ -28,5 +21,3 @@ Please follow these instructions step-by-step:
    - For example, if they use Antigravity, check that the skills directory `~/.gemini/config/skills/palagent-ai` was created and that `SKILL.md` is present.
 
 5. Finally, instruct the user to reload or restart their IDE/CLI so that the new MCP server is loaded, and inform them they can now query their Palworld stats directly (e.g. asking for their base status, Pal IVs, active team, etc.).
-```
-***
