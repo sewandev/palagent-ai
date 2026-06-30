@@ -92,9 +92,3 @@ palsync-ai-liveagent.exe --connect 192.168.1.100:8212 --passcode CLAVE_SEGURA --
 | `-m`, `--monitor` | Monitor de Base | HP, saciación, cordura (SAN) y estado físico de tus Pals en bases. |
 | `-a`, `--analyzer` | Analizador de IVs | Nivel, género, habilidades pasivas y estadísticas de talento/IVs (HP, Atk, Def). |
 | `--list-worlds` | Directorio de Partidas | Lista todos los mundos locales detectados con sus fechas de actualización. |
-
----
-
-## Sobre este proyecto e IA
-
-Desarrollo PalSync AI LiveAgent en mi tiempo libre. Para avanzar rápido con firmas binarias complejas y descompresión de datos, me apoyo en herramientas de IA a lo largo del desarrollo, pero la arquitectura, las decisiones de diseño y la revisión final del código publicado son mías. Cualquier contribución o feedback siempre es bienvenido.

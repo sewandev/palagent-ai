@@ -92,9 +92,3 @@ palsync-ai-liveagent.exe --connect 192.168.1.100:8212 --passcode MYPASSCODE --pl
 | `-m`, `--monitor` | Base Monitor | Real-time health, satiety, sanity, and status of your active Pals. |
 | `-a`, `--analyzer` | IV Analyzer | Deep dive into your Pals' levels, genders, passive skills, and IV stats (HP, Attack, Defense). |
 | `--list-worlds` | Save Directory | Lists all detected local save files with their modification dates. |
-
----
-
-## About this project & AI
-
-PalSync AI LiveAgent is built in my spare time. To move fast and handle complex binary decompression signatures, I lean on AI tools throughout development — but the architecture, design choices, and final code reviews are mine. Contributions and feedback are always welcome.
