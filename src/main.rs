@@ -3656,7 +3656,28 @@ fn print_setup_complete(
     println!("==================================================");
 }
 
+use std::io::Write;
+
+fn log_message(level: &str, message: &str) {
+    let home_dir = std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .unwrap_or_else(|_| "C:\\".to_string());
+    let log_dir = Path::new(&home_dir).join(".palagent-ai");
+    let _ = std::fs::create_dir_all(&log_dir);
+    let log_file_path = log_dir.join("palagent.log");
+
+    if let Ok(mut file) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&log_file_path)
+    {
+        let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
+        let _ = writeln!(file, "[{}] [{}] {}", timestamp, level, message);
+    }
+}
+
 fn run_setup(agent_slug: &str) {
+    log_message("INFO", &format!("Starting setup for agent: {}", agent_slug));
     let home_dir = std::env::var("USERPROFILE")
         .or_else(|_| std::env::var("HOME"))
         .unwrap_or_else(|_| "C:\\".to_string());
@@ -3673,15 +3694,16 @@ fn run_setup(agent_slug: &str) {
     let dest_exe = palsync_dir.join("palagent-ai.exe");
     if current_exe != dest_exe {
         if let Err(e) = std::fs::copy(&current_exe, &dest_exe) {
-            println!(
-                "Warning: Could not copy executable to permanent folder: {}",
-                e
-            );
+            let warn_msg = format!("Could not copy executable to permanent folder: {}", e);
+            log_message("WARNING", &warn_msg);
+            println!("Warning: {}", warn_msg);
         } else {
-            println!(
+            let log_msg = format!(
                 "Copied executable to permanent location: {}",
                 dest_exe.display()
             );
+            log_message("INFO", &log_msg);
+            println!("{}", log_msg);
         }
     }
 
@@ -3720,18 +3742,26 @@ fn run_setup(agent_slug: &str) {
     if let Some(dll_path) = found_dll_path {
         let dest_dll = palsync_dir.join("oo2core_9_win64.dll");
         if let Err(e) = std::fs::copy(&dll_path, &dest_dll) {
-            println!(
-                "Warning: Could not copy oo2core_9_win64.dll to default folder: {}",
+            let warn_msg = format!(
+                "Could not copy oo2core_9_win64.dll to default folder: {}",
                 e
             );
+            log_message("WARNING", &warn_msg);
+            println!("Warning: {}", warn_msg);
         } else {
-            println!(
+            let log_msg = format!(
                 "Copied oo2core_9_win64.dll to permanent location: {}",
                 dest_dll.display()
             );
+            log_message("INFO", &log_msg);
+            println!("{}", log_msg);
         }
     } else {
-        println!("Warning: oo2core_9_win64.dll not found in standard paths. You might need to place it manually.");
+        let warn_msg =
+            "oo2core_9_win64.dll not found in standard paths. You might need to place it manually."
+                .to_string();
+        log_message("WARNING", &warn_msg);
+        println!("Warning: {}", warn_msg);
     }
 
     let command_str = dest_exe.to_string_lossy().replace("\\", "/");
