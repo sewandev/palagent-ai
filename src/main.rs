@@ -8,7 +8,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 thread_local! {
-    static OUTPUT_BUFFER: std::cell::RefCell<Option<String>> = std::cell::RefCell::new(None);
+    static OUTPUT_BUFFER: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
 }
 
 macro_rules! print {
@@ -1300,7 +1300,7 @@ fn scan_guilds(bytes: &[u8]) -> Vec<GuildSummary> {
     while let Some(pos) = find_pattern(bytes, pattern, last_pos) {
         last_pos = pos + pattern.len();
 
-        let window_start = if pos >= 500 { pos - 500 } else { 0 };
+        let window_start = pos.saturating_sub(500);
         let window_end = (pos + 4000).min(bytes.len());
         let window = &bytes[window_start..window_end];
 
@@ -1407,7 +1407,7 @@ fn get_all_detected_worlds() -> Vec<(PathBuf, std::time::SystemTime)> {
             }
         }
     }
-    valid_worlds.sort_by(|a, b| b.1.cmp(&a.1));
+    valid_worlds.sort_by_key(|b| std::cmp::Reverse(b.1));
     valid_worlds
 }
 
@@ -1649,8 +1649,8 @@ fn clean_seeds_in_bytes(bytes: &mut [u8]) -> Vec<(String, u32)> {
             offset += 8;
             let elem_type = read_string_at(bytes, &mut offset);
             offset += 1;
-            if elem_type == "ByteProperty" {
-                if offset + 4 <= bytes.len() {
+            if elem_type == "ByteProperty"
+                && offset + 4 <= bytes.len() {
                     let count = u32::from_le_bytes([
                         bytes[offset],
                         bytes[offset + 1],
@@ -1694,7 +1694,6 @@ fn clean_seeds_in_bytes(bytes: &mut [u8]) -> Vec<(String, u32)> {
                         }
                     }
                 }
-            }
         }
     }
     cleaned
@@ -1769,7 +1768,7 @@ fn run_time_command(world_path: &Path, is_json: bool) {
     let remaining_ticks = remaining_ticks % ticks_per_hour;
     let minute = remaining_ticks / ticks_per_minute;
 
-    let is_day = hour >= 6 && hour < 20;
+    let is_day = (6..20).contains(&hour);
 
     if is_json {
         let out_json = serde_json::json!({
@@ -2281,7 +2280,7 @@ fn run_progress_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                     "pal_name": i18n::t(&pal_id),
                     "captured_count": count,
                     "bonus_completed": count >= 10,
-                    "missing_for_bonus": if count >= 10 { 0 } else { 10 - count }
+                    "missing_for_bonus": 10_u32.saturating_sub(count)
                 })
             })
             .collect();
@@ -2336,7 +2335,7 @@ fn run_progress_command(world_path: &Path, is_json: bool, target_uid: Option<&st
             println!(" {}", i18n::t("no_captures_yet"));
         } else {
             let mut captures_sorted: Vec<(String, u32)> = captures.into_iter().collect();
-            captures_sorted.sort_by(|a, b| i18n::t(&a.0).cmp(&i18n::t(&b.0)));
+            captures_sorted.sort_by_key(|a| i18n::t(&a.0));
 
             for (pal_id, count) in captures_sorted {
                 let translated_name = i18n::t(&pal_id);
@@ -3287,7 +3286,7 @@ fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&str>) 
     let output = OutputJson {
         status: "success".to_string(),
         world_path: world_path.to_string_lossy().into_owned(),
-        game_mode: detect_game_mode(&world_path),
+        game_mode: detect_game_mode(world_path),
         players,
         base_camps,
         guilds,
@@ -3401,7 +3400,7 @@ fn handle_host_connection(mut stream: std::net::TcpStream, world_path: &Path, pa
     let is_json = params.get("is_json").copied().unwrap_or("false") == "true";
     let target_uid = params.get("uid").copied().map(|s| s.to_string());
 
-    let result = execute_command_captured(world_path, &cmd, is_json, target_uid.as_deref());
+    let result = execute_command_captured(world_path, cmd, is_json, target_uid.as_deref());
     send_http_response(&mut stream, "200 OK", "text/plain; charset=utf-8", &result);
 }
 
@@ -3422,14 +3421,12 @@ fn start_host_server(world_path: PathBuf, port: u16, passcode: String) {
     println!(" Passcode : {}", passcode);
     println!("==================================================");
 
-    for stream in listener.incoming() {
-        if let Ok(stream) = stream {
-            let world_path_clone = world_path.clone();
-            let passcode_clone = passcode.clone();
-            std::thread::spawn(move || {
-                handle_host_connection(stream, &world_path_clone, &passcode_clone);
-            });
-        }
+    for stream in listener.incoming().flatten() {
+        let world_path_clone = world_path.clone();
+        let passcode_clone = passcode.clone();
+        std::thread::spawn(move || {
+            handle_host_connection(stream, &world_path_clone, &passcode_clone);
+        });
     }
 }
 
