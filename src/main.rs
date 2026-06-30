@@ -3662,16 +3662,15 @@ fn run_setup(agent_slug: &str) {
         .unwrap_or_else(|_| "C:\\".to_string());
     let home_path = Path::new(&home_dir);
 
-    let current_exe =
-        std::env::current_exe().unwrap_or_else(|_| PathBuf::from("palsync-ai-liveagent.exe"));
+    let current_exe = std::env::current_exe().unwrap_or_else(|_| PathBuf::from("palagent-ai.exe"));
 
-    let palsync_dir = home_path.join(".palsync");
+    let palsync_dir = home_path.join(".palagent-ai");
     if let Err(e) = std::fs::create_dir_all(&palsync_dir) {
-        println!("Error creating PalSync directory: {}", e);
+        println!("Error creating PalAgent directory: {}", e);
         std::process::exit(1);
     }
 
-    let dest_exe = palsync_dir.join("palsync-ai-liveagent.exe");
+    let dest_exe = palsync_dir.join("palagent-ai.exe");
     if current_exe != dest_exe {
         if let Err(e) = std::fs::copy(&current_exe, &dest_exe) {
             println!(
@@ -3976,7 +3975,7 @@ fn run_mcp_loop(world_path: PathBuf) {
                             },
                             "protocolVersion": "2024-11-05",
                             "serverInfo": {
-                                "name": "palsync-ai-liveagent",
+                                "name": "palagent-ai",
                                 "version": "0.1.0"
                             }
                         }

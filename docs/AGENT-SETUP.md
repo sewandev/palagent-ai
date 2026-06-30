@@ -7,7 +7,7 @@ This guide explains how to register the PalSync MCP server and its system instru
 You can automatically set up PalSync for any supported agent using the following command:
 
 ```bash
-palsync-ai-liveagent.exe setup <agent-slug>
+palagent-ai.exe setup <agent-slug>
 ```
 
 Replace `<agent-slug>` with one of the supported agents listed below.
@@ -35,7 +35,7 @@ Replace `<agent-slug>` with one of the supported agents listed below.
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup antigravity-cli
+palagent-ai.exe setup antigravity-cli
 ```
 
 **MCP Configuration File**: `~/.gemini/config/mcp_config.json`  
@@ -48,7 +48,7 @@ palsync-ai-liveagent.exe setup antigravity-cli
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup vscode-copilot
+palagent-ai.exe setup vscode-copilot
 ```
 
 **MCP Configuration File**: `%APPDATA%/Code/User/mcp.json`  
@@ -61,7 +61,7 @@ palsync-ai-liveagent.exe setup vscode-copilot
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup cursor
+palagent-ai.exe setup cursor
 ```
 
 **MCP Configuration File**: `~/.cursor/mcp.json`  
@@ -74,7 +74,7 @@ palsync-ai-liveagent.exe setup cursor
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup windsurf
+palagent-ai.exe setup windsurf
 ```
 
 **MCP Configuration File**: `~/.codeium/windsurf/mcp_config.json`  
@@ -87,7 +87,7 @@ palsync-ai-liveagent.exe setup windsurf
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup opencode
+palagent-ai.exe setup opencode
 ```
 
 **MCP Configuration File**: `~/.config/opencode/opencode.json`  
@@ -100,7 +100,7 @@ palsync-ai-liveagent.exe setup opencode
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup claude-code
+palagent-ai.exe setup claude-code
 ```
 
 **MCP Configuration File**: `~/.claude/settings.json`  
@@ -112,7 +112,7 @@ palsync-ai-liveagent.exe setup claude-code
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup gemini-cli
+palagent-ai.exe setup gemini-cli
 ```
 
 **MCP Configuration File**: `~/.gemini/settings.json`  
@@ -125,7 +125,7 @@ palsync-ai-liveagent.exe setup gemini-cli
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup codex
+palagent-ai.exe setup codex
 ```
 
 **MCP Configuration File**: `~/.codex/config.toml`  
@@ -138,7 +138,7 @@ palsync-ai-liveagent.exe setup codex
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup qwen
+palagent-ai.exe setup qwen
 ```
 
 **MCP Configuration File**: `~/.qwen/settings.json`  
@@ -151,7 +151,7 @@ palsync-ai-liveagent.exe setup qwen
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup kiro
+palagent-ai.exe setup kiro
 ```
 
 **MCP Configuration File**: `~/.kiro/settings/mcp.json`  
@@ -164,7 +164,7 @@ palsync-ai-liveagent.exe setup kiro
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup pi
+palagent-ai.exe setup pi
 ```
 
 **MCP Configuration File**: `~/.pi/config/mcp.json`  
@@ -176,7 +176,7 @@ palsync-ai-liveagent.exe setup pi
 
 To set up automatically:
 ```bash
-palsync-ai-liveagent.exe setup kilocode
+palagent-ai.exe setup kilocode
 ```
 
 **MCP Configuration File**: `~/.config/kilo/opencode.json`  
