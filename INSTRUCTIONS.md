@@ -13,6 +13,9 @@ Please follow these instructions step-by-step:
        - The security Passcode configured on the host.
        - The player's private Player UID (e.g. `00000000-0000-0000-0000-000000000001`).
        - *Note*: Remind them that the remote host must have `palagent-ai` running in `--host` mode for this connection to work.
+       - *How to get the Player UID*: If the user does not know their Player UID, you can find it automatically by first running a client query to the host without a UID:
+         `palagent-ai.exe --connect <HOST_IP_PORT> --passcode <PASSCODE>`
+         This will return the full player list. Find the user's nickname in the list and extract their Player UID. Alternatively, they can ask the server administrator.
 
 2. Once you have the answers, download the latest release binary `palagent-ai.exe` from the official repository:
    - Check the GitHub API at: https://api.github.com/repos/sewandev/palagent-ai/releases/latest
