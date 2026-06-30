@@ -21,10 +21,13 @@
 ---
 
 > [!TIP]
-> **Instalación con IA en 1-Clic (Sin fricción)**
-> Si estás utilizando un asistente de IA (como Claude Code, Antigravity CLI, Windsurf, Cursor, etc.), no necesitas instalar nada manualmente. Simplemente copia y pega esta instrucción en el chat de tu asistente de IA:
+> **Instalación fácil usando la misma IA (la IA hará todo por ti)**
 >
-> *"Descarga la última versión lanzada (release) desde `https://api.github.com/repos/sewandev/palagent-ai/releases/latest`, instala el agente de PalSync para mi CLI de desarrollo actual (por ejemplo: `antigravity-cli`, `vscode-copilot`, `cursor`, `windsurf`, etc.) y avísame cuando el servidor MCP esté listo."*
+> *1. Descarga la última versión lanzada desde `https://api.github.com/repos/sewandev/palagent-ai/releases/latest`.*
+> *2. Ejecuta el comando de configuración para `<name_cli>`.*
+> *3. Verifica que el servidor MCP palagent-ai esté listo.*
+> *4. Dile al usuario que debe reiniciar o recargar su CLI/IDE.*
+> *5. Informa al usuario que ya puede preguntar por sus estadísticas de Palworld directamente.*
 
 ## Instalación y Configuración
 

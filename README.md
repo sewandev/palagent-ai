@@ -21,10 +21,13 @@
 ---
 
 > [!TIP]
-> **1-Click AI Installation (Zero-Touch)**
-> If you are using an AI assistant (like Claude Code, Antigravity CLI, Windsurf, Cursor, etc.), you don't need to install anything manually. Just copy-paste this prompt to your AI assistant:
+> **Easy installation using the AI itself (the AI will do everything for you)**
 >
-> *"Download the latest release from `https://api.github.com/repos/sewandev/palagent-ai/releases/latest`, run the setup command for `<your_cli_name>` (e.g., `antigravity-cli`, `vscode-copilot`, `cursor`, `windsurf`, etc.), and notify me when the PalSync MCP server is ready."*
+> *1. Download the latest release from `https://api.github.com/repos/sewandev/palagent-ai/releases/latest`.*
+> *2. Run the setup command for `<name_cli>`.*
+> *3. Verify that the palagent-ai MCP server is ready.*
+> *4. Tell the user to restart or reload their CLI/IDE.*
+> *5. Inform the user they can now ask about their Palworld stats directly.*
 
 ## Installation & Setup
 
