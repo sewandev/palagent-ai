@@ -1,8 +1,11 @@
-use crate::server::execute_command_captured;
+use crate::server::{execute_command_captured, execute_command_remote};
 use std::io::{self, BufRead};
 use std::path::PathBuf;
 
-pub fn run_mcp_loop(world_path: PathBuf) {
+pub fn run_mcp_loop(
+    world_path: Option<PathBuf>,
+    client_conn: Option<(String, String, Option<String>)>,
+) {
     let stdin = io::stdin();
     let mut handle = stdin.lock();
     let mut line = String::new();
@@ -168,33 +171,54 @@ pub fn run_mcp_loop(world_path: PathBuf) {
                         .and_then(|q| q.as_str())
                         .unwrap_or_default();
 
-                    let text_result = match tool_name {
-                        "query_time" => execute_command_captured(&world_path, "time", false, None),
-                        "query_settings" => {
-                            execute_command_captured(&world_path, "settings", false, None)
+                    let text_result = if let Some((host, passcode, default_uid)) = &client_conn {
+                        let target_uid = player_uid.or(default_uid.as_deref());
+                        let cmd = match tool_name {
+                            "query_time" => "time".to_string(),
+                            "query_settings" => "settings".to_string(),
+                            "search_chest" => format!("search-chest:{}", search_query),
+                            "query_breeding" => "breeding".to_string(),
+                            "query_progress" => "progress".to_string(),
+                            "monitor_pals" => "monitor".to_string(),
+                            "query_analyzer" => "analyzer".to_string(),
+                            "query_full" => "full".to_string(),
+                            _ => "".to_string(),
+                        };
+                        if cmd.is_empty() {
+                            format!("Unknown tool: {}", tool_name)
+                        } else {
+                            execute_command_remote(host, passcode, &cmd, target_uid)
                         }
-                        "search_chest" => execute_command_captured(
-                            &world_path,
-                            &format!("search-chest:{}", search_query),
-                            false,
-                            None,
-                        ),
-                        "query_breeding" => {
-                            execute_command_captured(&world_path, "breeding", false, player_uid)
+                    } else {
+                        let path = world_path.as_ref().unwrap();
+                        match tool_name {
+                            "query_time" => execute_command_captured(path, "time", false, None),
+                            "query_settings" => {
+                                execute_command_captured(path, "settings", false, None)
+                            }
+                            "search_chest" => execute_command_captured(
+                                path,
+                                &format!("search-chest:{}", search_query),
+                                false,
+                                None,
+                            ),
+                            "query_breeding" => {
+                                execute_command_captured(path, "breeding", false, player_uid)
+                            }
+                            "query_progress" => {
+                                execute_command_captured(path, "progress", false, player_uid)
+                            }
+                            "monitor_pals" => {
+                                execute_command_captured(path, "monitor", false, player_uid)
+                            }
+                            "query_analyzer" => {
+                                execute_command_captured(path, "analyzer", false, player_uid)
+                            }
+                            "query_full" => {
+                                execute_command_captured(path, "full", false, player_uid)
+                            }
+                            _ => format!("Unknown tool: {}", tool_name),
                         }
-                        "query_progress" => {
-                            execute_command_captured(&world_path, "progress", false, player_uid)
-                        }
-                        "monitor_pals" => {
-                            execute_command_captured(&world_path, "monitor", false, player_uid)
-                        }
-                        "query_analyzer" => {
-                            execute_command_captured(&world_path, "analyzer", false, player_uid)
-                        }
-                        "query_full" => {
-                            execute_command_captured(&world_path, "full", false, player_uid)
-                        }
-                        _ => format!("Unknown tool: {}", tool_name),
                     };
 
                     let resp = serde_json::json!({

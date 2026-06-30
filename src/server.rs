@@ -232,3 +232,51 @@ pub fn run_client_request(
         std::process::exit(1);
     }
 }
+
+pub fn execute_command_remote(
+    host_ip_port: &str,
+    passcode: &str,
+    cmd: &str,
+    uid: Option<&str>,
+) -> String {
+    let mut stream = match std::net::TcpStream::connect(host_ip_port) {
+        Ok(s) => s,
+        Err(e) => return format!("Error: Could not connect to host {}: {}", host_ip_port, e),
+    };
+
+    let mut request_path = format!("/api/command?cmd={}&passcode={}", cmd, passcode);
+    request_path.push_str("&is_json=true");
+    if let Some(u) = uid {
+        request_path.push_str(&format!("&uid={}", u));
+    }
+
+    let request = format!(
+        "GET {} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n",
+        request_path, host_ip_port
+    );
+
+    use std::io::Write;
+    if let Err(e) = stream.write_all(request.as_bytes()) {
+        return format!("Error: Failed to send request: {}", e);
+    }
+
+    let mut response = Vec::new();
+    if let Err(e) = stream.read_to_end(&mut response) {
+        return format!("Error: Failed to read response: {}", e);
+    }
+
+    let response_str = String::from_utf8_lossy(&response);
+    if let Some(body_pos) = response_str.find("\r\n\r\n") {
+        let status_line = response_str.lines().next().unwrap_or("");
+        let body = &response_str[body_pos + 4..];
+        if status_line.contains("200 OK") {
+            body.to_string()
+        } else if status_line.contains("403 Forbidden") {
+            "Error: Access Denied: Invalid passcode.".to_string()
+        } else {
+            format!("Error: Server returned error: {}", status_line)
+        }
+    } else {
+        "Error: Invalid response format from host.".to_string()
+    }
+}

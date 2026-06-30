@@ -6,7 +6,13 @@ Please follow these instructions step-by-step:
 
 1. FIRST, ask the user the following clarifying questions in their preferred language (defaulting to the language they are using to speak to you):
    - Ask which AI developer CLI/IDE client they are using (supported clients: antigravity-cli, vscode-copilot, cursor, windsurf, opencode, claude-code, gemini-cli, codex, qwen, kiro, pi, kilocode).
-   - Ask if they currently have Palworld installed on Windows and if they have at least one active game save/world.
+   - Ask what running mode they need:
+     * **Singleplayer / Co-op Host (Local)**: The save files are on this local machine.
+     * **Dedicated Server / Multiplayer Client (Remote)**: They connect to a remote host machine. If they choose this, ask for:
+       - The Host's IP and port (e.g. `192.168.1.100:8212`).
+       - The security Passcode configured on the host.
+       - The player's private Player UID (e.g. `00000000-0000-0000-0000-000000000001`).
+       - *Note*: Remind them that the remote host must have `palagent-ai` running in `--host` mode for this connection to work.
 
 2. Once you have the answers, download the latest release binary `palagent-ai.exe` from the official repository:
    - Check the GitHub API at: https://api.github.com/repos/sewandev/palagent-ai/releases/latest
@@ -17,7 +23,13 @@ Please follow these instructions step-by-step:
    - For example, if they use Cursor: `palagent-ai.exe setup cursor`
    - Wait for the setup to complete and inspect the console output.
 
-4. Verify that the MCP server configurations and skills are correctly installed.
-   - For example, if they use Antigravity, check that the skills directory `~/.gemini/config/skills/palagent-ai` was created and that `SKILL.md` is present.
+4. Configure the MCP arguments:
+   - For **Local Mode**, setup configures this automatically.
+   - For **Remote Client Mode**, modify the registered MCP configuration file. You must add the arguments to connect to the remote host. For example:
+     `"args": ["mcp", "--connect", "<HOST_IP_PORT>", "--passcode", "<PASSCODE>", "--player-uid", "<PLAYER_UID>"]`
+     Verify that the configuration file (e.g. `mcp.json` or `mcp_config.json` depending on their client) is correctly updated.
 
-5. Finally, instruct the user to reload or restart their IDE/CLI so that the new MCP server is loaded. At the same time, suggest concrete test queries for them to try as soon as they reload (such as asking for their character nickname, their active world/save name, the first 5 slots of their backpack, or their highest-level Pal) so they can verify the installation is working correctly.
+5. Verify that the MCP server configurations and skills are correctly installed.
+   - Check that the skills directory `~/.gemini/config/skills/palagent-ai` (for Antigravity) was created and that `SKILL.md` is present.
+
+6. Finally, instruct the user to reload or restart their IDE/CLI so that the new MCP server is loaded. At the same time, suggest concrete test queries for them to try as soon as they reload (such as asking for their character nickname, their active world name, the first 5 slots of their backpack, or their highest-level Pal) so they can verify the installation is working correctly.

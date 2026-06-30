@@ -203,40 +203,45 @@ fn main() {
         std::process::exit(0);
     }
 
-    // Client Mode connection
+    // Client Mode connection / MCP Client Mode
     if let Some(ref connect_host) = connect_arg {
         let passcode = passcode_arg.unwrap_or_default();
-        let cmd = if has_time {
-            "time"
-        } else if has_settings {
-            "settings"
-        } else if let Some(ref q) = search_chest_query {
-            &format!("search-chest:{}", q)
-        } else if has_breeding {
-            "breeding"
-        } else if has_progress {
-            "progress"
-        } else if has_clean_seeds {
-            "clean-seeds"
-        } else if has_monitor {
-            "monitor"
-        } else if has_analyzer {
-            "analyzer"
+        if has_mcp {
+            run_mcp_loop(None, Some((connect_host.clone(), passcode, player_uid_arg)));
+            std::process::exit(0);
         } else {
-            "full"
-        };
+            let cmd = if has_time {
+                "time"
+            } else if has_settings {
+                "settings"
+            } else if let Some(ref q) = search_chest_query {
+                &format!("search-chest:{}", q)
+            } else if has_breeding {
+                "breeding"
+            } else if has_progress {
+                "progress"
+            } else if has_clean_seeds {
+                "clean-seeds"
+            } else if has_monitor {
+                "monitor"
+            } else if has_analyzer {
+                "analyzer"
+            } else {
+                "full"
+            };
 
-        run_client_request(
-            connect_host,
-            &passcode,
-            cmd,
-            is_json,
-            player_uid_arg.as_deref(),
-        );
-        std::process::exit(0);
+            run_client_request(
+                connect_host,
+                &passcode,
+                cmd,
+                is_json,
+                player_uid_arg.as_deref(),
+            );
+            std::process::exit(0);
+        }
     }
 
-    // MCP Mode execution
+    // MCP Mode execution (Local)
     if has_mcp {
         let world_path = match world_path_arg {
             Some(ref p) => PathBuf::from(p),
@@ -257,7 +262,7 @@ fn main() {
                 }
             }
         };
-        run_mcp_loop(world_path);
+        run_mcp_loop(Some(world_path), None);
         std::process::exit(0);
     }
 
