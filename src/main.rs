@@ -3530,31 +3530,152 @@ fn run_client_request(
     }
 }
 
-fn run_setup_antigravity() {
+enum McpFormat {
+    McpServers,
+    Servers,
+    Opencode,
+}
+
+fn inject_json_mcp(path: &Path, format: McpFormat, command: &str) {
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).ok();
+    }
+    let mut mcp_config = if path.exists() {
+        let content = std::fs::read_to_string(path).unwrap_or_default();
+        serde_json::from_str::<serde_json::Value>(&content)
+            .unwrap_or_else(|_| serde_json::json!({}))
+    } else {
+        serde_json::json!({})
+    };
+
+    if !mcp_config.is_object() {
+        mcp_config = serde_json::json!({});
+    }
+
+    if let Some(obj) = mcp_config.as_object_mut() {
+        match format {
+            McpFormat::Opencode => {
+                let mcp_servers = obj.entry("mcp").or_insert_with(|| serde_json::json!({}));
+                if let Some(servers_obj) = mcp_servers.as_object_mut() {
+                    servers_obj.insert(
+                        "palsync".to_string(),
+                        serde_json::json!({
+                            "type": "local",
+                            "command": [command, "mcp"],
+                            "enabled": true
+                        }),
+                    );
+                }
+            }
+            McpFormat::Servers => {
+                let mcp_servers = obj
+                    .entry("servers")
+                    .or_insert_with(|| serde_json::json!({}));
+                if let Some(servers_obj) = mcp_servers.as_object_mut() {
+                    servers_obj.insert(
+                        "palsync".to_string(),
+                        serde_json::json!({
+                            "type": "stdio",
+                            "command": command,
+                            "args": ["mcp"]
+                        }),
+                    );
+                }
+            }
+            McpFormat::McpServers => {
+                let mcp_servers = obj
+                    .entry("mcpServers")
+                    .or_insert_with(|| serde_json::json!({}));
+                if let Some(servers_obj) = mcp_servers.as_object_mut() {
+                    servers_obj.insert(
+                        "palsync".to_string(),
+                        serde_json::json!({
+                            "command": command,
+                            "args": ["mcp"]
+                        }),
+                    );
+                }
+            }
+        }
+    }
+
+    if let Ok(json_str) = serde_json::to_string_pretty(&mcp_config) {
+        let _ = std::fs::write(path, json_str);
+    }
+}
+
+fn inject_marker_block(path: &Path, content: &str) {
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).ok();
+    }
+    let mut file_content = if path.exists() {
+        std::fs::read_to_string(path).unwrap_or_default()
+    } else {
+        String::new()
+    };
+
+    let begin_marker = "<!-- BEGIN PALSYNC RULES — managed by palsync setup -->";
+    let end_marker = "<!-- END PALSYNC RULES -->";
+
+    let block = format!("{}\n{}\n{}", begin_marker, content.trim(), end_marker);
+
+    if file_content.contains(begin_marker) {
+        if let Some(start) = file_content.find(begin_marker) {
+            if let Some(end) = file_content.find(end_marker) {
+                let actual_end = end + end_marker.len();
+                file_content.replace_range(start..actual_end, &block);
+            }
+        }
+    } else {
+        if !file_content.is_empty() && !file_content.ends_with('\n') {
+            file_content.push('\n');
+        }
+        file_content.push_str(&block);
+        file_content.push('\n');
+    }
+
+    let _ = std::fs::write(path, file_content);
+}
+
+fn print_setup_complete(
+    name: &str,
+    dest_exe: &Path,
+    mcp_config: &Path,
+    rules_file: &Path,
+    skill_file: Option<&Path>,
+) {
+    println!("==================================================");
+    println!("   PALSYNC {} SETUP COMPLETED", name.to_uppercase());
+    println!("==================================================");
+    println!(" Permanent Exe: {}", dest_exe.display());
+    println!(" MCP Config   : {}", mcp_config.display());
+    println!(" Rules File   : {}", rules_file.display());
+    if let Some(sf) = skill_file {
+        println!(" Skill File   : {}", sf.display());
+    }
+    println!("==================================================");
+}
+
+fn run_setup(agent_slug: &str) {
     let home_dir = std::env::var("USERPROFILE")
         .or_else(|_| std::env::var("HOME"))
         .unwrap_or_else(|_| "C:\\".to_string());
+    let home_path = Path::new(&home_dir);
 
     let current_exe =
         std::env::current_exe().unwrap_or_else(|_| PathBuf::from("palsync-ai-liveagent.exe"));
-    let gemini_config_dir = Path::new(&home_dir).join(".gemini").join("config");
 
-    if let Err(e) = std::fs::create_dir_all(&gemini_config_dir) {
-        println!("Error creating Gemini config directory: {}", e);
+    let palsync_dir = home_path.join(".palsync");
+    if let Err(e) = std::fs::create_dir_all(&palsync_dir) {
+        println!("Error creating PalSync directory: {}", e);
         std::process::exit(1);
     }
 
-    let mcp_palsync_dir = gemini_config_dir.join("mcp").join("palsync");
-    if let Err(e) = std::fs::create_dir_all(&mcp_palsync_dir) {
-        println!("Error creating PalSync MCP directory: {}", e);
-        std::process::exit(1);
-    }
-
-    let dest_exe = mcp_palsync_dir.join("palsync-ai-liveagent.exe");
+    let dest_exe = palsync_dir.join("palsync-ai-liveagent.exe");
     if current_exe != dest_exe {
         if let Err(e) = std::fs::copy(&current_exe, &dest_exe) {
             println!(
-                "Warning: Could not copy executable to default folder: {}",
+                "Warning: Could not copy executable to permanent folder: {}",
                 e
             );
         } else {
@@ -3598,7 +3719,7 @@ fn run_setup_antigravity() {
     }
 
     if let Some(dll_path) = found_dll_path {
-        let dest_dll = mcp_palsync_dir.join("oo2core_9_win64.dll");
+        let dest_dll = palsync_dir.join("oo2core_9_win64.dll");
         if let Err(e) = std::fs::copy(&dll_path, &dest_dll) {
             println!(
                 "Warning: Could not copy oo2core_9_win64.dll to default folder: {}",
@@ -3614,79 +3735,211 @@ fn run_setup_antigravity() {
         println!("Warning: oo2core_9_win64.dll not found in standard paths. You might need to place it manually.");
     }
 
-    let mcp_config_path = gemini_config_dir.join("mcp_config.json");
-    let mut mcp_config = if mcp_config_path.exists() {
-        let content = std::fs::read_to_string(&mcp_config_path).unwrap_or_default();
-        serde_json::from_str::<serde_json::Value>(&content)
-            .unwrap_or_else(|_| serde_json::json!({}))
-    } else {
-        serde_json::json!({})
-    };
+    let command_str = dest_exe.to_string_lossy().replace("\\", "/");
 
-    if !mcp_config.is_object() {
-        mcp_config = serde_json::json!({});
-    }
+    let rule_content = "\n# PalSync Rules\nYou have access to PalSync telemetry and monitor tools via MCP.\nWhen the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palsync MCP tools to retrieve real-time data instead of guessing.\n";
+    let skill_body = "---\nname: palsync\ndescription: Extract telemetry, stats, IVs, breeding combinations, and base camps from Palworld save files.\n---\n\n# PalSync Skill\n\nThis skill allows the agent to interact with the PalSync MCP server and query real-time Palworld statistics.\nUse the `palsync` tools when:\n- The user asks for the status of base camps or Palbox.\n- The user wants to analyze Pal IVs, stats, or passive skills.\n- The user requests breeding combinations.\n- The user needs to locate items in base chests.\n";
 
-    if let Some(obj) = mcp_config.as_object_mut() {
-        let mcp_servers = obj
-            .entry("mcpServers")
-            .or_insert_with(|| serde_json::json!({}));
-        if let Some(servers_obj) = mcp_servers.as_object_mut() {
-            servers_obj.insert(
-                "palsync".to_string(),
-                serde_json::json!({
-                    "command": dest_exe.to_string_lossy().replace("\\", "/"),
-                    "args": ["mcp"]
-                }),
+    match agent_slug {
+        "antigravity-cli" => {
+            let gemini_config_dir = home_path.join(".gemini").join("config");
+            std::fs::create_dir_all(&gemini_config_dir).ok();
+
+            let mcp_config_path = gemini_config_dir.join("mcp_config.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            let agents_md_path = gemini_config_dir.join("AGENTS.md");
+            inject_marker_block(&agents_md_path, rule_content);
+
+            let gemini_md_path = home_path.join(".gemini").join("GEMINI.md");
+            inject_marker_block(&gemini_md_path, rule_content);
+
+            let skill_dir = gemini_config_dir.join("skills").join("palsync");
+            std::fs::create_dir_all(&skill_dir).ok();
+            std::fs::write(skill_dir.join("SKILL.md"), skill_body).ok();
+
+            print_setup_complete(
+                "Antigravity CLI",
+                &dest_exe,
+                &mcp_config_path,
+                &agents_md_path,
+                Some(&skill_dir.join("SKILL.md")),
             );
         }
-    }
+        "vscode-copilot" => {
+            let app_data = std::env::var("APPDATA")
+                .unwrap_or_else(|_| format!("{}\\AppData\\Roaming", home_dir));
+            let vscode_user_dir = Path::new(&app_data).join("Code").join("User");
+            std::fs::create_dir_all(&vscode_user_dir).ok();
 
-    if let Ok(json_str) = serde_json::to_string_pretty(&mcp_config) {
-        if let Err(e) = std::fs::write(&mcp_config_path, json_str) {
-            println!("Error writing mcp_config.json: {}", e);
+            let mcp_config_path = vscode_user_dir.join("mcp.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::Servers, &command_str);
+
+            let prompts_dir = vscode_user_dir.join("prompts");
+            std::fs::create_dir_all(&prompts_dir).ok();
+            let instr_file = prompts_dir.join("palsync.instructions.md");
+            let copilot_body = format!("---\napplyTo: \"**\"\n---\n\n{}", rule_content);
+            std::fs::write(&instr_file, copilot_body).ok();
+
+            print_setup_complete(
+                "VS Code Copilot",
+                &dest_exe,
+                &mcp_config_path,
+                &instr_file,
+                None,
+            );
+        }
+        "cursor" => {
+            let cursor_dir = home_path.join(".cursor");
+            std::fs::create_dir_all(&cursor_dir).ok();
+
+            let mcp_config_path = cursor_dir.join("mcp.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            let rule_file = cursor_dir.join("palsync-rules.md");
+            let cursor_rules_body = format!("---\nalwaysApply: true\n---\n\n{}", rule_content);
+            std::fs::write(&rule_file, cursor_rules_body).ok();
+
+            print_setup_complete("Cursor", &dest_exe, &mcp_config_path, &rule_file, None);
+        }
+        "windsurf" => {
+            let codeium_dir = home_path.join(".codeium").join("windsurf");
+            std::fs::create_dir_all(&codeium_dir).ok();
+
+            let mcp_config_path = codeium_dir.join("mcp_config.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            let memories_dir = codeium_dir.join("memories");
+            std::fs::create_dir_all(&memories_dir).ok();
+            let rules_file = memories_dir.join("global_rules.md");
+            inject_marker_block(&rules_file, rule_content);
+
+            print_setup_complete("Windsurf", &dest_exe, &mcp_config_path, &rules_file, None);
+        }
+        "opencode" => {
+            let config_dir = home_path.join(".config").join("opencode");
+            std::fs::create_dir_all(&config_dir).ok();
+
+            let mcp_config_path = config_dir.join("opencode.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::Opencode, &command_str);
+
+            let rules_file = config_dir.join("AGENTS.md");
+            inject_marker_block(&rules_file, rule_content);
+
+            print_setup_complete("OpenCode", &dest_exe, &mcp_config_path, &rules_file, None);
+        }
+        "claude-code" => {
+            let claude_dir = home_path.join(".claude");
+            std::fs::create_dir_all(&claude_dir).ok();
+
+            let mcp_config_path = claude_dir.join("settings.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            print_setup_complete(
+                "Claude Code",
+                &dest_exe,
+                &mcp_config_path,
+                &mcp_config_path,
+                None,
+            );
+        }
+        "gemini-cli" => {
+            let gemini_dir = home_path.join(".gemini");
+            std::fs::create_dir_all(&gemini_dir).ok();
+
+            let mcp_config_path = gemini_dir.join("settings.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            let system_md = gemini_dir.join("system.md");
+            inject_marker_block(&system_md, rule_content);
+
+            print_setup_complete("Gemini CLI", &dest_exe, &mcp_config_path, &system_md, None);
+        }
+        "codex" => {
+            let codex_dir = home_path.join(".codex");
+            std::fs::create_dir_all(&codex_dir).ok();
+
+            let config_toml_path = codex_dir.join("config.toml");
+
+            let mut content = if config_toml_path.exists() {
+                std::fs::read_to_string(&config_toml_path).unwrap_or_default()
+            } else {
+                String::new()
+            };
+
+            if !content.contains("[mcp_servers.palsync]") {
+                let toml_append = format!(
+                    "\n[mcp_servers.palsync]\ncommand = \"{}\"\nargs = [\"mcp\"]\n",
+                    command_str
+                );
+                content.push_str(&toml_append);
+                std::fs::write(&config_toml_path, content).ok();
+            }
+
+            let instr_file = codex_dir.join("palsync-instructions.md");
+            std::fs::write(&instr_file, rule_content).ok();
+
+            print_setup_complete("Codex", &dest_exe, &config_toml_path, &instr_file, None);
+        }
+        "qwen" => {
+            let qwen_dir = home_path.join(".qwen");
+            std::fs::create_dir_all(&qwen_dir).ok();
+
+            let mcp_config_path = qwen_dir.join("settings.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            let qwen_md = qwen_dir.join("QWEN.md");
+            inject_marker_block(&qwen_md, rule_content);
+
+            print_setup_complete("Qwen Code", &dest_exe, &mcp_config_path, &qwen_md, None);
+        }
+        "kiro" => {
+            let kiro_dir = home_path.join(".kiro");
+            std::fs::create_dir_all(&kiro_dir).ok();
+
+            let mcp_config_path = kiro_dir.join("settings").join("mcp.json");
+            std::fs::create_dir_all(kiro_dir.join("settings")).ok();
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            let steering_file = kiro_dir.join("steering").join("palsync.md");
+            std::fs::create_dir_all(kiro_dir.join("steering")).ok();
+            std::fs::write(&steering_file, rule_content).ok();
+
+            print_setup_complete(
+                "Kiro IDE",
+                &dest_exe,
+                &mcp_config_path,
+                &steering_file,
+                None,
+            );
+        }
+        "pi" => {
+            let pi_dir = home_path.join(".pi").join("config");
+            std::fs::create_dir_all(&pi_dir).ok();
+
+            let mcp_config_path = pi_dir.join("mcp.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::McpServers, &command_str);
+
+            print_setup_complete("Pi", &dest_exe, &mcp_config_path, &mcp_config_path, None);
+        }
+        "kilocode" => {
+            let config_dir = home_path.join(".config").join("kilo");
+            std::fs::create_dir_all(&config_dir).ok();
+
+            let mcp_config_path = config_dir.join("opencode.json");
+            inject_json_mcp(&mcp_config_path, McpFormat::Opencode, &command_str);
+
+            let rules_file = config_dir.join("AGENTS.md");
+            inject_marker_block(&rules_file, rule_content);
+
+            print_setup_complete("Kilo Code", &dest_exe, &mcp_config_path, &rules_file, None);
+        }
+        _ => {
+            println!("Error: Unsupported agent slug '{}'.", agent_slug);
+            println!("Supported slugs: antigravity-cli, vscode-copilot, cursor, windsurf, opencode, claude-code, gemini-cli, codex, qwen, kiro, pi, kilocode");
             std::process::exit(1);
         }
     }
-
-    let rule_content = "\n# PalSync Rules\nYou have access to PalSync telemetry and monitor tools via MCP.\nWhen the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palsync MCP tools to retrieve real-time data instead of guessing.\n";
-
-    let agents_md_path = gemini_config_dir.join("AGENTS.md");
-    let mut agents_content = if agents_md_path.exists() {
-        std::fs::read_to_string(&agents_md_path).unwrap_or_default()
-    } else {
-        String::new()
-    };
-    if !agents_content.contains("PalSync Rules") {
-        agents_content.push_str(rule_content);
-        let _ = std::fs::write(&agents_md_path, agents_content);
-    }
-
-    let gemini_md_path = Path::new(&home_dir).join(".gemini").join("GEMINI.md");
-    let mut gemini_content = if gemini_md_path.exists() {
-        std::fs::read_to_string(&gemini_md_path).unwrap_or_default()
-    } else {
-        String::new()
-    };
-    if !gemini_content.contains("PalSync Rules") {
-        gemini_content.push_str(rule_content);
-        let _ = std::fs::write(&gemini_md_path, gemini_content);
-    }
-
-    let skill_dir = gemini_config_dir.join("skills").join("palsync");
-    let _ = std::fs::create_dir_all(&skill_dir);
-    let skill_file_path = skill_dir.join("SKILL.md");
-    let skill_body = "---\nname: palsync\ndescription: Extract telemetry, stats, IVs, breeding combinations, and base camps from Palworld save files.\n---\n\n# PalSync Skill\n\nThis skill allows the agent to interact with the PalSync MCP server and query real-time Palworld statistics.\nUse the `palsync` tools when:\n- The user asks for the status of base camps or Palbox.\n- The user wants to analyze Pal IVs, stats, or passive skills.\n- The user requests breeding combinations.\n- The user needs to locate items in base chests.\n";
-    let _ = std::fs::write(&skill_file_path, skill_body);
-
-    println!("==================================================");
-    println!("   PALSYNC ANTIGRAVITY-CLI SETUP COMPLETED        ");
-    println!("==================================================");
-    println!(" Permanent Exe: {}", dest_exe.display());
-    println!(" MCP Config   : {}", mcp_config_path.display());
-    println!(" Global Rule  : {}", agents_md_path.display());
-    println!(" Skill File   : {}", skill_file_path.display());
-    println!("==================================================");
 }
 
 fn run_mcp_loop(world_path: PathBuf) {
@@ -3925,13 +4178,22 @@ fn main() {
     let args_list: Vec<String> = std::env::args().skip(1).collect();
     let is_json = args_list.iter().any(|arg| arg == "--json");
 
-    let has_setup_antigravity =
-        (args_list.len() >= 2 && args_list[0] == "setup" && args_list[1] == "antigravity-cli")
-            || args_list.iter().any(|arg| arg == "--setup-antigravity");
+    let setup_pos = args_list.iter().position(|arg| arg == "setup");
+    let mut setup_agent = None;
+    if let Some(pos) = setup_pos {
+        if pos + 1 < args_list.len() {
+            setup_agent = Some(args_list[pos + 1].clone());
+        }
+    }
+
+    if setup_agent.is_none() && args_list.iter().any(|arg| arg == "--setup-antigravity") {
+        setup_agent = Some("antigravity-cli".to_string());
+    }
+
     let has_mcp = args_list.iter().any(|arg| arg == "mcp" || arg == "--mcp");
 
-    if has_setup_antigravity {
-        run_setup_antigravity();
+    if let Some(ref agent) = setup_agent {
+        run_setup(agent);
         std::process::exit(0);
     }
 
