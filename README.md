@@ -12,6 +12,10 @@
   <img alt="Built with Rust" src="https://img.shields.io/badge/built_with-Rust-CE422B?style=flat-square" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
 </p>
+<p align="center">
+  <img alt="Palworld Compatibility" src="https://img.shields.io/badge/Palworld%20Compatibility-100%25-green?style=flat-square" />
+  <img alt="PalAgent v1.0" src="https://img.shields.io/badge/v1.0%20Release-Coming%20July%2010%2C%202026-blueviolet?style=flat-square" />
+</p>
 
 <p align="center">
   <a href="README.md">English</a> |
@@ -22,44 +26,44 @@
 
 ## Prerequisites
 
-To use PalAgent AI, make sure you meet the following requirements:
+| Requirement | Supported Specifications | Note / Details |
+| :--- | :--- | :--- |
+| **AI Assistant / CLI** | Antigravity CLI, Claude Code, OpenCode, VS Code Copilot, Cursor, Windsurf, Codex, Qwen, Kiro, etc. | No active subscriptions required. |
+| **Operating System** | Windows (64-bit) | Tested on Windows; community help needed for other OS. |
+| **Game Client** | Palworld (Steam Version Only) | Must be installed and updated. |
 
-1. **AI Assistant or CLI Platform**: You must have an AI-driven development environment installed. Examples include:
-   - Antigravity CLI (`agy`)
-   - Claude Code
-   - OpenCode
-   - VS Code Copilot
-   - Cursor
-   - Windsurf
-   - Codex, Qwen, Kiro, etc.
-   *Note: Active subscriptions are not required! You can use models that grant free quota or tokens. If you want to try this completely for free without spending anything, we recommend using **OpenCode with the ZEN model**, which is free.*
+> [!TIP]
+> **No Subscriptions Required!**
+> You can use any free tier or token-grant models of your preferred AI client. If you want to run this completely for free without spending anything, we recommend using **OpenCode with the ZEN model** (which has zero cost).
 
-2. **Operating System**: **Windows** (64-bit).
-   *Note: While Rust is multi-platform (Multi-OS), PalAgent AI is currently only tested on Windows. Contributions from the community to test and support other platforms are highly welcome!*
-
-3. **Game & Platform**:
-   - **Palworld** must be installed and updated.
-   - Currently, only the **Steam** version of the game is supported.
+> [!IMPORTANT]
+> **Windows and Steam Version Only**
+> Currently, the save parsing signature matching is only tested on Windows and requires the Steam version of Palworld.
 
 ---
 
 ## 1-Click AI Installation
 
-To automatically install and configure PalAgent AI, simply copy and paste the following prompt directly into your favorite AI assistant or CLI chat:
+To automatically install and configure PalAgent AI on your machine, copy and paste this command directly into your AI assistant or CLI chat:
 
 ```text
 follow these instructions https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/system_prompt.md
 ```
 
-### What this will do (at a glance):
-1. **Interactive Language Setup**: The AI assistant will ask which language you prefer to communicate in.
-2. **Clarifying Questions**: The assistant will ask about your editor/IDE client and your running mode:
-   - **Local Singleplayer / Co-op Host**: If you play alone or host a temporary co-op session on your computer.
-   - **Dedicated Server Host**: If you are hosting a 24/7 dedicated server on your computer and want telemetry running persistently in the background.
-   - **Remote Client (Multiplayer)**: If you play on a server hosted by a friend or remote machine.
-3. **Automated Setup**:
-   - Downloads the latest release binary `palagent-ai.exe` automatically.
-   - Copies it to a permanent location and registers the MCP configurations for your IDE/CLI.
-   - Detects your player UID automatically (using `local-uid` to calculate it securely from your Steam session cache).
-   - If hosting a dedicated server, registers a background task via Windows Task Scheduler for boot persistence.
-   - Connects and validates the server settings, discovering your in-game nickname to welcome you.
+---
+
+## How It Works (High-Level Overview)
+
+When you copy-paste the installation prompt, your AI assistant will guide you step-by-step:
+
+### 1. Verification & Setup
+* **Language Match**: The assistant will automatically greet you and operate in your preferred language.
+* **Running Modes**: You will choose one of three setups:
+  * **Local Singleplayer / Co-op Host (Local)**: No background server needed; reads local save files directly.
+  * **Dedicated Server Host**: Installs a persistent telemetry server running in the background via Windows Task Scheduler.
+  * **Remote Client (Multiplayer)**: Connects to a remote server using the host's IP/port and passcode.
+
+### 2. Zero-Touch Configuration
+* **Autodetects Player UID**: Automatically reads your active Steam session cache via `local-uid` to calculate your secure Player GUID. No manual typing or guess-work is required.
+* **Autodetects Nickname**: Connects to the host server, matches your player record, retrieves your in-game character nickname, and displays a customized welcome message.
+* **Boot Persistence**: For dedicated hosts, registers the server using a hidden background process starting automatically on Windows boot.
