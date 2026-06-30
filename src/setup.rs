@@ -284,6 +284,20 @@ Use the `palagent-ai` tools when:
 
 2. **Multiple Save Files Conflict**:
    - If telemetry lists multiple detected game saves or fails to select one, instruct the user to run `palagent-ai.exe --list-worlds` to see all available saves or select one interactively using the `--select-world` flag.
+
+## Community Advice & Stacking Glitch Policy
+
+1. **Search Reddit and Steam Guides**:
+   - When the user asks for design recommendations, base optimizations, or gameplay efficiency (e.g., *"How can I make my farming/planting more efficient?"*), do not limit your searches to official wikis or static databases.
+   - Actively search Reddit, YouTube tutorials, and Steam Community Guides using terms like `"Reddit tips"`, `"glitch"`, `"trick"`, or `"base layout"`.
+
+2. **Present Advanced/Unorthodox Techniques**:
+   - Offer advanced community tricks alongside standard gameplay advice.
+   - For example, if asked about crop efficiency, explain the community trick of using temporary wooden benches/stools to stack 3 or 4 plantation plots vertically in the exact same footprint to save space, while also warning them about Pal AI pathing limitations if stacked too high.
+
+3. **Cite Sources & Direct URLs**:
+   - Always provide the direct URLs of the Reddit threads, Steam guides, or web pages you retrieved during your searches.
+   - This allows the user to directly verify the source of any advanced community tricks or glitches.
 "#;
 
     match agent_slug {
