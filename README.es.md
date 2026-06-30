@@ -2,7 +2,7 @@
   <h1 align="center">PalAgent AI</h1>
 </p>
 
-<p align="center">Telemetría en tiempo real, monitoreo, cruces y buscador de inventario por CLI para Palworld.</p>
+<p align="center">Real-time telemetry, monitoring, breeding and inventory search CLI for Palworld.</p>
 
 <p align="center">
   <a href="https://github.com/sewandev/palagent-ai/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/sewandev/palagent-ai/actions/workflows/ci.yml/badge.svg" /></a>
@@ -20,87 +20,46 @@
 
 ---
 
-> [!TIP]
-> **Instalación fácil usando la misma IA (la IA hará todo por ti)**
->
-> Dile a tu asistente de IA que lea y siga las instrucciones en:
-> `https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/system_prompt.md`
+## Requisitos Previos
 
-## Instalación y Configuración
+Para utilizar PalAgent AI, asegúrate de cumplir con los siguientes requerimientos:
 
-```bash
-# Compilar desde el código fuente (requiere Rust)
-git clone https://github.com/sewandev/palagent-ai.git
-cd palagent-ai
-cargo build --release
+1. **Cliente de Asistente de IA o Plataforma CLI**: Debes tener instalado un entorno de desarrollo guiado por IA. Algunos ejemplos:
+   - Antigravity CLI (`agy`)
+   - Claude Code
+   - OpenCode
+   - VS Code Copilot
+   - Cursor
+   - Windsurf
+   - Codex, Qwen, Kiro, etc.
+   *Nota: No requiere suscripciones costosas. Puedes usar modelos que ofrezcan cuotas gratuitas o tokens de prueba en tu CLI favorita. Si quieres probar esto completamente gratis sin gastar nada, te recomendamos usar **OpenCode con el modelo ZEN**, que es gratuito.*
 
-# Ejecutar el reporte de análisis
-./target/release/palagent-ai.exe
+2. **Sistema Operativo**: **Windows** (64 bits).
+   *Nota: Aunque Rust es multi-plataforma (Multi-OS), PalAgent AI actualmente solo está probado en Windows. ¡La ayuda de la comunidad para testear y dar soporte a otras plataformas es bienvenida!*
 
-# Registrar como Servidor MCP e instalar skills automáticamente en Antigravity CLI
-./target/release/palagent-ai.exe setup antigravity-cli
-```
-
-> [!IMPORTANT]
-> **Descompresión de guardado de Palworld**: Esta herramienta requiere la biblioteca de descompresión Oodle (`oo2core_9_win64.dll`) para descomprimir los archivos de guardado GVAS de Palworld. La herramienta la busca automáticamente en el directorio de instalación del juego. Si no la encuentra, cópiala al lado del ejecutable compilado.
+3. **Juego y Plataforma**:
+   - **Palworld** debe estar instalado y actualizado.
+   - Por el momento, solo se soporta la versión de **Steam**.
 
 ---
 
-## Funcionalidades
+## Instalación Fácil en 1 Clic usando tu IA
 
-- **Auto-detección Multi-mundo y Menú Interactivo** — Escanea automáticamente tu LocalAppData para encontrar el archivo de guardado de Palworld más recientemente actualizado. Si existen varios mundos, ejecútalo con `--select-world` para elegir interactivamente.
-- **Resiliencia al Modo de Juego** — Detecta automáticamente si la partida guardada es un mundo **Singleplayer** (un jugador), una partida cooperativa **Co-op Multiplayer** o un **Servidor Dedicado**.
-- **Sincronización en tiempo real Servidor/Cliente** — Permite que los clientes se conecten remotamente para consultar sus propias estadísticas desde la máquina Host sin necesidad de tener acceso directo a los archivos físicos.
-- **Aislamiento y Privacidad del Cliente** — En modos multijugador/host, los jugadores pueden aislar sus reportes utilizando su `--player-uid`, protegiendo los inventarios y Pals de los demás jugadores de miradas no autorizadas.
-- **Lectura de Palbox y Campamentos Base** — Extracción completa de los Pals almacenados en la Palbox offline, detalles de ubicación de Campamentos Base (coordenadas, nivel, gremio propietario) e integrantes de Gremios (miembros, líder).
-- **Rendimiento de Subsegundo** — Escrito en Rust puro. Utiliza escaneo de firmas de bytes directamente sobre la memoria en lugar de parsear un pesado AST JSON, ejecutando cualquier consulta en menos de 1 segundo.
-- **Salidas JSON para LLMs** — Cada comando puede exportar datos JSON formateados agregando `--json`, ideal para alimentar asistentes de desarrollo de IA.
+Para instalar y configurar PalAgent AI de forma automática, simplemente copia y pega el siguiente prompt directamente en tu asistente de IA o chat de CLI favorito:
 
----
-
-## Modos de Ejecución
-
-### 1. Modo Singleplayer (Local)
-No requiere configuración ni servidores de red. Accede directamente a tus partidas locales guardadas.
-```bash
-# Reporte general
-palagent-ai.exe
-
-# Buscar "Bayas" en todos los cofres de las bases
-palagent-ai.exe --search-chest "Berries"
-
-# Monitorear estado de los Pals asignados a bases (SAN, Hambre, HP)
-palagent-ai.exe --monitor
+```text
+sigue estas instrucciones https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/system_prompt.md
 ```
 
-### 2. Modo Host (Servidor de Sincronización)
-Levanta un servidor HTTP ultraligero en el puerto `8212` para transmitir de forma segura la telemetría a los clientes conectados.
-```bash
-# Iniciar servidor host con contraseña de seguridad
-palagent-ai.exe --host --port 8212 --passcode CLAVE_SEGURA
-```
-
-### 3. Modo Cliente (Telemetría Remota)
-Consulta información remotamente desde el servidor del Host. Filtra automáticamente todos los resultados por tu UID de jugador.
-```bash
-# Conectarse y obtener tu reporte privado de jugador
-palagent-ai.exe --connect 192.168.1.100:8212 --passcode CLAVE_SEGURA --player-uid <TU_UID>
-
-# Consultar el progreso de misiones activas de manera remota en formato JSON
-palagent-ai.exe --connect 192.168.1.100:8212 --passcode CLAVE_SEGURA --player-uid <TU_UID> --progress --json
-```
-
----
-
-## Referencia de Comandos
-
-| Flag | Subcomando | Descripción |
-| --- | --- | --- |
-| `-t`, `--time` | Hora del Juego | Día actual, reloj de juego y estado de día/noche. |
-| `-s`, `--settings` | Configuraciones | Configuración del servidor y dificultad de la partida. |
-| `-c`, `--search-chest` | Buscador de Cofres | Ubicación de ítems específicos en todos los cofres de las bases. |
-| `-b`, `--breeding` | Asistente de Crianza | Muestra los Pals del equipo y calcula sus posibles combinaciones de cruce. |
-| `-p`, `--progress` | Métricas de Progreso | Total de notas leídas, puntos de viaje rápido y bonus de capturas. |
-| `-m`, `--monitor` | Monitor de Base | HP, saciación, cordura (SAN) y estado físico de tus Pals en bases. |
-| `-a`, `--analyzer` | Analizador de IVs | Nivel, género, habilidades pasivas y estadísticas de talento/IVs (HP, Atk, Def). |
-| `--list-worlds` | Directorio de Partidas | Lista todos los mundos locales detectados con sus fechas de actualización. |
+### Qué hará este instructivo (a grandes rasgos):
+1. **Configuración Interactiva del Idioma**: El asistente de IA te preguntará primero en qué idioma prefieres comunicarte.
+2. **Preguntas de Aclaración**: El asistente te preguntará por tu editor/IDE de IA y el modo de juego:
+   - **Singleplayer / Co-op Host Local**: Si juegas solo o en partidas cooperativas temporales en tu propia computadora.
+   - **Host de Servidor Dedicado**: Si tienes un servidor dedicado 24/7 montado en tu máquina y deseas ejecutar el servidor de telemetría de forma persistente en segundo plano.
+   - **Cliente Remoto (Multijugador)**: Si juegas en un servidor alojado por un amigo o máquina remota.
+3. **Instalación Automatizada**:
+   - Descarga automáticamente el ejecutable `palagent-ai.exe` más reciente.
+   - Copia el archivo a una ubicación permanente y registra el servidor MCP correspondiente en tu cliente.
+   - Detecta de forma automática tu Player UID real (ejecutando `local-uid` para calcularlo matemáticamente a partir de tu sesión activa de Steam).
+   - Si montas un servidor dedicado, crea y registra una tarea en el Programador de Tareas de Windows para asegurar el inicio persistente del servidor en segundo plano.
+   - Valida los datos y la conexión con el servidor para descubrir tu nickname real y darte la bienvenida.
