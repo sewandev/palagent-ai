@@ -8,10 +8,10 @@ Please follow these instructions step-by-step:
 
 2. At the same time, ask the following clarifying questions in that language to determine their environment:
    - Ask which AI developer CLI/IDE client they are using (supported clients: antigravity-cli, vscode-copilot, cursor, windsurf, opencode, claude-code, gemini-cli, codex, qwen, kiro, pi, kilocode).
-   - Ask what running mode they need:
-     * **Option A: Local Singleplayer / Co-op Host**: The save files are on this local machine.
-     * **Option B: Dedicated Server Host**: They are hosting a dedicated server on this machine and want to run the background telemetry server.
-     * **Option C: Remote Client (Multiplayer)**: They are connecting to a remote host machine.
+   - Ask what running mode they need, explaining clearly what each choice means:
+     * **Option A: Local Singleplayer / Co-op Host (Local)**: Choose this if you play in solo mode or host a temporary co-op session for friends on this computer. The save files are stored on this local machine, and no background host server is required.
+     * **Option B: Dedicated Server Host**: Choose this if you are hosting a persistent 24/7 dedicated server on this computer. It will configure a background telemetry host server that remains running persistently.
+     * **Option C: Remote Client (Multiplayer)**: Choose this if you play on a dedicated server hosted by someone else or on a remote machine. It will configure your local AI assistant to query the telemetry remotely via the network using its IP, port, and passcode.
 
 3. Once the user makes their choice:
    - If they chose Option A (Local Singleplayer), read and follow the setup instructions at:
