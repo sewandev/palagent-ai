@@ -20,6 +20,12 @@
 
 ---
 
+> [!TIP]
+> **Instalación con IA en 1-Clic (Sin fricción)**
+> Si estás utilizando un asistente de IA (como Claude Code, Antigravity CLI, Windsurf, Cursor, etc.), no necesitas instalar nada manualmente. Simplemente copia y pega esta instrucción en el chat de tu asistente de IA:
+>
+> *"Descarga la última versión lanzada (release) desde `https://api.github.com/repos/sewandev/palsync-ai-liveagent/releases/latest`, instala el agente de PalSync para mi CLI de desarrollo actual (por ejemplo: `antigravity-cli`, `vscode-copilot`, `cursor`, `windsurf`, etc.) y avísame cuando el servidor MCP esté listo."*
+
 ## Instalación y Configuración
 
 ```bash
