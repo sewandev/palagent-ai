@@ -24,6 +24,14 @@
 
 ---
 
+## Descripción General
+
+**PalAgent AI** es un asistente inteligente y servidor de Model Context Protocol (MCP) para Palworld. En lugar de tener que revisar manualmente tu caja Pal, rastrear coordenadas de bases, buscar en cofres o ingresar manualmente estadísticas en calculadoras de crianza y bases de datos web externas, PalAgent AI conecta tu asistente de IA local directamente con tu partida guardada.
+
+Dado que la IA posee contexto completo en tiempo real sobre tu mundo activo, progreso, inventario y Pals, puedes pedirle consejos personalizados, combinaciones de crianza óptimas, optimización de flujos de trabajo en tus bases o la ubicación exacta de objetos. Cada sugerencia está adaptada a tu estado real del juego, haciendo que la gestión del juego sea fluida y altamente eficiente.
+
+---
+
 ## Requisitos Previos
 
 | Requisito | Especificación Compatible | Nota / Detalles |

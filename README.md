@@ -24,6 +24,14 @@
 
 ---
 
+## Overview
+
+**PalAgent AI** is an intelligent assistant and Model Context Protocol (MCP) server for Palworld. Instead of manually inspecting your Palbox, tracking base coordinates, searching through chests, or manually entering stats into external breeding calculators and database websites, PalAgent AI connects your local AI assistant directly to your save file. 
+
+Because the AI has real-time, comprehensive context of your active world, progress, inventory, and Pals, you can ask for tailored advice, optimal breeding combinations, workload optimization, or item locations. Every recommendation is directly customized to your actual in-game state, making gameplay management seamless and highly efficient.
+
+---
+
 ## Prerequisites
 
 | Requirement | Supported Specifications | Note / Details |
