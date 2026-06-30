@@ -32,6 +32,33 @@ Because the AI has real-time, comprehensive context of your active world, progre
 
 ---
 
+## AI Capabilities (What you can ask)
+
+Once configured, you can query your AI assistant naturally about your game state. Here are some examples of what you can ask:
+
+### Deep AI Diagnostics (Examples)
+* **Optimal Worker Placement**: *"Based on my current Palbox inventory, which Pals are the most efficient to assign to Mining (e.g., iron ore) and why?"* (The AI will inspect work suitabilities, passive traits like Artisan/Serious, and recommend the best setup).
+* **Combat Team Analysis**: *"Which is my strongest Fire-type Pal in my Palbox, and can you explain in detail why?"* (The AI will read hidden Talent IV stats (HP/Atk/Def bonuses), combat moves, passive skills, and cross-reference them with the current meta).
+* **Base Optimization & Diagnostics**: *"Which of my base workers have negative passives (like Slacker or Destructive) that are hurting my base efficiency, and who should I replace them with from my box?"*
+
+### Telemetry & General Queries
+* **Locate Stored Items**: Find where resources are located without opening every chest (e.g., *"Where is my carbon stored?"* or *"Do I have enough Pal Metal Ingots in my base camps?"*).
+* **Pal Sanity & Health Monitoring**: Check on your working Pals (e.g., *"Are any of the Pals in base camp hungry?"* or *"What is the current SAN level of my active combat team?"*).
+* **Optimal Breeding Matchmaking**: Calculate combinations using the Pals you actually own (e.g., *"How can I breed an Anubis with my current Pals?"* or *"Who should I pair to get a Jetragon with Swift?"*).
+* **Track Captures & Explorer Logs**: Keep tabs on milestones and collectibles (e.g., *"What is my capture progress for Lamball?"* or *"How many explorer notes have I collected?"*).
+* **Server Rules & In-Game Time**: Query difficulty or environmental cycles (e.g., *"What are the server multipliers?"* or *"Is it currently day or night in the game?"*).
+
+---
+
+## Remote Host & Client Features
+
+PalAgent AI is built to handle multiplayer and dedicated servers natively:
+* **Zero-Touch Client Identification**: The tool automatically scans your local Steam session cache to calculate your unique Player UID. No typing or copy-pasting complex IDs is required.
+* **Identity Verification**: When setting up client mode, the assistant validates your connection against the host and automatically retrieves your in-game character nickname.
+* **Boot Persistence for Hosts**: For dedicated server administrators, the installer can register a silent, windowless background telemetry service via Windows Task Scheduler that starts automatically on boot.
+
+---
+
 ## Prerequisites
 
 | Requirement | Supported Specifications | Note / Details |

@@ -32,6 +32,33 @@ Dado que la IA posee contexto completo en tiempo real sobre tu mundo activo, pro
 
 ---
 
+## Capacidades de la IA (Qué puedes preguntar)
+
+Una vez configurado, podrás consultar a tu asistente de IA de forma natural sobre el estado de tu partida. Aquí tienes algunos ejemplos prácticos:
+
+### Diagnósticos Profundos con IA (Ejemplos)
+* **Asignación Óptima de Trabajadores**: *"Basado en los Pals que tengo en mi caja, ¿cuáles son los más eficientes para enviar a minar hierro y por qué?"* (La IA analizará el nivel de minería, habilidades pasivas como Artesano/Serio, y propondrá el equipo óptimo).
+* **Análisis de Equipo de Combate**: *"¿Cuál es mi Pal de tipo Fuego más fuerte en mi caja y puedes explicarme detalladamente por qué?"* (La IA leerá los IVs de talento ocultos, habilidades pasivas, estadísticas base y los cruzará con el meta actual).
+* **Optimización y Salud de la Base**: *"¿Cuáles de mis trabajadores actuales tienen pasivas negativas (como Vago o Destructivo) que están reduciendo la eficiencia, y por quiénes de mi caja debería reemplazarlos?"*
+
+### Telemetría y Consultas Generales
+* **Localizar Objetos Almacenados**: Encuentra recursos sin tener que abrir cada cofre de tus bases (por ejemplo: *"¿Dónde tengo guardado el carbón?"* o *"¿Tengo suficientes lingotes de metal Pal en mis bases?"*).
+* **Monitoreo de Salud y Cordura (SAN)**: Revisa el estado de tus trabajadores (por ejemplo: *"¿Hay algún Pal hambriento en la base?"* o *"¿Cuál es el nivel de SAN de mi equipo de combate activo?"*).
+* **Emparejamiento de Crianza Óptimo**: Calcula combinaciones utilizando los Pals que ya posees en tu caja (por ejemplo: *"¿Cómo puedo criar un Anubis con los Pals que tengo?"* o *"¿A quiénes debo emparejar para obtener un Jetragon con la pasiva Corredor?"*).
+* **Progreso de Capturas y Diarios**: Realiza un seguimiento de tus logros y coleccionables (por ejemplo: *"¿Cuál es mi progreso de captura de Lamball?"* o *"¿Cuántos diarios de exploración he recolectado?"*).
+* **Reglas del Servidor y Tiempo**: Consulta configuraciones y el ciclo del día (por ejemplo: *"¿Cuáles son los multiplicadores del servidor?"* o *"¿Estamos de día o de noche en el juego?"*).
+
+---
+
+## Características de Servidor Host y Cliente
+
+PalAgent AI está diseñado para integrarse nativamente con servidores multijugador y dedicados:
+* **Identificación Zero-Touch**: La herramienta escanea automáticamente la caché local de tu sesión de Steam para calcular tu Player UID en formato GUID de manera precisa. No necesitas buscar ni escribir identificadores complejos.
+* **Verificación de Identidad**: Durante la instalación del cliente, el asistente valida la conexión con el servidor host y recupera automáticamente tu nickname de personaje real en el juego.
+* **Persistencia en Servidores (Host)**: Para administradores de servidores dedicados, el instalador puede registrar un servicio silencioso en segundo plano mediante el Programador de Tareas de Windows que se inicia automáticamente al arrancar el sistema.
+
+---
+
 ## Requisitos Previos
 
 | Requisito | Especificación Compatible | Nota / Detalles |
