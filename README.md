@@ -30,6 +30,9 @@ cargo build --release
 
 # Run the analyzer report
 ./target/release/palsync-ai-liveagent.exe
+
+# Register as an MCP Server and install skills automatically in Antigravity CLI
+./target/release/palsync-ai-liveagent.exe setup antigravity-cli
 ```
 
 > [!IMPORTANT]
