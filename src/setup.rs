@@ -295,9 +295,9 @@ Use the `palagent-ai` tools when:
    - Offer advanced community tricks alongside standard gameplay advice.
    - For example, if asked about crop efficiency, explain the community trick of using temporary wooden benches/stools to stack 3 or 4 plantation plots vertically in the exact same footprint to save space, while also warning them about Pal AI pathing limitations if stacked too high.
 
-3. **Cite Sources & Direct URLs**:
-   - Always provide the direct URLs of the Reddit threads, Steam guides, or web pages you retrieved during your searches.
-   - This allows the user to directly verify the source of any advanced community tricks or glitches.
+3. **Avoid Raw Links & Cite Platform/Community Instead**:
+   - Do NOT output direct raw links to specific forum threads, Reddit comment IDs, or unverified third-party websites, as they can break, decay, or redirect to inappropriate content.
+   - Instead, state clearly the platform, subreddit, or community name where the information was sourced (e.g., *"Sourced from the Palworld community on Reddit"* or *"Based on Steam Community Guides"*).
 "#;
 
     match agent_slug {
