@@ -1649,51 +1649,50 @@ fn clean_seeds_in_bytes(bytes: &mut [u8]) -> Vec<(String, u32)> {
             offset += 8;
             let elem_type = read_string_at(bytes, &mut offset);
             offset += 1;
-            if elem_type == "ByteProperty"
-                && offset + 4 <= bytes.len() {
-                    let count = u32::from_le_bytes([
-                        bytes[offset],
-                        bytes[offset + 1],
-                        bytes[offset + 2],
-                        bytes[offset + 3],
+            if elem_type == "ByteProperty" && offset + 4 <= bytes.len() {
+                let count = u32::from_le_bytes([
+                    bytes[offset],
+                    bytes[offset + 1],
+                    bytes[offset + 2],
+                    bytes[offset + 3],
+                ]) as usize;
+                offset += 4;
+                if offset + count <= bytes.len() && count >= 12 {
+                    let raw_start = offset;
+                    let stack_count = u32::from_le_bytes([
+                        bytes[raw_start + 4],
+                        bytes[raw_start + 5],
+                        bytes[raw_start + 6],
+                        bytes[raw_start + 7],
+                    ]);
+                    let id_len = u32::from_le_bytes([
+                        bytes[raw_start + 8],
+                        bytes[raw_start + 9],
+                        bytes[raw_start + 10],
+                        bytes[raw_start + 11],
                     ]) as usize;
-                    offset += 4;
-                    if offset + count <= bytes.len() && count >= 12 {
-                        let raw_start = offset;
-                        let stack_count = u32::from_le_bytes([
-                            bytes[raw_start + 4],
-                            bytes[raw_start + 5],
-                            bytes[raw_start + 6],
-                            bytes[raw_start + 7],
-                        ]);
-                        let id_len = u32::from_le_bytes([
-                            bytes[raw_start + 8],
-                            bytes[raw_start + 9],
-                            bytes[raw_start + 10],
-                            bytes[raw_start + 11],
-                        ]) as usize;
-                        if id_len > 0 && id_len < 100 && raw_start + 12 + id_len <= bytes.len() {
-                            let item_id_bytes = &bytes[raw_start + 12..raw_start + 12 + id_len - 1];
-                            if let Ok(item_id) = std::str::from_utf8(item_id_bytes) {
-                                let item_lower = item_id.to_lowercase();
-                                if item_lower.contains("seed") && stack_count > 0 {
-                                    cleaned.push((item_id.to_string(), stack_count));
-                                    bytes[raw_start + 4] = 0;
-                                    bytes[raw_start + 5] = 0;
-                                    bytes[raw_start + 6] = 0;
-                                    bytes[raw_start + 7] = 0;
-                                    bytes[raw_start + 8] = 0;
-                                    bytes[raw_start + 9] = 0;
-                                    bytes[raw_start + 10] = 0;
-                                    bytes[raw_start + 11] = 0;
-                                    for i in 0..id_len {
-                                        bytes[raw_start + 12 + i] = 0;
-                                    }
+                    if id_len > 0 && id_len < 100 && raw_start + 12 + id_len <= bytes.len() {
+                        let item_id_bytes = &bytes[raw_start + 12..raw_start + 12 + id_len - 1];
+                        if let Ok(item_id) = std::str::from_utf8(item_id_bytes) {
+                            let item_lower = item_id.to_lowercase();
+                            if item_lower.contains("seed") && stack_count > 0 {
+                                cleaned.push((item_id.to_string(), stack_count));
+                                bytes[raw_start + 4] = 0;
+                                bytes[raw_start + 5] = 0;
+                                bytes[raw_start + 6] = 0;
+                                bytes[raw_start + 7] = 0;
+                                bytes[raw_start + 8] = 0;
+                                bytes[raw_start + 9] = 0;
+                                bytes[raw_start + 10] = 0;
+                                bytes[raw_start + 11] = 0;
+                                for i in 0..id_len {
+                                    bytes[raw_start + 12 + i] = 0;
                                 }
                             }
                         }
                     }
                 }
+            }
         }
     }
     cleaned
@@ -3545,6 +3544,76 @@ fn run_setup_antigravity() {
         std::process::exit(1);
     }
 
+    let mcp_palsync_dir = gemini_config_dir.join("mcp").join("palsync");
+    if let Err(e) = std::fs::create_dir_all(&mcp_palsync_dir) {
+        println!("Error creating PalSync MCP directory: {}", e);
+        std::process::exit(1);
+    }
+
+    let dest_exe = mcp_palsync_dir.join("palsync-ai-liveagent.exe");
+    if current_exe != dest_exe {
+        if let Err(e) = std::fs::copy(&current_exe, &dest_exe) {
+            println!(
+                "Warning: Could not copy executable to default folder: {}",
+                e
+            );
+        } else {
+            println!(
+                "Copied executable to permanent location: {}",
+                dest_exe.display()
+            );
+        }
+    }
+
+    let standard_dll_paths = [
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Palworld\\Binaries\\Win64\\oo2core_9_win64.dll",
+        "C:\\Program Files\\Steam\\steamapps\\common\\Palworld\\Binaries\\Win64\\oo2core_9_win64.dll",
+        "D:\\SteamLibrary\\steamapps\\common\\Palworld\\Binaries\\Win64\\oo2core_9_win64.dll",
+        "E:\\SteamLibrary\\steamapps\\common\\Palworld\\Binaries\\Win64\\oo2core_9_win64.dll",
+        "F:\\SteamLibrary\\steamapps\\common\\Palworld\\Binaries\\Win64\\oo2core_9_win64.dll",
+    ];
+
+    let mut found_dll_path = None;
+    if let Some(parent) = current_exe.parent() {
+        let paths_to_check = [
+            parent.join("oo2core_9_win64.dll"),
+            parent.join("..").join("oo2core_9_win64.dll"),
+            parent.join("..").join("..").join("oo2core_9_win64.dll"),
+        ];
+        for path in &paths_to_check {
+            if path.exists() {
+                found_dll_path = Some(path.to_path_buf());
+                break;
+            }
+        }
+    }
+    if found_dll_path.is_none() {
+        for path_str in &standard_dll_paths {
+            let path = Path::new(path_str);
+            if path.exists() {
+                found_dll_path = Some(path.to_path_buf());
+                break;
+            }
+        }
+    }
+
+    if let Some(dll_path) = found_dll_path {
+        let dest_dll = mcp_palsync_dir.join("oo2core_9_win64.dll");
+        if let Err(e) = std::fs::copy(&dll_path, &dest_dll) {
+            println!(
+                "Warning: Could not copy oo2core_9_win64.dll to default folder: {}",
+                e
+            );
+        } else {
+            println!(
+                "Copied oo2core_9_win64.dll to permanent location: {}",
+                dest_dll.display()
+            );
+        }
+    } else {
+        println!("Warning: oo2core_9_win64.dll not found in standard paths. You might need to place it manually.");
+    }
+
     let mcp_config_path = gemini_config_dir.join("mcp_config.json");
     let mut mcp_config = if mcp_config_path.exists() {
         let content = std::fs::read_to_string(&mcp_config_path).unwrap_or_default();
@@ -3566,7 +3635,7 @@ fn run_setup_antigravity() {
             servers_obj.insert(
                 "palsync".to_string(),
                 serde_json::json!({
-                    "command": current_exe.to_string_lossy().replace("\\", "/"),
+                    "command": dest_exe.to_string_lossy().replace("\\", "/"),
                     "args": ["mcp"]
                 }),
             );
@@ -3613,9 +3682,10 @@ fn run_setup_antigravity() {
     println!("==================================================");
     println!("   PALSYNC ANTIGRAVITY-CLI SETUP COMPLETED        ");
     println!("==================================================");
-    println!(" MCP Config : {}", mcp_config_path.display());
-    println!(" Global Rule: {}", agents_md_path.display());
-    println!(" Skill File : {}", skill_file_path.display());
+    println!(" Permanent Exe: {}", dest_exe.display());
+    println!(" MCP Config   : {}", mcp_config_path.display());
+    println!(" Global Rule  : {}", agents_md_path.display());
+    println!(" Skill File   : {}", skill_file_path.display());
     println!("==================================================");
 }
 
