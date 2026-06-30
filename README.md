@@ -5,9 +5,9 @@
 <p align="center">Real-time telemetry, monitoring, breeding and inventory search CLI for Palworld.</p>
 
 <p align="center">
-  <a href="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/codeql.yml/badge.svg" /></a>
-  <img alt="Version" src="https://img.shields.io/github/v/release/sewandev/palsync-ai-liveagent?style=flat-square&label=version&color=blueviolet" />
+  <a href="https://github.com/sewandev/palagent-ai/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/sewandev/palagent-ai/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/sewandev/palagent-ai/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/sewandev/palagent-ai/actions/workflows/codeql.yml/badge.svg" /></a>
+  <img alt="Version" src="https://img.shields.io/github/v/release/sewandev/palagent-ai?style=flat-square&label=version&color=blueviolet" />
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078d4?style=flat-square" />
   <img alt="Built with Rust" src="https://img.shields.io/badge/built_with-Rust-CE422B?style=flat-square" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
@@ -24,21 +24,21 @@
 > **1-Click AI Installation (Zero-Touch)**
 > If you are using an AI assistant (like Claude Code, Antigravity CLI, Windsurf, Cursor, etc.), you don't need to install anything manually. Just copy-paste this prompt to your AI assistant:
 >
-> *"Download the latest release from `https://api.github.com/repos/sewandev/palsync-ai-liveagent/releases/latest`, run the setup command for `<your_cli_name>` (e.g., `antigravity-cli`, `vscode-copilot`, `cursor`, `windsurf`, etc.), and notify me when the PalSync MCP server is ready."*
+> *"Download the latest release from `https://api.github.com/repos/sewandev/palagent-ai/releases/latest`, run the setup command for `<your_cli_name>` (e.g., `antigravity-cli`, `vscode-copilot`, `cursor`, `windsurf`, etc.), and notify me when the PalSync MCP server is ready."*
 
 ## Installation & Setup
 
 ```bash
 # Build from source (requires Rust)
-git clone https://github.com/sewandev/palsync-ai-liveagent.git
-cd palsync-ai-liveagent
+git clone https://github.com/sewandev/palagent-ai.git
+cd palagent-ai
 cargo build --release
 
 # Run the analyzer report
-./target/release/palsync-ai-liveagent.exe
+./target/release/palagent-ai.exe
 
 # Register as an MCP Server and install skills automatically in Antigravity CLI
-./target/release/palsync-ai-liveagent.exe setup antigravity-cli
+./target/release/palagent-ai.exe setup antigravity-cli
 ```
 
 > [!IMPORTANT]
@@ -64,30 +64,30 @@ cargo build --release
 No configuration or server setup required. Directly accesses your local save games.
 ```bash
 # General report
-palsync-ai-liveagent.exe
+palagent-ai.exe
 
 # Search for "Berries" in all base chests
-palsync-ai-liveagent.exe --search-chest "Berries"
+palagent-ai.exe --search-chest "Berries"
 
 # Monitor Pal status (SAN, Hunger, HP)
-palsync-ai-liveagent.exe --monitor
+palagent-ai.exe --monitor
 ```
 
 ### 2. Host Mode (Sync Server)
 Spins up a lightweight HTTP server on port `8212` to stream telemetry securely to clients.
 ```bash
 # Start the host server with a security passcode
-palsync-ai-liveagent.exe --host --port 8212 --passcode MYPASSCODE
+palagent-ai.exe --host --port 8212 --passcode MYPASSCODE
 ```
 
 ### 3. Client Mode (Remote Telemetry)
 Queries data remotely from the host server. Automatically filters all results by your Player UID.
 ```bash
 # Connect and get your private player report
-palsync-ai-liveagent.exe --connect 192.168.1.100:8212 --passcode MYPASSCODE --player-uid <YOUR_UID>
+palagent-ai.exe --connect 192.168.1.100:8212 --passcode MYPASSCODE --player-uid <YOUR_UID>
 
 # Get JSON formatted active quest progress remotely
-palsync-ai-liveagent.exe --connect 192.168.1.100:8212 --passcode MYPASSCODE --player-uid <YOUR_UID> --progress --json
+palagent-ai.exe --connect 192.168.1.100:8212 --passcode MYPASSCODE --player-uid <YOUR_UID> --progress --json
 ```
 
 ---
