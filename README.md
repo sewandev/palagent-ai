@@ -5,6 +5,9 @@
 <p align="center">Real-time telemetry, monitoring, breeding and inventory search CLI for Palworld.</p>
 
 <p align="center">
+  <a href="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/sewandev/palsync-ai-liveagent/actions/workflows/codeql.yml/badge.svg" /></a>
+  <img alt="Version" src="https://img.shields.io/github/v/release/sewandev/palsync-ai-liveagent?style=flat-square&label=version&color=blueviolet" />
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078d4?style=flat-square" />
   <img alt="Built with Rust" src="https://img.shields.io/badge/built_with-Rust-CE422B?style=flat-square" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
@@ -27,6 +30,9 @@ cargo build --release
 
 # Run the analyzer report
 ./target/release/palsync-ai-liveagent.exe
+
+# Register as an MCP Server and install skills automatically in Antigravity CLI
+./target/release/palsync-ai-liveagent.exe setup antigravity-cli
 ```
 
 > [!IMPORTANT]

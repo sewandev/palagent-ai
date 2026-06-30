@@ -1,14 +1,14 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::collections::HashMap;
 mod i18n;
 use flate2::read::ZlibDecoder;
 use serde::Serialize;
 use serde_json::Value;
 
 thread_local! {
-    static OUTPUT_BUFFER: std::cell::RefCell<Option<String>> = std::cell::RefCell::new(None);
+    static OUTPUT_BUFFER: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
 }
 
 macro_rules! print {
@@ -78,7 +78,13 @@ fn decompress_oodle(data: &[u8], uncompressed_len: usize) -> Result<Vec<u8>, Str
             if let Some(exe_dir) = exe_path.parent() {
                 search_paths.push(exe_dir.join("oo2core_9_win64.dll"));
                 search_paths.push(exe_dir.join("..").join("..").join("oo2core_9_win64.dll"));
-                search_paths.push(exe_dir.join("..").join("..").join("..").join("oo2core_9_win64.dll"));
+                search_paths.push(
+                    exe_dir
+                        .join("..")
+                        .join("..")
+                        .join("..")
+                        .join("oo2core_9_win64.dll"),
+                );
             }
         }
         search_paths.push(PathBuf::from("oo2core_9_win64.dll"));
@@ -98,12 +104,13 @@ fn decompress_oodle(data: &[u8], uncompressed_len: usize) -> Result<Vec<u8>, Str
             None => libloading::Library::new("oo2core_9_win64.dll")
                 .map_err(|e| format!("Failed to load oo2core_9_win64.dll: {}", e))?,
         };
-            
-        let oodle_decompress: libloading::Symbol<OodleDecompressFn> = lib.get(b"OodleLZ_Decompress")
+
+        let oodle_decompress: libloading::Symbol<OodleDecompressFn> = lib
+            .get(b"OodleLZ_Decompress")
             .map_err(|e| format!("Failed to find OodleLZ_Decompress symbol: {}", e))?;
 
         let mut decompressed = vec![0u8; uncompressed_len];
-        
+
         let result = oodle_decompress(
             data.as_ptr(),
             data.len(),
@@ -147,7 +154,9 @@ fn decompress_gvas(path: &Path) -> Result<Vec<u8>, String> {
         if decoder1.read_to_end(&mut intermediate).is_err() {
             let mut decoder = ZlibDecoder::new(&data[12..]);
             let mut decompressed = Vec::new();
-            decoder.read_to_end(&mut decompressed).map_err(|e| e.to_string())?;
+            decoder
+                .read_to_end(&mut decompressed)
+                .map_err(|e| e.to_string())?;
             return Ok(decompressed);
         }
 
@@ -186,7 +195,12 @@ fn read_string_at(bytes: &[u8], offset: &mut usize) -> String {
     if *offset + 4 > bytes.len() {
         return String::new();
     }
-    let len = i32::from_le_bytes([bytes[*offset], bytes[*offset + 1], bytes[*offset + 2], bytes[*offset + 3]]);
+    let len = i32::from_le_bytes([
+        bytes[*offset],
+        bytes[*offset + 1],
+        bytes[*offset + 2],
+        bytes[*offset + 3],
+    ]);
     *offset += 4;
     if len == 0 {
         return String::new();
@@ -210,7 +224,8 @@ fn read_string_at(bytes: &[u8], offset: &mut usize) -> String {
         }
         let char_bytes = &bytes[*offset..*offset + w_len * 2];
         *offset += w_len * 2;
-        let chars: Vec<u16> = char_bytes.chunks_exact(2)
+        let chars: Vec<u16> = char_bytes
+            .chunks_exact(2)
             .map(|c| u16::from_le_bytes([c[0], c[1]]))
             .collect();
         let mut s = String::from_utf16_lossy(&chars);
@@ -296,7 +311,12 @@ fn extract_int_prop(bytes: &[u8], prop_name: &[u8]) -> i32 {
     offset += 8; // skip size
     offset += 1; // separator
     if offset + 4 <= bytes.len() {
-        i32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]])
+        i32::from_le_bytes([
+            bytes[offset],
+            bytes[offset + 1],
+            bytes[offset + 2],
+            bytes[offset + 3],
+        ])
     } else {
         0
     }
@@ -323,8 +343,14 @@ fn extract_int64_prop(bytes: &[u8], prop_name: &[u8]) -> u64 {
     offset += 1; // separator
     if offset + 8 <= bytes.len() {
         u64::from_le_bytes([
-            bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3],
-            bytes[offset+4], bytes[offset+5], bytes[offset+6], bytes[offset+7]
+            bytes[offset],
+            bytes[offset + 1],
+            bytes[offset + 2],
+            bytes[offset + 3],
+            bytes[offset + 4],
+            bytes[offset + 5],
+            bytes[offset + 6],
+            bytes[offset + 7],
         ])
     } else {
         0
@@ -382,7 +408,12 @@ fn extract_float_prop(bytes: &[u8], prop_name: &[u8]) -> f64 {
     offset += 8; // skip size
     offset += 1; // separator
     if offset + 4 <= bytes.len() {
-        f32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]) as f64
+        f32::from_le_bytes([
+            bytes[offset],
+            bytes[offset + 1],
+            bytes[offset + 2],
+            bytes[offset + 3],
+        ]) as f64
     } else {
         0.0
     }
@@ -421,8 +452,14 @@ fn extract_fixed_point_prop(bytes: &[u8], prop_name: &[u8]) -> f64 {
     offset += 1; // separator
     if offset + 8 <= bytes.len() {
         let v = i64::from_le_bytes([
-            bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3],
-            bytes[offset+4], bytes[offset+5], bytes[offset+6], bytes[offset+7]
+            bytes[offset],
+            bytes[offset + 1],
+            bytes[offset + 2],
+            bytes[offset + 3],
+            bytes[offset + 4],
+            bytes[offset + 5],
+            bytes[offset + 6],
+            bytes[offset + 7],
         ]);
         v as f64 / 1000.0
     } else {
@@ -445,14 +482,23 @@ fn extract_array_strings(bytes: &[u8], prop_name: &[u8]) -> Vec<String> {
     };
     let mut offset = pos + prop_name.len();
     let t = read_string_at(bytes, &mut offset);
-    if t != "ArrayProperty" { return results; }
+    if t != "ArrayProperty" {
+        return results;
+    }
     offset += 8; // skip size
     let elem_type = read_string_at(bytes, &mut offset);
     offset += 1; // separator
-    if offset + 4 > bytes.len() { return results; }
-    let count = u32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]) as usize;
+    if offset + 4 > bytes.len() {
+        return results;
+    }
+    let count = u32::from_le_bytes([
+        bytes[offset],
+        bytes[offset + 1],
+        bytes[offset + 2],
+        bytes[offset + 3],
+    ]) as usize;
     offset += 4;
-    
+
     if elem_type == "StructProperty" {
         // Quest array element structure
         let _st_name = read_string_at(bytes, &mut offset);
@@ -460,14 +506,18 @@ fn extract_array_strings(bytes: &[u8], prop_name: &[u8]) -> Vec<String> {
         offset += 8; // skip size
         let _st_typename = read_string_at(bytes, &mut offset);
         offset += 16 + 1; // GUID + separator
-        
+
         for _ in 0..count {
-            if offset >= bytes.len() { break; }
+            if offset >= bytes.len() {
+                break;
+            }
             // Inside OrderedQuestArray, each struct contains QuestName (StrProperty)
             let q_name_pat = b"QuestName\x00";
             let mut q_pos = None;
             for i in offset..std::cmp::min(offset + 150, bytes.len()) {
-                if i + q_name_pat.len() <= bytes.len() && &bytes[i..i + q_name_pat.len()] == q_name_pat {
+                if i + q_name_pat.len() <= bytes.len()
+                    && &bytes[i..i + q_name_pat.len()] == q_name_pat
+                {
                     q_pos = Some(i);
                     break;
                 }
@@ -494,8 +544,14 @@ fn extract_array_strings(bytes: &[u8], prop_name: &[u8]) -> Vec<String> {
                 } else if !s.is_empty() {
                     let prop_t = read_string_at(bytes, &mut offset);
                     let size = i64::from_le_bytes([
-                        bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3],
-                        bytes[offset+4], bytes[offset+5], bytes[offset+6], bytes[offset+7]
+                        bytes[offset],
+                        bytes[offset + 1],
+                        bytes[offset + 2],
+                        bytes[offset + 3],
+                        bytes[offset + 4],
+                        bytes[offset + 5],
+                        bytes[offset + 6],
+                        bytes[offset + 7],
                     ]) as usize;
                     offset += 8;
                     if prop_t == "StructProperty" {
@@ -512,7 +568,9 @@ fn extract_array_strings(bytes: &[u8], prop_name: &[u8]) -> Vec<String> {
         }
     } else {
         for _ in 0..count {
-            if offset >= bytes.len() { break; }
+            if offset >= bytes.len() {
+                break;
+            }
             let s = read_string_at(bytes, &mut offset);
             if !s.is_empty() {
                 results.push(s);
@@ -537,22 +595,40 @@ fn extract_map_keys(bytes: &[u8], map_name: &[u8]) -> Vec<String> {
     };
     let mut offset = pos + map_name.len();
     let t = read_string_at(bytes, &mut offset);
-    if t != "MapProperty" { return results; }
+    if t != "MapProperty" {
+        return results;
+    }
     offset += 8; // skip size
     let _key_type = read_string_at(bytes, &mut offset);
     let val_type = read_string_at(bytes, &mut offset);
     offset += 1; // separator
-    
-    if offset + 8 > bytes.len() { return results; }
-    let _keys_to_delete = u32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]);
+
+    if offset + 8 > bytes.len() {
+        return results;
+    }
+    let _keys_to_delete = u32::from_le_bytes([
+        bytes[offset],
+        bytes[offset + 1],
+        bytes[offset + 2],
+        bytes[offset + 3],
+    ]);
     offset += 4;
-    let count = u32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]) as usize;
+    let count = u32::from_le_bytes([
+        bytes[offset],
+        bytes[offset + 1],
+        bytes[offset + 2],
+        bytes[offset + 3],
+    ]) as usize;
     offset += 4;
-    
+
     for _ in 0..count {
-        if offset >= bytes.len() { break; }
+        if offset >= bytes.len() {
+            break;
+        }
         let key = read_string_at(bytes, &mut offset);
-        if key.is_empty() { break; }
+        if key.is_empty() {
+            break;
+        }
         results.push(key);
         // Skip value depending on type
         if val_type == "BoolProperty" {
@@ -584,26 +660,49 @@ fn extract_map_counts(bytes: &[u8], map_name: &[u8]) -> HashMap<String, u32> {
     };
     let mut offset = pos + map_name.len();
     let t = read_string_at(bytes, &mut offset);
-    if t != "MapProperty" { return results; }
+    if t != "MapProperty" {
+        return results;
+    }
     offset += 8; // skip size
     let _key_type = read_string_at(bytes, &mut offset);
     let val_type = read_string_at(bytes, &mut offset);
     offset += 1; // separator
-    
-    if offset + 8 > bytes.len() { return results; }
-    let _keys_to_delete = u32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]);
+
+    if offset + 8 > bytes.len() {
+        return results;
+    }
+    let _keys_to_delete = u32::from_le_bytes([
+        bytes[offset],
+        bytes[offset + 1],
+        bytes[offset + 2],
+        bytes[offset + 3],
+    ]);
     offset += 4;
-    let count = u32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]) as usize;
+    let count = u32::from_le_bytes([
+        bytes[offset],
+        bytes[offset + 1],
+        bytes[offset + 2],
+        bytes[offset + 3],
+    ]) as usize;
     offset += 4;
-    
+
     for _ in 0..count {
-        if offset >= bytes.len() { break; }
+        if offset >= bytes.len() {
+            break;
+        }
         let key = read_string_at(bytes, &mut offset);
-        if key.is_empty() { break; }
+        if key.is_empty() {
+            break;
+        }
         let mut val = 0;
         if val_type == "IntProperty" {
             if offset + 4 <= bytes.len() {
-                val = u32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]);
+                val = u32::from_le_bytes([
+                    bytes[offset],
+                    bytes[offset + 1],
+                    bytes[offset + 2],
+                    bytes[offset + 3],
+                ]);
                 offset += 4;
             }
         } else {
@@ -639,25 +738,41 @@ fn scan_character_save_parameters(level_bytes: &[u8]) -> Vec<CharacterEntry> {
     let mut offset = pos + pattern.len();
 
     let prop_type = read_string_at(level_bytes, &mut offset);
-    if prop_type != "MapProperty" { return entries; }
+    if prop_type != "MapProperty" {
+        return entries;
+    }
     offset += 8; // skip size
     let _key_type = read_string_at(level_bytes, &mut offset);
     let _val_type = read_string_at(level_bytes, &mut offset);
     offset += 1; // separator
 
-    if offset + 8 > level_bytes.len() { return entries; }
-    let _keys_to_delete = u32::from_le_bytes([level_bytes[offset], level_bytes[offset+1], level_bytes[offset+2], level_bytes[offset+3]]);
+    if offset + 8 > level_bytes.len() {
+        return entries;
+    }
+    let _keys_to_delete = u32::from_le_bytes([
+        level_bytes[offset],
+        level_bytes[offset + 1],
+        level_bytes[offset + 2],
+        level_bytes[offset + 3],
+    ]);
     offset += 4;
-    let count = u32::from_le_bytes([level_bytes[offset], level_bytes[offset+1], level_bytes[offset+2], level_bytes[offset+3]]) as usize;
+    let count = u32::from_le_bytes([
+        level_bytes[offset],
+        level_bytes[offset + 1],
+        level_bytes[offset + 2],
+        level_bytes[offset + 3],
+    ]) as usize;
     offset += 4;
 
     for _ in 0..count {
-        if offset >= level_bytes.len() { break; }
-        
+        if offset >= level_bytes.len() {
+            break;
+        }
+
         // Parse key
         let mut player_uid = String::new();
         let mut instance_id = String::new();
-        
+
         loop {
             let p_name = read_string_at(level_bytes, &mut offset);
             if p_name.is_empty() || p_name == "None" {
@@ -665,11 +780,17 @@ fn scan_character_save_parameters(level_bytes: &[u8]) -> Vec<CharacterEntry> {
             }
             let p_type = read_string_at(level_bytes, &mut offset);
             let size = i64::from_le_bytes([
-                level_bytes[offset], level_bytes[offset+1], level_bytes[offset+2], level_bytes[offset+3],
-                level_bytes[offset+4], level_bytes[offset+5], level_bytes[offset+6], level_bytes[offset+7]
+                level_bytes[offset],
+                level_bytes[offset + 1],
+                level_bytes[offset + 2],
+                level_bytes[offset + 3],
+                level_bytes[offset + 4],
+                level_bytes[offset + 5],
+                level_bytes[offset + 6],
+                level_bytes[offset + 7],
             ]) as usize;
             offset += 8;
-            
+
             let mut struct_type = String::new();
             if p_type == "StructProperty" {
                 struct_type = read_string_at(level_bytes, &mut offset);
@@ -677,21 +798,21 @@ fn scan_character_save_parameters(level_bytes: &[u8]) -> Vec<CharacterEntry> {
             } else {
                 offset += 1;
             }
-            
+
             let val_offset = offset;
             offset += size;
-            
+
             if p_name == "PlayerUId" && struct_type == "Guid" {
                 let mut g_bytes = [0u8; 16];
-                g_bytes.copy_from_slice(&level_bytes[val_offset..val_offset+16]);
+                g_bytes.copy_from_slice(&level_bytes[val_offset..val_offset + 16]);
                 player_uid = format_guid(&g_bytes);
             } else if p_name == "InstanceId" && struct_type == "Guid" {
                 let mut g_bytes = [0u8; 16];
-                g_bytes.copy_from_slice(&level_bytes[val_offset..val_offset+16]);
+                g_bytes.copy_from_slice(&level_bytes[val_offset..val_offset + 16]);
                 instance_id = format_guid(&g_bytes);
             }
         }
-        
+
         // Parse value (contains RawData)
         let mut raw_data = Vec::new();
         loop {
@@ -701,21 +822,30 @@ fn scan_character_save_parameters(level_bytes: &[u8]) -> Vec<CharacterEntry> {
             }
             let p_type = read_string_at(level_bytes, &mut offset);
             let size = i64::from_le_bytes([
-                level_bytes[offset], level_bytes[offset+1], level_bytes[offset+2], level_bytes[offset+3],
-                level_bytes[offset+4], level_bytes[offset+5], level_bytes[offset+6], level_bytes[offset+7]
+                level_bytes[offset],
+                level_bytes[offset + 1],
+                level_bytes[offset + 2],
+                level_bytes[offset + 3],
+                level_bytes[offset + 4],
+                level_bytes[offset + 5],
+                level_bytes[offset + 6],
+                level_bytes[offset + 7],
             ]) as usize;
             offset += 8;
-            
+
             if p_type == "ArrayProperty" {
                 let array_type = read_string_at(level_bytes, &mut offset);
                 offset += 1; // separator
-                
+
                 let val_offset = offset;
                 offset += size;
-                
+
                 if p_name == "RawData" && array_type == "ByteProperty" {
                     let b_count = u32::from_le_bytes([
-                        level_bytes[val_offset], level_bytes[val_offset+1], level_bytes[val_offset+2], level_bytes[val_offset+3]
+                        level_bytes[val_offset],
+                        level_bytes[val_offset + 1],
+                        level_bytes[val_offset + 2],
+                        level_bytes[val_offset + 3],
                     ]) as usize;
                     if val_offset + 4 + b_count <= level_bytes.len() {
                         raw_data = level_bytes[val_offset + 4..val_offset + 4 + b_count].to_vec();
@@ -731,9 +861,13 @@ fn scan_character_save_parameters(level_bytes: &[u8]) -> Vec<CharacterEntry> {
                 offset += size;
             }
         }
-        
+
         if !player_uid.is_empty() && !instance_id.is_empty() && !raw_data.is_empty() {
-            entries.push(CharacterEntry { player_uid, instance_id, raw_data });
+            entries.push(CharacterEntry {
+                player_uid,
+                instance_id,
+                raw_data,
+            });
         }
     }
     entries
@@ -900,7 +1034,10 @@ fn parse_container_items(level_bytes: &[u8], container_guid_le: &[u8; 16]) -> Ve
     for i in 0..level_bytes.len() - 16 {
         if &level_bytes[i..i + 16] == container_guid_le {
             let check_end = std::cmp::min(i + 40, level_bytes.len());
-            if level_bytes[i + 16..check_end].windows(10).any(|w| w == b"BelongInfo") {
+            if level_bytes[i + 16..check_end]
+                .windows(10)
+                .any(|w| w == b"BelongInfo")
+            {
                 level_container_pos = Some(i);
                 break;
             }
@@ -915,7 +1052,9 @@ fn parse_container_items(level_bytes: &[u8], container_guid_le: &[u8; 16]) -> Ve
     let slots_pat = b"Slots\x00";
     let mut level_slots_pos = None;
     for i in lcpos..std::cmp::min(lcpos + 15000, level_bytes.len()) {
-        if i + slots_pat.len() <= level_bytes.len() && &level_bytes[i..i + slots_pat.len()] == slots_pat {
+        if i + slots_pat.len() <= level_bytes.len()
+            && &level_bytes[i..i + slots_pat.len()] == slots_pat
+        {
             level_slots_pos = Some(i - 4);
             break;
         }
@@ -932,9 +1071,16 @@ fn parse_container_items(level_bytes: &[u8], container_guid_le: &[u8; 16]) -> Ve
     offset += 8; // skip size
     let _item_type_str = read_string_at(level_bytes, &mut offset);
     offset += 1; // separator
-    
-    if offset + 4 > level_bytes.len() { return Vec::new(); }
-    let count = u32::from_le_bytes([level_bytes[offset], level_bytes[offset+1], level_bytes[offset+2], level_bytes[offset+3]]);
+
+    if offset + 4 > level_bytes.len() {
+        return Vec::new();
+    }
+    let count = u32::from_le_bytes([
+        level_bytes[offset],
+        level_bytes[offset + 1],
+        level_bytes[offset + 2],
+        level_bytes[offset + 3],
+    ]);
     offset += 4;
 
     let _prop_name = read_string_at(level_bytes, &mut offset);
@@ -952,30 +1098,55 @@ fn parse_container_items(level_bytes: &[u8], container_guid_le: &[u8; 16]) -> Ve
             }
             let prop_type = read_string_at(level_bytes, &mut offset);
             let size = i64::from_le_bytes([
-                level_bytes[offset], level_bytes[offset+1], level_bytes[offset+2], level_bytes[offset+3],
-                level_bytes[offset+4], level_bytes[offset+5], level_bytes[offset+6], level_bytes[offset+7]
+                level_bytes[offset],
+                level_bytes[offset + 1],
+                level_bytes[offset + 2],
+                level_bytes[offset + 3],
+                level_bytes[offset + 4],
+                level_bytes[offset + 5],
+                level_bytes[offset + 6],
+                level_bytes[offset + 7],
             ]) as usize;
             offset += 8;
 
             if prop_name == "RawData" {
                 let _array_item_type = read_string_at(level_bytes, &mut offset);
                 offset += 1; // separator
-                
+
                 let val_offset = offset;
                 offset += size;
-                
+
                 let b_count = u32::from_le_bytes([
-                    level_bytes[val_offset], level_bytes[val_offset+1], level_bytes[val_offset+2], level_bytes[val_offset+3]
+                    level_bytes[val_offset],
+                    level_bytes[val_offset + 1],
+                    level_bytes[val_offset + 2],
+                    level_bytes[val_offset + 3],
                 ]) as usize;
-                
+
                 if val_offset + 4 + b_count <= level_bytes.len() {
                     let raw_bytes = &level_bytes[val_offset + 4..val_offset + 4 + b_count];
-                    let slot_idx = u32::from_le_bytes([raw_bytes[0], raw_bytes[1], raw_bytes[2], raw_bytes[3]]);
-                    let stack_count = u32::from_le_bytes([raw_bytes[4], raw_bytes[5], raw_bytes[6], raw_bytes[7]]);
-                    let id_len = u32::from_le_bytes([raw_bytes[8], raw_bytes[9], raw_bytes[10], raw_bytes[11]]) as usize;
-                    
+                    let slot_idx = u32::from_le_bytes([
+                        raw_bytes[0],
+                        raw_bytes[1],
+                        raw_bytes[2],
+                        raw_bytes[3],
+                    ]);
+                    let stack_count = u32::from_le_bytes([
+                        raw_bytes[4],
+                        raw_bytes[5],
+                        raw_bytes[6],
+                        raw_bytes[7],
+                    ]);
+                    let id_len = u32::from_le_bytes([
+                        raw_bytes[8],
+                        raw_bytes[9],
+                        raw_bytes[10],
+                        raw_bytes[11],
+                    ]) as usize;
+
                     if id_len > 1 && 12 + id_len - 1 <= raw_bytes.len() {
-                        let item_id = String::from_utf8_lossy(&raw_bytes[12..12 + id_len - 1]).into_owned();
+                        let item_id =
+                            String::from_utf8_lossy(&raw_bytes[12..12 + id_len - 1]).into_owned();
                         if !item_id.is_empty() && stack_count > 0 {
                             items.push(InventoryItem {
                                 slot_index: slot_idx,
@@ -1025,15 +1196,26 @@ fn extract_any_float_prop(bytes: &[u8], prop_name: &[u8]) -> f64 {
         offset += 8; // skip size
         offset += 1; // separator
         if offset + 4 <= bytes.len() {
-            return f32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]) as f64;
+            return f32::from_le_bytes([
+                bytes[offset],
+                bytes[offset + 1],
+                bytes[offset + 2],
+                bytes[offset + 3],
+            ]) as f64;
         }
     } else if t == "DoubleProperty" {
         offset += 8; // skip size
         offset += 1; // separator
         if offset + 8 <= bytes.len() {
             return f64::from_le_bytes([
-                bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3],
-                bytes[offset+4], bytes[offset+5], bytes[offset+6], bytes[offset+7]
+                bytes[offset],
+                bytes[offset + 1],
+                bytes[offset + 2],
+                bytes[offset + 3],
+                bytes[offset + 4],
+                bytes[offset + 5],
+                bytes[offset + 6],
+                bytes[offset + 7],
             ]);
         }
     }
@@ -1046,7 +1228,7 @@ fn extract_vector_coords_float(bytes: &[u8], offset: usize) -> (f64, f64, f64) {
     let mut z = 0.0;
     let window_end = (offset + 500).min(bytes.len());
     let window = &bytes[offset..window_end];
-    
+
     if let Some(pos) = find_pattern(window, b"X\x00", 0) {
         x = extract_any_float_prop(&window[pos..], b"X\x00");
     }
@@ -1056,7 +1238,7 @@ fn extract_vector_coords_float(bytes: &[u8], offset: usize) -> (f64, f64, f64) {
     if let Some(pos) = find_pattern(window, b"Z\x00", 0) {
         z = extract_any_float_prop(&window[pos..], b"Z\x00");
     }
-    
+
     (x, y, z)
 }
 
@@ -1068,7 +1250,7 @@ fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
         last_pos = pos + pattern.len();
         let window_end = (pos + 4000).min(bytes.len());
         let window = &bytes[pos..window_end];
-        
+
         let mut level = 1;
         if let Some(lvl_pos) = find_pattern(window, b"BaseCampLevel\x00", 0) {
             level = extract_int_prop(&window[lvl_pos..], b"BaseCampLevel\x00") as u32;
@@ -1076,7 +1258,7 @@ fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
                 level = 1;
             }
         }
-        
+
         let mut group_id = String::new();
         if let Some(grp_pos) = find_pattern(window, b"GroupIdOfUser\x00", 0) {
             if let Some(guid) = extract_guid_prop(&window[grp_pos..], b"GroupIdOfUser\x00") {
@@ -1087,12 +1269,12 @@ fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
                 group_id = guid;
             }
         }
-        
+
         let mut coords = (0.0, 0.0, 0.0);
         if let Some(loc_pos) = find_pattern(window, b"Location\x00", 0) {
             coords = extract_vector_coords_float(window, loc_pos);
         }
-        
+
         let base_camp_id = if pos >= 16 {
             let mut g_bytes = [0u8; 16];
             g_bytes.copy_from_slice(&bytes[pos - 16..pos]);
@@ -1100,7 +1282,7 @@ fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
         } else {
             "00000000-0000-0000-0000-000000000000".to_string()
         };
-        
+
         camps.push(BaseCampSummary {
             base_camp_id,
             group_id,
@@ -1117,13 +1299,18 @@ fn scan_guilds(bytes: &[u8]) -> Vec<GuildSummary> {
     let mut last_pos = 0;
     while let Some(pos) = find_pattern(bytes, pattern, last_pos) {
         last_pos = pos + pattern.len();
-        
-        let window_start = if pos >= 500 { pos - 500 } else { 0 };
+
+        let window_start = pos.saturating_sub(500);
         let window_end = (pos + 4000).min(bytes.len());
         let window = &bytes[window_start..window_end];
-        
+
         let mut guild_name = String::new();
-        for name_pat in &[&b"guild_name\x00"[..], &b"GuildName\x00"[..], &b"GroupName\x00"[..], &b"group_name\x00"[..]] {
+        for name_pat in &[
+            &b"guild_name\x00"[..],
+            &b"GuildName\x00"[..],
+            &b"GroupName\x00"[..],
+            &b"group_name\x00"[..],
+        ] {
             if let Some(name_pos) = find_pattern(window, name_pat, 0) {
                 let name_val = extract_string_prop(&window[name_pos..], name_pat);
                 if !name_val.is_empty() {
@@ -1135,9 +1322,13 @@ fn scan_guilds(bytes: &[u8]) -> Vec<GuildSummary> {
         if guild_name.is_empty() {
             guild_name = "Default Guild".to_string();
         }
-        
+
         let mut admin_player_uid = String::new();
-        for admin_pat in &[&b"admin_player_uid\x00"[..], &b"AdminPlayerUId\x00"[..], &b"OwnerPlayerUId\x00"[..]] {
+        for admin_pat in &[
+            &b"admin_player_uid\x00"[..],
+            &b"AdminPlayerUId\x00"[..],
+            &b"OwnerPlayerUId\x00"[..],
+        ] {
             if let Some(admin_pos) = find_pattern(window, admin_pat, 0) {
                 if let Some(guid) = extract_guid_prop(&window[admin_pos..], admin_pat) {
                     admin_player_uid = guid;
@@ -1145,7 +1336,7 @@ fn scan_guilds(bytes: &[u8]) -> Vec<GuildSummary> {
                 }
             }
         }
-        
+
         let mut members = std::collections::BTreeSet::new();
         let mut search_pos = 0;
         while let Some(member_pos) = find_pattern(window, b"PlayerUId\x00", search_pos) {
@@ -1165,14 +1356,14 @@ fn scan_guilds(bytes: &[u8]) -> Vec<GuildSummary> {
                 }
             }
         }
-        
+
         let mut guild_id = "00000000-0000-0000-0000-000000000000".to_string();
         if let Some(id_pos) = find_pattern(window, b"GroupId\x00", 0) {
             if let Some(guid) = extract_guid_prop(&window[id_pos..], b"GroupId\x00") {
                 guild_id = guid;
             }
         }
-        
+
         guilds.push(GuildSummary {
             guild_id,
             guild_name,
@@ -1198,7 +1389,8 @@ fn get_all_detected_worlds() -> Vec<(PathBuf, std::time::SystemTime)> {
                         if let Ok(sub_entries) = std::fs::read_dir(&user_path) {
                             for sub_entry in sub_entries.filter_map(|e| e.ok()) {
                                 let world_path = sub_entry.path();
-                                if world_path.is_dir() && world_path.file_name().unwrap() != "Cloud" {
+                                if world_path.is_dir() && world_path.file_name().unwrap() != "Cloud"
+                                {
                                     let level_sav = world_path.join("Level.sav");
                                     if level_sav.exists() {
                                         if let Ok(meta) = std::fs::metadata(&level_sav) {
@@ -1215,7 +1407,7 @@ fn get_all_detected_worlds() -> Vec<(PathBuf, std::time::SystemTime)> {
             }
         }
     }
-    valid_worlds.sort_by(|a, b| b.1.cmp(&a.1));
+    valid_worlds.sort_by_key(|b| std::cmp::Reverse(b.1));
     valid_worlds
 }
 
@@ -1233,12 +1425,12 @@ fn select_world_interactively(worlds: &[(PathBuf, std::time::SystemTime)]) -> Pa
         );
     }
     println!("{}", "-".repeat(80));
-    
+
     let prompt = i18n::t("select_world_prompt").replace("{}", &worlds.len().to_string());
     print!("{}", prompt);
     use std::io::Write;
     let _ = std::io::stdout().flush();
-    
+
     let mut input = String::new();
     if std::io::stdin().read_line(&mut input).is_ok() {
         if let Ok(choice) = input.trim().parse::<usize>() {
@@ -1247,7 +1439,7 @@ fn select_world_interactively(worlds: &[(PathBuf, std::time::SystemTime)]) -> Pa
             }
         }
     }
-    
+
     println!("{}", i18n::t("invalid_selection"));
     worlds[0].0.clone()
 }
@@ -1257,10 +1449,10 @@ fn detect_game_mode(world_path: &Path) -> String {
     if !players_dir.exists() {
         return "game_mode_singleplayer".to_string();
     }
-    
+
     let mut has_host = false;
     let mut has_others = false;
-    
+
     if let Ok(entries) = std::fs::read_dir(&players_dir) {
         for entry in entries.filter_map(|e| e.ok()) {
             let path = entry.path();
@@ -1275,7 +1467,7 @@ fn detect_game_mode(world_path: &Path) -> String {
             }
         }
     }
-    
+
     if has_host && has_others {
         "game_mode_coop".to_string()
     } else if has_host {
@@ -1312,11 +1504,11 @@ static BREED_POWER: &[(&str, u32)] = &[
 ];
 
 fn find_child_pal(power_a: u32, power_b: u32) -> (&'static str, u32) {
-    let avg_power = (power_a + power_b + 1) / 2;
+    let avg_power = (power_a + power_b).div_ceil(2);
     let mut closest_pal = "Unknown";
     let mut min_diff = u32::MAX;
     for &(name, power) in BREED_POWER {
-        let diff = (power as i32 - avg_power as i32).abs() as u32;
+        let diff = (power as i32 - avg_power as i32).unsigned_abs();
         if diff < min_diff {
             min_diff = diff;
             closest_pal = name;
@@ -1327,9 +1519,36 @@ fn find_child_pal(power_a: u32, power_b: u32) -> (&'static str, u32) {
 
 fn extract_vector_coords(bytes: &[u8], offset: &mut usize) -> (i32, i32, i32) {
     if *offset + 24 <= bytes.len() {
-        let x = f64::from_le_bytes([bytes[*offset], bytes[*offset+1], bytes[*offset+2], bytes[*offset+3], bytes[*offset+4], bytes[*offset+5], bytes[*offset+6], bytes[*offset+7]]);
-        let y = f64::from_le_bytes([bytes[*offset+8], bytes[*offset+9], bytes[*offset+10], bytes[*offset+11], bytes[*offset+12], bytes[*offset+13], bytes[*offset+14], bytes[*offset+15]]);
-        let z = f64::from_le_bytes([bytes[*offset+16], bytes[*offset+17], bytes[*offset+18], bytes[*offset+19], bytes[*offset+20], bytes[*offset+21], bytes[*offset+22], bytes[*offset+23]]);
+        let x = f64::from_le_bytes([
+            bytes[*offset],
+            bytes[*offset + 1],
+            bytes[*offset + 2],
+            bytes[*offset + 3],
+            bytes[*offset + 4],
+            bytes[*offset + 5],
+            bytes[*offset + 6],
+            bytes[*offset + 7],
+        ]);
+        let y = f64::from_le_bytes([
+            bytes[*offset + 8],
+            bytes[*offset + 9],
+            bytes[*offset + 10],
+            bytes[*offset + 11],
+            bytes[*offset + 12],
+            bytes[*offset + 13],
+            bytes[*offset + 14],
+            bytes[*offset + 15],
+        ]);
+        let z = f64::from_le_bytes([
+            bytes[*offset + 16],
+            bytes[*offset + 17],
+            bytes[*offset + 18],
+            bytes[*offset + 19],
+            bytes[*offset + 20],
+            bytes[*offset + 21],
+            bytes[*offset + 22],
+            bytes[*offset + 23],
+        ]);
         *offset += 24;
         (x as i32, y as i32, z as i32)
     } else {
@@ -1337,60 +1556,71 @@ fn extract_vector_coords(bytes: &[u8], offset: &mut usize) -> (i32, i32, i32) {
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn find_chest_containers(level_bytes: &[u8]) -> Vec<([u8; 16], String, (i32, i32, i32))> {
     let mut results = Vec::new();
     let pattern = b"EPalMapObjectConcreteModelModuleType::ItemContainer\x00";
     let raw_data_pat = b"RawData\x00";
-    
+
     let mut pos = 0;
-    while let Some(match_idx) = level_bytes[pos..].windows(pattern.len()).position(|w| w == pattern) {
+    while let Some(match_idx) = level_bytes[pos..]
+        .windows(pattern.len())
+        .position(|w| w == pattern)
+    {
         let abs_idx = pos + match_idx;
         pos = abs_idx + pattern.len();
-        
+
         let search_end = std::cmp::min(abs_idx + 250, level_bytes.len());
-        if let Some(rd_offset) = level_bytes[abs_idx..search_end].windows(raw_data_pat.len()).position(|w| w == raw_data_pat) {
+        if let Some(rd_offset) = level_bytes[abs_idx..search_end]
+            .windows(raw_data_pat.len())
+            .position(|w| w == raw_data_pat)
+        {
             let mut offset = abs_idx + rd_offset + raw_data_pat.len();
             let type_name = read_string_at(level_bytes, &mut offset);
             if type_name == "ArrayProperty" {
                 offset += 8; // skip size
                 let elem_type = read_string_at(level_bytes, &mut offset);
                 offset += 1; // separator
-                if elem_type == "ByteProperty" {
-                    if offset + 4 + 16 <= level_bytes.len() {
-                        offset += 4; // skip count
-                        let mut guid = [0u8; 16];
-                        guid.copy_from_slice(&level_bytes[offset..offset + 16]);
-                        
-                        let search_start = if abs_idx > 2000 { abs_idx - 2000 } else { 0 };
-                        let mut chest_type = "Chest/Storage".to_string();
-                        let map_obj_pat = b"MapObjectId\x00";
-                        if let Some(mo_offset) = level_bytes[search_start..abs_idx].windows(map_obj_pat.len()).position(|w| w == map_obj_pat) {
-                            let mut temp_off = search_start + mo_offset + map_obj_pat.len();
-                            let t = read_string_at(level_bytes, &mut temp_off);
-                            if t == "StrProperty" || t == "NameProperty" {
-                                temp_off += 8;
-                                temp_off += 1;
-                                chest_type = read_string_at(level_bytes, &mut temp_off);
-                            }
+                if elem_type == "ByteProperty" && offset + 4 + 16 <= level_bytes.len() {
+                    offset += 4; // skip count
+                    let mut guid = [0u8; 16];
+                    guid.copy_from_slice(&level_bytes[offset..offset + 16]);
+
+                    let search_start = abs_idx.saturating_sub(2000);
+                    let mut chest_type = "Chest/Storage".to_string();
+                    let map_obj_pat = b"MapObjectId\x00";
+                    if let Some(mo_offset) = level_bytes[search_start..abs_idx]
+                        .windows(map_obj_pat.len())
+                        .position(|w| w == map_obj_pat)
+                    {
+                        let mut temp_off = search_start + mo_offset + map_obj_pat.len();
+                        let t = read_string_at(level_bytes, &mut temp_off);
+                        if t == "StrProperty" || t == "NameProperty" {
+                            temp_off += 8;
+                            temp_off += 1;
+                            chest_type = read_string_at(level_bytes, &mut temp_off);
                         }
-                        
-                        let mut coords = (0, 0, 0);
-                        let trans_pat = b"translation\x00";
-                        if let Some(t_offset) = level_bytes[search_start..abs_idx + 1000].windows(trans_pat.len()).position(|w| w == trans_pat) {
-                            let mut temp_off = search_start + t_offset + trans_pat.len();
-                            let t = read_string_at(level_bytes, &mut temp_off);
-                            if t == "StructProperty" {
-                                temp_off += 8;
-                                let st_type = read_string_at(level_bytes, &mut temp_off);
-                                if st_type == "Vector" {
-                                    temp_off += 16 + 1;
-                                    coords = extract_vector_coords(level_bytes, &mut temp_off);
-                                }
-                            }
-                        }
-                        
-                        results.push((guid, chest_type, coords));
                     }
+
+                    let mut coords = (0, 0, 0);
+                    let trans_pat = b"translation\x00";
+                    if let Some(t_offset) = level_bytes[search_start..abs_idx + 1000]
+                        .windows(trans_pat.len())
+                        .position(|w| w == trans_pat)
+                    {
+                        let mut temp_off = search_start + t_offset + trans_pat.len();
+                        let t = read_string_at(level_bytes, &mut temp_off);
+                        if t == "StructProperty" {
+                            temp_off += 8;
+                            let st_type = read_string_at(level_bytes, &mut temp_off);
+                            if st_type == "Vector" {
+                                temp_off += 16 + 1;
+                                coords = extract_vector_coords(level_bytes, &mut temp_off);
+                            }
+                        }
+                    }
+
+                    results.push((guid, chest_type, coords));
                 }
             }
         }
@@ -1402,80 +1632,111 @@ fn clean_seeds_in_bytes(bytes: &mut [u8]) -> Vec<(String, u32)> {
     let mut cleaned = Vec::new();
     let pattern = b"RawData\x00";
     let mut pos = 0;
-    
-    while let Some(match_idx) = bytes[pos..].windows(pattern.len()).position(|w| w == pattern) {
+
+    while let Some(match_idx) = bytes[pos..]
+        .windows(pattern.len())
+        .position(|w| w == pattern)
+    {
         let abs_idx = pos + match_idx;
         pos = abs_idx + pattern.len();
-        
+
         let mut offset = abs_idx + pattern.len();
-        if offset >= bytes.len() { continue; }
+        if offset >= bytes.len() {
+            continue;
+        }
         let type_name = read_string_at(bytes, &mut offset);
         if type_name == "ArrayProperty" {
             offset += 8;
             let elem_type = read_string_at(bytes, &mut offset);
             offset += 1;
-            if elem_type == "ByteProperty" {
-                if offset + 4 <= bytes.len() {
-                    let count = u32::from_le_bytes([bytes[offset], bytes[offset+1], bytes[offset+2], bytes[offset+3]]) as usize;
+            if elem_type == "ByteProperty"
+                && offset + 4 <= bytes.len() {
+                    let count = u32::from_le_bytes([
+                        bytes[offset],
+                        bytes[offset + 1],
+                        bytes[offset + 2],
+                        bytes[offset + 3],
+                    ]) as usize;
                     offset += 4;
                     if offset + count <= bytes.len() && count >= 12 {
                         let raw_start = offset;
-                        let stack_count = u32::from_le_bytes([bytes[raw_start+4], bytes[raw_start+5], bytes[raw_start+6], bytes[raw_start+7]]);
-                        let id_len = u32::from_le_bytes([bytes[raw_start+8], bytes[raw_start+9], bytes[raw_start+10], bytes[raw_start+11]]) as usize;
+                        let stack_count = u32::from_le_bytes([
+                            bytes[raw_start + 4],
+                            bytes[raw_start + 5],
+                            bytes[raw_start + 6],
+                            bytes[raw_start + 7],
+                        ]);
+                        let id_len = u32::from_le_bytes([
+                            bytes[raw_start + 8],
+                            bytes[raw_start + 9],
+                            bytes[raw_start + 10],
+                            bytes[raw_start + 11],
+                        ]) as usize;
                         if id_len > 0 && id_len < 100 && raw_start + 12 + id_len <= bytes.len() {
-                            let item_id_bytes = &bytes[raw_start+12..raw_start+12 + id_len - 1];
+                            let item_id_bytes = &bytes[raw_start + 12..raw_start + 12 + id_len - 1];
                             if let Ok(item_id) = std::str::from_utf8(item_id_bytes) {
                                 let item_lower = item_id.to_lowercase();
                                 if item_lower.contains("seed") && stack_count > 0 {
                                     cleaned.push((item_id.to_string(), stack_count));
-                                    bytes[raw_start+4] = 0;
-                                    bytes[raw_start+5] = 0;
-                                    bytes[raw_start+6] = 0;
-                                    bytes[raw_start+7] = 0;
-                                    bytes[raw_start+8] = 0;
-                                    bytes[raw_start+9] = 0;
-                                    bytes[raw_start+10] = 0;
-                                    bytes[raw_start+11] = 0;
+                                    bytes[raw_start + 4] = 0;
+                                    bytes[raw_start + 5] = 0;
+                                    bytes[raw_start + 6] = 0;
+                                    bytes[raw_start + 7] = 0;
+                                    bytes[raw_start + 8] = 0;
+                                    bytes[raw_start + 9] = 0;
+                                    bytes[raw_start + 10] = 0;
+                                    bytes[raw_start + 11] = 0;
                                     for i in 0..id_len {
-                                        bytes[raw_start+12+i] = 0;
+                                        bytes[raw_start + 12 + i] = 0;
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
         }
     }
     cleaned
 }
 
-fn compress_and_write_gvas(path: &Path, decompressed: &[u8], original_header: &[u8]) -> Result<(), String> {
+fn compress_and_write_gvas(
+    path: &Path,
+    decompressed: &[u8],
+    original_header: &[u8],
+) -> Result<(), String> {
     use flate2::write::ZlibEncoder;
     use flate2::Compression;
     use std::io::Write;
-    
+
     if original_header.len() < 12 {
         return Err("Original header too short".to_string());
     }
-    
+
     let magic = &original_header[8..11];
     if magic != b"PlZ" {
         return Err("Saving only supports Zlib (PlZ) compressed saves currently".to_string());
     }
-    
+
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::best());
     encoder.write_all(decompressed).map_err(|e| e.to_string())?;
     let compressed_payload = encoder.finish().map_err(|e| e.to_string())?;
-    
+
     let mut out_file = File::create(path).map_err(|e| e.to_string())?;
     let uncompressed_len = decompressed.len() as u32;
-    out_file.write_all(&uncompressed_len.to_le_bytes()).map_err(|e| e.to_string())?;
+    out_file
+        .write_all(&uncompressed_len.to_le_bytes())
+        .map_err(|e| e.to_string())?;
     let compressed_len = compressed_payload.len() as u32;
-    out_file.write_all(&compressed_len.to_le_bytes()).map_err(|e| e.to_string())?;
-    out_file.write_all(&original_header[8..12]).map_err(|e| e.to_string())?;
-    out_file.write_all(&compressed_payload).map_err(|e| e.to_string())?;
-    
+    out_file
+        .write_all(&compressed_len.to_le_bytes())
+        .map_err(|e| e.to_string())?;
+    out_file
+        .write_all(&original_header[8..12])
+        .map_err(|e| e.to_string())?;
+    out_file
+        .write_all(&compressed_payload)
+        .map_err(|e| e.to_string())?;
+
     Ok(())
 }
 
@@ -1485,7 +1746,10 @@ fn run_time_command(world_path: &Path, is_json: bool) {
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to decompress Level.sav: {}", e);
             }
@@ -1504,7 +1768,7 @@ fn run_time_command(world_path: &Path, is_json: bool) {
     let remaining_ticks = remaining_ticks % ticks_per_hour;
     let minute = remaining_ticks / ticks_per_minute;
 
-    let is_day = hour >= 6 && hour < 20;
+    let is_day = (6..20).contains(&hour);
 
     if is_json {
         let out_json = serde_json::json!({
@@ -1516,11 +1780,20 @@ fn run_time_command(world_path: &Path, is_json: bool) {
         });
         println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
     } else {
-        let state = if is_day { i18n::t("DIA") } else { i18n::t("NOCHE") };
+        let state = if is_day {
+            i18n::t("DIA")
+        } else {
+            i18n::t("NOCHE")
+        };
         println!("\n=== {} ===\n", i18n::t("time_report_title"));
         println!(" {:<35} : {}", i18n::t("ticks_totales"), ticks);
         println!(" {:<35} : {}", i18n::t("dia_juego"), day_number);
-        println!(" {:<35} : {:02}:{:02}", i18n::t("hora_partida"), hour, minute);
+        println!(
+            " {:<35} : {:02}:{:02}",
+            i18n::t("hora_partida"),
+            hour,
+            minute
+        );
         println!(" {:<35} : {}", i18n::t("estado_actual"), state);
         println!("\n=========================================");
     }
@@ -1530,7 +1803,10 @@ fn run_settings_command(world_path: &Path, is_json: bool) {
     let opt_sav = world_path.join("WorldOption.sav");
     if !opt_sav.exists() {
         if is_json {
-            println!("{}", serde_json::json!({ "status": "error", "message": format!("WorldOption.sav not found at {}.", opt_sav.display()) }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "error", "message": format!("WorldOption.sav not found at {}.", opt_sav.display()) })
+            );
         } else {
             println!("WorldOption.sav not found at {}.", opt_sav.display());
         }
@@ -1540,14 +1816,17 @@ fn run_settings_command(world_path: &Path, is_json: bool) {
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress WorldOption.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress WorldOption.sav: {}", e) })
+                );
             } else {
                 println!("Failed to decompress WorldOption.sav: {}", e);
             }
             return;
         }
     };
-    
+
     let difficulty = extract_enum_prop(&bytes, b"Difficulty\x00");
     let exp_rate = extract_float_prop(&bytes, b"ExpRate\x00");
     let capture_rate = extract_float_prop(&bytes, b"PalCaptureRate\x00");
@@ -1567,7 +1846,7 @@ fn run_settings_command(world_path: &Path, is_json: bool) {
     let build_limit = extract_bool_prop(&bytes, b"bBuildAreaLimit\x00");
     let max_guild = extract_int_prop(&bytes, b"GuildPlayerMaxNum\x00");
     let max_base = extract_int_prop(&bytes, b"BaseCampMaxNumInGuild\x00");
-    
+
     if is_json {
         let out_json = serde_json::json!({
             "status": "success",
@@ -1604,17 +1883,73 @@ fn run_settings_command(world_path: &Path, is_json: bool) {
         println!(" {:<40} : {:.2}", i18n::t("PalSpawnNumRate"), spawn_rate);
         println!(" {:<40} : {:.2}", i18n::t("PalDamageRateAttack"), pal_atk);
         println!(" {:<40} : {:.2}", i18n::t("PalDamageRateDefense"), pal_def);
-        println!(" {:<40} : {:.2}", i18n::t("PlayerDamageRateAttack"), player_atk);
-        println!(" {:<40} : {:.2}", i18n::t("PlayerDamageRateDefense"), player_def);
-        println!(" {:<40} : {:.2}", i18n::t("PlayerStaminaDecreaceRate"), player_stamina);
-        println!(" {:<40} : {:.2}", i18n::t("PlayerStomachDecreaceRate"), player_stomach);
-        println!(" {:<40} : {:.2}", i18n::t("PlayerAutoHPRegeneRate"), player_regen);
-        println!(" {:<40} : {:.2}", i18n::t("PalEggDefaultHatchingTime"), egg_time);
-        println!(" {:<40} : {}", i18n::t("DeathPenalty"), i18n::t(&death_penalty));
-        println!(" {:<40} : {}", i18n::t("bIsMultiplay"), if is_multi { i18n::t("Si") } else { i18n::t("No") });
-        println!(" {:<40} : {}", i18n::t("bIsPvP"), if is_pvp { i18n::t("Si") } else { i18n::t("No") });
-        println!(" {:<40} : {}", i18n::t("bEnableFastTravel"), if fast_travel { i18n::t("Si") } else { i18n::t("No") });
-        println!(" {:<40} : {}", i18n::t("bBuildAreaLimit"), if build_limit { i18n::t("Si") } else { i18n::t("No") });
+        println!(
+            " {:<40} : {:.2}",
+            i18n::t("PlayerDamageRateAttack"),
+            player_atk
+        );
+        println!(
+            " {:<40} : {:.2}",
+            i18n::t("PlayerDamageRateDefense"),
+            player_def
+        );
+        println!(
+            " {:<40} : {:.2}",
+            i18n::t("PlayerStaminaDecreaceRate"),
+            player_stamina
+        );
+        println!(
+            " {:<40} : {:.2}",
+            i18n::t("PlayerStomachDecreaceRate"),
+            player_stomach
+        );
+        println!(
+            " {:<40} : {:.2}",
+            i18n::t("PlayerAutoHPRegeneRate"),
+            player_regen
+        );
+        println!(
+            " {:<40} : {:.2}",
+            i18n::t("PalEggDefaultHatchingTime"),
+            egg_time
+        );
+        println!(
+            " {:<40} : {}",
+            i18n::t("DeathPenalty"),
+            i18n::t(&death_penalty)
+        );
+        println!(
+            " {:<40} : {}",
+            i18n::t("bIsMultiplay"),
+            if is_multi {
+                i18n::t("Si")
+            } else {
+                i18n::t("No")
+            }
+        );
+        println!(
+            " {:<40} : {}",
+            i18n::t("bIsPvP"),
+            if is_pvp { i18n::t("Si") } else { i18n::t("No") }
+        );
+        println!(
+            " {:<40} : {}",
+            i18n::t("bEnableFastTravel"),
+            if fast_travel {
+                i18n::t("Si")
+            } else {
+                i18n::t("No")
+            }
+        );
+        println!(
+            " {:<40} : {}",
+            i18n::t("bBuildAreaLimit"),
+            if build_limit {
+                i18n::t("Si")
+            } else {
+                i18n::t("No")
+            }
+        );
         println!(" {:<40} : {}", i18n::t("GuildPlayerMaxNum"), max_guild);
         println!(" {:<40} : {}", i18n::t("BaseCampMaxNumInGuild"), max_base);
         println!("==================================================");
@@ -1627,24 +1962,29 @@ fn run_search_chest_command(world_path: &Path, query: &str, is_json: bool) {
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to decompress Level.sav: {}", e);
             }
             return;
         }
     };
-    
+
     let query_lower = query.to_lowercase();
     let chests = find_chest_containers(&bytes);
-    
+
     if is_json {
         let mut results = Vec::new();
         for (guid, chest_type, coords) in &chests {
             let items = parse_container_items(&bytes, guid);
             for item in items {
                 let item_name = i18n::t(&item.item_id);
-                if item.item_id.to_lowercase().contains(&query_lower) || item_name.to_lowercase().contains(&query_lower) {
+                if item.item_id.to_lowercase().contains(&query_lower)
+                    || item_name.to_lowercase().contains(&query_lower)
+                {
                     let guid_str = format_guid(guid);
                     results.push(serde_json::json!({
                         "item_id": item.item_id,
@@ -1670,14 +2010,22 @@ fn run_search_chest_command(world_path: &Path, query: &str, is_json: bool) {
     } else {
         let mut found_any = false;
         println!("\n=== {}: '{}' ===\n", i18n::t("chest_search_title"), query);
-        println!(" {:<25} | {:<5} | {:<25} | {}", i18n::t("col_item"), i18n::t("col_count"), i18n::t("col_chest"), i18n::t("col_coords"));
+        println!(
+            " {:<25} | {:<5} | {:<25} | {}",
+            i18n::t("col_item"),
+            i18n::t("col_count"),
+            i18n::t("col_chest"),
+            i18n::t("col_coords")
+        );
         println!("{}", "-".repeat(85));
-        
+
         for (guid, chest_type, coords) in chests {
             let items = parse_container_items(&bytes, &guid);
             for item in items {
                 let item_name = i18n::t(&item.item_id);
-                if item.item_id.to_lowercase().contains(&query_lower) || item_name.to_lowercase().contains(&query_lower) {
+                if item.item_id.to_lowercase().contains(&query_lower)
+                    || item_name.to_lowercase().contains(&query_lower)
+                {
                     found_any = true;
                     let coords_str = if coords.0 != 0 || coords.1 != 0 {
                         format!("({}, {}, {})", coords.0, coords.1, coords.2)
@@ -1685,7 +2033,10 @@ fn run_search_chest_command(world_path: &Path, query: &str, is_json: bool) {
                         i18n::t("no_coords")
                     };
                     let translated_chest_type = i18n::t(&chest_type);
-                    println!(" {:<25} | {:<5} | {:<25} | {}", item_name, item.count, translated_chest_type, coords_str);
+                    println!(
+                        " {:<25} | {:<5} | {:<25} | {}",
+                        item_name, item.count, translated_chest_type, coords_str
+                    );
                 }
             }
         }
@@ -1702,17 +2053,22 @@ fn run_breeding_command(world_path: &Path, is_json: bool, target_uid: Option<&st
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to decompress Level.sav: {}", e);
             }
             return;
         }
     };
-    
+
     let characters = scan_character_save_parameters(&level_bytes);
-    
-    let mut player_uid = target_uid.unwrap_or("00000000-0000-0000-0000-000000000001").to_string();
+
+    let mut player_uid = target_uid
+        .unwrap_or("00000000-0000-0000-0000-000000000001")
+        .to_string();
     if target_uid.is_none() {
         let players_dir = world_path.join("Players");
         if let Ok(entries) = std::fs::read_dir(&players_dir) {
@@ -1734,23 +2090,30 @@ fn run_breeding_command(world_path: &Path, is_json: bool, target_uid: Option<&st
             }
         }
     }
-    
+
     let mut males = std::collections::BTreeSet::new();
     let mut females = std::collections::BTreeSet::new();
-    
+
     for char_entry in &characters {
         let is_player = extract_bool_prop(&char_entry.raw_data, b"IsPlayer\x00");
-        if is_player { continue; }
-        
-        let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+        if is_player {
+            continue;
+        }
+
+        let owner_uid =
+            extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
         if owner_uid == player_uid {
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() { continue; }
+            if char_id.is_empty() {
+                continue;
+            }
             let translated_name = i18n::t(&char_id);
-            
+
             let has_power = BREED_POWER.iter().any(|&(name, _)| name == translated_name);
-            if !has_power { continue; }
-            
+            if !has_power {
+                continue;
+            }
+
             let gender = extract_string_prop(&char_entry.raw_data, b"Gender\x00");
             if gender.contains("Male") {
                 males.insert(translated_name);
@@ -1759,12 +2122,20 @@ fn run_breeding_command(world_path: &Path, is_json: bool, target_uid: Option<&st
             }
         }
     }
-    
+
     let mut combinations = Vec::new();
     for male in &males {
         for female in &females {
-            let power_a = BREED_POWER.iter().find(|&&(name, _)| name == *male).map(|&(_, p)| p).unwrap_or(1500);
-            let power_b = BREED_POWER.iter().find(|&&(name, _)| name == *female).map(|&(_, p)| p).unwrap_or(1500);
+            let power_a = BREED_POWER
+                .iter()
+                .find(|&&(name, _)| name == *male)
+                .map(|&(_, p)| p)
+                .unwrap_or(1500);
+            let power_b = BREED_POWER
+                .iter()
+                .find(|&&(name, _)| name == *female)
+                .map(|&(_, p)| p)
+                .unwrap_or(1500);
             let (child, avg_power) = find_child_pal(power_a, power_b);
             combinations.push((male.clone(), female.clone(), child.to_string(), avg_power));
         }
@@ -1791,20 +2162,48 @@ fn run_breeding_command(world_path: &Path, is_json: bool, target_uid: Option<&st
         println!("\n=== {} ===\n", i18n::t("breeding_assistant_title"));
         let males_vec: Vec<String> = males.iter().cloned().collect();
         let females_vec: Vec<String> = females.iter().cloned().collect();
-        
-        println!(" {}: {}", i18n::t("males_available"), if males_vec.is_empty() { i18n::t("none_m") } else { males_vec.join(", ") });
-        println!(" {}: {}", i18n::t("females_available"), if females_vec.is_empty() { i18n::t("none_f") } else { females_vec.join(", ") });
+
+        println!(
+            " {}: {}",
+            i18n::t("males_available"),
+            if males_vec.is_empty() {
+                i18n::t("none_m")
+            } else {
+                males_vec.join(", ")
+            }
+        );
+        println!(
+            " {}: {}",
+            i18n::t("females_available"),
+            if females_vec.is_empty() {
+                i18n::t("none_f")
+            } else {
+                females_vec.join(", ")
+            }
+        );
         println!();
-        
+
         if males.is_empty() || females.is_empty() {
             println!(" {}", i18n::t("breeding_needs_both"));
             return;
         }
-        
-        println!(" {:<15} + {:<15} => {:<15} ({})", i18n::t("col_father"), i18n::t("col_mother"), i18n::t("col_child"), i18n::t("col_avg_power"));
+
+        println!(
+            " {:<15} + {:<15} => {:<15} ({})",
+            i18n::t("col_father"),
+            i18n::t("col_mother"),
+            i18n::t("col_child"),
+            i18n::t("col_avg_power")
+        );
         println!("{}", "-".repeat(75));
         for (male, female, child, avg_power) in combinations {
-            println!(" {:<15} + {:<15} => {:<15} (Poder: {})", male, female, i18n::t(&child), avg_power);
+            println!(
+                " {:<15} + {:<15} => {:<15} (Poder: {})",
+                male,
+                female,
+                i18n::t(&child),
+                avg_power
+            );
         }
         println!("\n==========================================================================");
     }
@@ -1835,48 +2234,57 @@ fn run_progress_command(world_path: &Path, is_json: bool, target_uid: Option<&st
             }
         }
     }
-    
+
     let player_sav = match player_sav {
         Some(p) => p,
         None => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": "Player save file not found." }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": "Player save file not found." })
+                );
             } else {
                 println!("Player save file not found.");
             }
             return;
         }
     };
-    
+
     let bytes = match decompress_gvas(&player_sav) {
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress player save: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress player save: {}", e) })
+                );
             } else {
                 println!("Failed to decompress player save: {}", e);
             }
             return;
         }
     };
-    
+
     let relics = extract_map_keys(&bytes, b"RelicObtainForInstanceFlag\x00");
     let notes = extract_map_keys(&bytes, b"NoteObtainForInstanceFlag\x00");
     let fast_travels = extract_map_keys(&bytes, b"FastTravelPointUnlockFlag\x00");
     let areas = extract_map_keys(&bytes, b"FindAreaFlagMap\x00");
     let captures = extract_map_counts(&bytes, b"PalCaptureCount\x00");
-    
+
     if is_json {
-        let captures_list: Vec<serde_json::Value> = captures.into_iter().map(|(pal_id, count)| {
-            serde_json::json!({
-                "pal_id": pal_id,
-                "pal_name": i18n::t(&pal_id),
-                "captured_count": count,
-                "bonus_completed": count >= 10,
-                "missing_for_bonus": if count >= 10 { 0 } else { 10 - count }
+        let captures_list: Vec<serde_json::Value> = captures
+            .into_iter()
+            .map(|(pal_id, count)| {
+                serde_json::json!({
+                    "pal_id": pal_id,
+                    "pal_name": i18n::t(&pal_id),
+                    "captured_count": count,
+                    "bonus_completed": count >= 10,
+                    "missing_for_bonus": 10_u32.saturating_sub(count)
+                })
             })
-        }).collect();
-        
+            .collect();
+
         let out_json = serde_json::json!({
             "status": "success",
             "progress": {
@@ -1893,22 +2301,42 @@ fn run_progress_command(world_path: &Path, is_json: bool, target_uid: Option<&st
         println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
     } else {
         println!("\n=== {} ===\n", i18n::t("progress_report_title"));
-        println!(" {:<35} : {}/435 ({:.2}%)", i18n::t("relics_progress"), relics.len(), (relics.len() as f64 / 435.0) * 100.0);
-        println!(" {:<35} : {}/45 ({:.2}%)", i18n::t("notes_progress"), notes.len(), (notes.len() as f64 / 45.0) * 100.0);
-        println!(" {:<35} : {}/57 ({:.2}%)", i18n::t("fast_travels_progress"), fast_travels.len(), (fast_travels.len() as f64 / 57.0) * 100.0);
+        println!(
+            " {:<35} : {}/435 ({:.2}%)",
+            i18n::t("relics_progress"),
+            relics.len(),
+            (relics.len() as f64 / 435.0) * 100.0
+        );
+        println!(
+            " {:<35} : {}/45 ({:.2}%)",
+            i18n::t("notes_progress"),
+            notes.len(),
+            (notes.len() as f64 / 45.0) * 100.0
+        );
+        println!(
+            " {:<35} : {}/57 ({:.2}%)",
+            i18n::t("fast_travels_progress"),
+            fast_travels.len(),
+            (fast_travels.len() as f64 / 57.0) * 100.0
+        );
         println!(" {:<35} : {}", i18n::t("areas_discovered"), areas.len());
         println!("\n=======================================================");
-        
+
         println!("\n=== {} ===\n", i18n::t("capture_bonus_title"));
-        println!(" {:<20} | {:<10} | {}", i18n::t("col_pal"), i18n::t("col_captured"), i18n::t("col_bonus_status"));
+        println!(
+            " {:<20} | {:<10} | {}",
+            i18n::t("col_pal"),
+            i18n::t("col_captured"),
+            i18n::t("col_bonus_status")
+        );
         println!("{}", "-".repeat(55));
-        
+
         if captures.is_empty() {
             println!(" {}", i18n::t("no_captures_yet"));
         } else {
             let mut captures_sorted: Vec<(String, u32)> = captures.into_iter().collect();
-            captures_sorted.sort_by(|a, b| i18n::t(&a.0).cmp(&i18n::t(&b.0)));
-            
+            captures_sorted.sort_by_key(|a| i18n::t(&a.0));
+
             for (pal_id, count) in captures_sorted {
                 let translated_name = i18n::t(&pal_id);
                 let status = if count >= 10 {
@@ -1926,24 +2354,30 @@ fn run_progress_command(world_path: &Path, is_json: bool, target_uid: Option<&st
 fn run_clean_seeds_command(world_path: &Path, is_json: bool) {
     let level_sav = world_path.join("Level.sav");
     let backup_sav = world_path.join("Level.sav.bak");
-    
+
     if !is_json {
         println!("Creating backup at {}...", backup_sav.display());
     }
     if let Err(e) = std::fs::copy(&level_sav, &backup_sav) {
         if is_json {
-            println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to create backup: {}", e) }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "error", "message": format!("Failed to create backup: {}", e) })
+            );
         } else {
             println!("Failed to create backup: {}", e);
         }
         return;
     }
-    
+
     let mut orig_file = match File::open(&level_sav) {
         Ok(f) => f,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to open Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to open Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to open Level.sav: {}", e);
             }
@@ -1953,14 +2387,17 @@ fn run_clean_seeds_command(world_path: &Path, is_json: bool) {
     let mut header = [0u8; 12];
     if let Err(e) = orig_file.read_exact(&mut header) {
         if is_json {
-            println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to read Level.sav header: {}", e) }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "error", "message": format!("Failed to read Level.sav header: {}", e) })
+            );
         } else {
             println!("Failed to read Level.sav header: {}", e);
         }
         return;
     }
     drop(orig_file);
-    
+
     if !is_json {
         println!("Decompressing Level.sav...");
     }
@@ -1968,35 +2405,41 @@ fn run_clean_seeds_command(world_path: &Path, is_json: bool) {
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to decompress Level.sav: {}", e);
             }
             return;
         }
     };
-    
+
     if !is_json {
         println!("Searching and cleaning seed items in-place...");
     }
     let cleaned = clean_seeds_in_bytes(&mut bytes);
-    
+
     if cleaned.is_empty() {
         if is_json {
-            println!("{}", serde_json::json!({ "status": "success", "cleaned_count": 0, "cleaned_items": [] }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "success", "cleaned_count": 0, "cleaned_items": [] })
+            );
         } else {
             println!("No seed items found in containers.");
         }
         return;
     }
-    
+
     if !is_json {
         println!("Removed items:");
         for (item, count) in &cleaned {
             println!(" - {} (x{})", i18n::t(item), count);
         }
     }
-    
+
     if !is_json {
         println!("Re-compressing and writing back Level.sav...");
     }
@@ -2018,7 +2461,10 @@ fn run_clean_seeds_command(world_path: &Path, is_json: bool) {
         }
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to save Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to save Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to save Level.sav: {}", e);
             }
@@ -2032,44 +2478,58 @@ fn run_monitor_command(world_path: &Path, is_json: bool, target_uid: Option<&str
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to decompress Level.sav: {}", e);
             }
             return;
         }
     };
-    
+
     let characters = scan_character_save_parameters(&level_bytes);
-    
+
     if is_json {
         let mut pals_list = Vec::new();
         for char_entry in &characters {
             let is_player = extract_bool_prop(&char_entry.raw_data, b"IsPlayer\x00");
-            if is_player { continue; }
-            
-            let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
-            if let Some(uid) = target_uid {
-                if owner_uid != uid { continue; }
+            if is_player {
+                continue;
             }
-            
+
+            let owner_uid =
+                extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+            if let Some(uid) = target_uid {
+                if owner_uid != uid {
+                    continue;
+                }
+            }
+
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() || char_id == "Desconocido" { continue; }
-            
+            if char_id.is_empty() || char_id == "Desconocido" {
+                continue;
+            }
+
             let hp_cur = extract_fixed_point_prop(&char_entry.raw_data, b"Hp\x00");
             let hp_max = extract_fixed_point_prop(&char_entry.raw_data, b"MaxHp\x00");
-            let hp_pct = if hp_max > 0.0 { (hp_cur / hp_max * 100.0) as u32 } else { 100 };
-            
+            let hp_pct = if hp_max > 0.0 {
+                (hp_cur / hp_max * 100.0) as u32
+            } else {
+                100
+            };
+
             let mut san_val = 100.0;
             if has_prop(&char_entry.raw_data, b"SanityValue\x00") {
                 san_val = extract_float_prop(&char_entry.raw_data, b"SanityValue\x00");
             }
-            
+
             let mut satiety = 100.0;
             if has_prop(&char_entry.raw_data, b"FullStomach\x00") {
                 satiety = extract_float_prop(&char_entry.raw_data, b"FullStomach\x00");
             }
-            
+
             // Evaluate status
             let mut status = "status_excellent".to_string();
             if san_val < 50.0 {
@@ -2077,17 +2537,17 @@ fn run_monitor_command(world_path: &Path, is_json: bool, target_uid: Option<&str
             } else if san_val < 70.0 {
                 status = "status_stressed".to_string();
             }
-            
+
             if satiety < 40.0 {
                 status = "status_critically_hungry".to_string();
             } else if satiety < 70.0 {
                 status = "status_needs_food".to_string();
             }
-            
+
             if hp_pct < 30 {
                 status = "status_gravely_injured".to_string();
             }
-            
+
             pals_list.push(serde_json::json!({
                 "pal_id": char_id,
                 "pal_name": i18n::t(&char_id),
@@ -2116,36 +2576,47 @@ fn run_monitor_command(world_path: &Path, is_json: bool, target_uid: Option<&str
             i18n::t("col_status")
         );
         println!("{}", "-".repeat(80));
-        
+
         let mut count = 0;
         for char_entry in &characters {
             let is_player = extract_bool_prop(&char_entry.raw_data, b"IsPlayer\x00");
-            if is_player { continue; }
-            
-            let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
-            if let Some(uid) = target_uid {
-                if owner_uid != uid { continue; }
+            if is_player {
+                continue;
             }
-            
+
+            let owner_uid =
+                extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+            if let Some(uid) = target_uid {
+                if owner_uid != uid {
+                    continue;
+                }
+            }
+
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() || char_id == "Desconocido" { continue; }
-            
+            if char_id.is_empty() || char_id == "Desconocido" {
+                continue;
+            }
+
             let hp_cur = extract_fixed_point_prop(&char_entry.raw_data, b"Hp\x00");
             let hp_max = extract_fixed_point_prop(&char_entry.raw_data, b"MaxHp\x00");
-            let hp_pct = if hp_max > 0.0 { (hp_cur / hp_max * 100.0) as u32 } else { 100 };
-            
+            let hp_pct = if hp_max > 0.0 {
+                (hp_cur / hp_max * 100.0) as u32
+            } else {
+                100
+            };
+
             let mut san_val = 100.0;
             if has_prop(&char_entry.raw_data, b"SanityValue\x00") {
                 san_val = extract_float_prop(&char_entry.raw_data, b"SanityValue\x00");
             }
-            
+
             let mut satiety = 100.0;
             if has_prop(&char_entry.raw_data, b"FullStomach\x00") {
                 satiety = extract_float_prop(&char_entry.raw_data, b"FullStomach\x00");
             }
-            
+
             let pal_name = i18n::t(&char_id);
-            
+
             // Evaluate status
             let mut status = i18n::t("status_excellent");
             if san_val < 50.0 {
@@ -2153,30 +2624,32 @@ fn run_monitor_command(world_path: &Path, is_json: bool, target_uid: Option<&str
             } else if san_val < 70.0 {
                 status = i18n::t("status_stressed");
             }
-            
+
             if satiety < 40.0 {
                 status = i18n::t("status_critically_hungry");
             } else if satiety < 70.0 {
                 status = i18n::t("status_needs_food");
             }
-            
+
             if hp_pct < 30 {
                 status = i18n::t("status_gravely_injured");
             }
-            
+
             println!(
                 " {:<15} | {:>10}% | {:>12.1}/100 | {:>17.1}/100 | {}",
                 pal_name, hp_pct, san_val, satiety, status
             );
             count += 1;
         }
-        
+
         if count == 0 {
             println!(" No Pals found in Level.sav.");
         }
-        
+
         println!("\n{}", i18n::t("monitor_note"));
-        println!("================================================================================");
+        println!(
+            "================================================================================"
+        );
     }
 }
 
@@ -2186,33 +2659,43 @@ fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option<&st
         Ok(b) => b,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Failed to decompress Level.sav: {}", e) })
+                );
             } else {
                 println!("Failed to decompress Level.sav: {}", e);
             }
             return;
         }
     };
-    
+
     let characters = scan_character_save_parameters(&level_bytes);
-    
+
     if is_json {
         let mut pals_list = Vec::new();
         for char_entry in &characters {
             let is_player = extract_bool_prop(&char_entry.raw_data, b"IsPlayer\x00");
-            if is_player { continue; }
-            
-            let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
-            if let Some(uid) = target_uid {
-                if owner_uid != uid { continue; }
+            if is_player {
+                continue;
             }
-            
+
+            let owner_uid =
+                extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+            if let Some(uid) = target_uid {
+                if owner_uid != uid {
+                    continue;
+                }
+            }
+
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() || char_id == "Desconocido" { continue; }
-            
+            if char_id.is_empty() || char_id == "Desconocido" {
+                continue;
+            }
+
             let level = extract_byte_prop(&char_entry.raw_data, b"Level\x00");
             let level_val = if level == 0 { 1 } else { level };
-            
+
             let gender_raw = extract_string_prop(&char_entry.raw_data, b"Gender\x00");
             let gender = if gender_raw.contains("Female") {
                 "Female"
@@ -2221,28 +2704,30 @@ fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option<&st
             } else {
                 "Unknown"
             };
-            
+
             let iv_hp = if has_prop(&char_entry.raw_data, b"Talent_HP\x00") {
                 extract_int_prop(&char_entry.raw_data, b"Talent_HP\x00")
             } else {
                 0
             };
-            
+
             let iv_atk = if has_prop(&char_entry.raw_data, b"Talent_Shot\x00") {
                 extract_int_prop(&char_entry.raw_data, b"Talent_Shot\x00")
             } else {
                 0
             };
-            
+
             let iv_def = if has_prop(&char_entry.raw_data, b"Talent_Defense\x00") {
                 extract_int_prop(&char_entry.raw_data, b"Talent_Defense\x00")
             } else {
                 0
             };
-            
-            let passive_skills = extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
-            let passive_skills_translated: Vec<String> = passive_skills.iter().map(|p| i18n::t(p)).collect();
-            
+
+            let passive_skills =
+                extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
+            let passive_skills_translated: Vec<String> =
+                passive_skills.iter().map(|p| i18n::t(p)).collect();
+
             pals_list.push(serde_json::json!({
                 "pal_id": char_id,
                 "pal_name": i18n::t(&char_id),
@@ -2276,23 +2761,30 @@ fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option<&st
             i18n::t("col_passives")
         );
         println!("{}", "-".repeat(100));
-        
+
         let mut count = 0;
         for char_entry in &characters {
             let is_player = extract_bool_prop(&char_entry.raw_data, b"IsPlayer\x00");
-            if is_player { continue; }
-            
-            let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
-            if let Some(uid) = target_uid {
-                if owner_uid != uid { continue; }
+            if is_player {
+                continue;
             }
-            
+
+            let owner_uid =
+                extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+            if let Some(uid) = target_uid {
+                if owner_uid != uid {
+                    continue;
+                }
+            }
+
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() || char_id == "Desconocido" { continue; }
-            
+            if char_id.is_empty() || char_id == "Desconocido" {
+                continue;
+            }
+
             let level = extract_byte_prop(&char_entry.raw_data, b"Level\x00");
             let level_val = if level == 0 { 1 } else { level };
-            
+
             let gender_raw = extract_string_prop(&char_entry.raw_data, b"Gender\x00");
             let gender = if gender_raw.contains("Female") {
                 i18n::t("Female")
@@ -2301,26 +2793,27 @@ fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option<&st
             } else {
                 "S/N".to_string()
             };
-            
+
             let iv_hp = if has_prop(&char_entry.raw_data, b"Talent_HP\x00") {
                 extract_int_prop(&char_entry.raw_data, b"Talent_HP\x00")
             } else {
                 0
             };
-            
+
             let iv_atk = if has_prop(&char_entry.raw_data, b"Talent_Shot\x00") {
                 extract_int_prop(&char_entry.raw_data, b"Talent_Shot\x00")
             } else {
                 0
             };
-            
+
             let iv_def = if has_prop(&char_entry.raw_data, b"Talent_Defense\x00") {
                 extract_int_prop(&char_entry.raw_data, b"Talent_Defense\x00")
             } else {
                 0
             };
-            
-            let passive_skills = extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
+
+            let passive_skills =
+                extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
             let passives_str = if passive_skills.is_empty() {
                 i18n::t("no_passives")
             } else {
@@ -2330,20 +2823,20 @@ fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                     .collect::<Vec<String>>()
                     .join(", ")
             };
-            
+
             let pal_name = i18n::t(&char_id);
-            
+
             println!(
                 " {:<15} | {:<3} | {:<6} | {:<8} | {:<9} | {:<10} | {}",
                 pal_name, level_val, gender, iv_hp, iv_atk, iv_def, passives_str
             );
             count += 1;
         }
-        
+
         if count == 0 {
             println!(" No Pals found in Level.sav.");
         }
-        
+
         println!("\n{}", i18n::t("analyzer_note"));
         println!("==========================================================================================");
     }
@@ -2411,13 +2904,15 @@ fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&str>) 
                     }
 
                     if let Ok(player_bytes) = decompress_gvas(&path) {
-                        let player_char_entry = characters.iter().find(|c| c.player_uid == player_uid_str);
+                        let player_char_entry =
+                            characters.iter().find(|c| c.player_uid == player_uid_str);
                         let mut level = 1;
                         let mut exp = 0;
                         let mut hp = 0.0;
                         let mut max_hp = 0.0;
                         let mut full_stomach = 0.0;
-                        let mut physical_health = "EPalStatusPhysicalHealthType::Normal".to_string();
+                        let mut physical_health =
+                            "EPalStatusPhysicalHealthType::Normal".to_string();
                         let mut nickname = if file_stem == "00000000000000000000000000000001" {
                             "Host Player".to_string()
                         } else {
@@ -2434,21 +2929,33 @@ fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&str>) 
                                 };
                             }
                             level = extract_byte_prop(&char_entry.raw_data, b"Level\x00");
-                            if level == 0 { level = 1; }
+                            if level == 0 {
+                                level = 1;
+                            }
                             exp = extract_int64_prop(&char_entry.raw_data, b"Exp\x00");
                             hp = extract_fixed_point_prop(&char_entry.raw_data, b"Hp\x00");
                             max_hp = extract_fixed_point_prop(&char_entry.raw_data, b"MaxHp\x00");
-                            full_stomach = extract_float_prop(&char_entry.raw_data, b"FullStomach\x00");
-                            let ph = extract_string_prop(&char_entry.raw_data, b"PhysicalHealth\x00");
+                            full_stomach =
+                                extract_float_prop(&char_entry.raw_data, b"FullStomach\x00");
+                            let ph =
+                                extract_string_prop(&char_entry.raw_data, b"PhysicalHealth\x00");
                             if !ph.is_empty() {
                                 physical_health = ph;
                             }
                         }
 
-                        let otomo_bytes = extract_guid_bytes_prop(&player_bytes, b"OtomoCharacterContainerId\x00");
-                        let common_bytes = extract_guid_bytes_prop(&player_bytes, b"CommonContainerId\x00");
-                        let weapon_bytes = extract_guid_bytes_prop(&player_bytes, b"WeaponLoadOutContainerId\x00");
-                        let armor_bytes = extract_guid_bytes_prop(&player_bytes, b"PlayerEquipArmorContainerId\x00");
+                        let otomo_bytes = extract_guid_bytes_prop(
+                            &player_bytes,
+                            b"OtomoCharacterContainerId\x00",
+                        );
+                        let common_bytes =
+                            extract_guid_bytes_prop(&player_bytes, b"CommonContainerId\x00");
+                        let weapon_bytes =
+                            extract_guid_bytes_prop(&player_bytes, b"WeaponLoadOutContainerId\x00");
+                        let armor_bytes = extract_guid_bytes_prop(
+                            &player_bytes,
+                            b"PlayerEquipArmorContainerId\x00",
+                        );
                         let otomo_id = otomo_bytes.map(|b| format_guid(&b)).unwrap_or_default();
 
                         let mut common_inventory = Vec::new();
@@ -2466,90 +2973,228 @@ fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&str>) 
                             armor = parse_container_items(&level_bytes, &guid);
                         }
 
-                        let palbox_bytes = extract_guid_bytes_prop(&player_bytes, b"PalStorageContainerId\x00");
+                        let palbox_bytes =
+                            extract_guid_bytes_prop(&player_bytes, b"PalStorageContainerId\x00");
                         let palbox_id = palbox_bytes.map(|b| format_guid(&b)).unwrap_or_default();
 
                         let mut active_pals = Vec::new();
                         let mut palbox_pals = Vec::new();
-                        let player_instance_id = player_char_entry.map(|c| c.instance_id.clone()).unwrap_or_default();
+                        let player_instance_id = player_char_entry
+                            .map(|c| c.instance_id.clone())
+                            .unwrap_or_default();
                         for char_entry in &characters {
-                            if !player_instance_id.is_empty() && char_entry.instance_id != player_instance_id {
-                                let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+                            if !player_instance_id.is_empty()
+                                && char_entry.instance_id != player_instance_id
+                            {
+                                let owner_uid =
+                                    extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00")
+                                        .unwrap_or_default();
                                 if owner_uid == player_uid_str {
-                                    let pal_container_id = extract_guid_prop(&char_entry.raw_data, b"ContainerId\x00").unwrap_or_default();
+                                    let pal_container_id =
+                                        extract_guid_prop(&char_entry.raw_data, b"ContainerId\x00")
+                                            .unwrap_or_default();
                                     if !otomo_id.is_empty() && pal_container_id == otomo_id {
-                                        let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-                                        let pal_gender = extract_string_prop(&char_entry.raw_data, b"Gender\x00");
-                                        let pal_level = extract_byte_prop(&char_entry.raw_data, b"Level\x00");
-                                        let pal_exp = extract_int64_prop(&char_entry.raw_data, b"Exp\x00");
-                                        let pal_hp = extract_fixed_point_prop(&char_entry.raw_data, b"Hp\x00");
-                                        let pal_max_hp = extract_fixed_point_prop(&char_entry.raw_data, b"MaxHp\x00");
-                                        let pal_satiety = extract_float_prop(&char_entry.raw_data, b"FullStomach\x00");
-                                        let pal_ph = extract_string_prop(&char_entry.raw_data, b"PhysicalHealth\x00");
-                                        let friendship = extract_int_prop(&char_entry.raw_data, b"FriendshipPoint\x00") as u32;
-                                        let slot_index = extract_int_prop(&char_entry.raw_data, b"SlotIndex\x00") as u32;
+                                        let char_id = extract_string_prop(
+                                            &char_entry.raw_data,
+                                            b"CharacterID\x00",
+                                        );
+                                        let pal_gender = extract_string_prop(
+                                            &char_entry.raw_data,
+                                            b"Gender\x00",
+                                        );
+                                        let pal_level =
+                                            extract_byte_prop(&char_entry.raw_data, b"Level\x00");
+                                        let pal_exp =
+                                            extract_int64_prop(&char_entry.raw_data, b"Exp\x00");
+                                        let pal_hp = extract_fixed_point_prop(
+                                            &char_entry.raw_data,
+                                            b"Hp\x00",
+                                        );
+                                        let pal_max_hp = extract_fixed_point_prop(
+                                            &char_entry.raw_data,
+                                            b"MaxHp\x00",
+                                        );
+                                        let pal_satiety = extract_float_prop(
+                                            &char_entry.raw_data,
+                                            b"FullStomach\x00",
+                                        );
+                                        let pal_ph = extract_string_prop(
+                                            &char_entry.raw_data,
+                                            b"PhysicalHealth\x00",
+                                        );
+                                        let friendship = extract_int_prop(
+                                            &char_entry.raw_data,
+                                            b"FriendshipPoint\x00",
+                                        )
+                                            as u32;
+                                        let slot_index = extract_int_prop(
+                                            &char_entry.raw_data,
+                                            b"SlotIndex\x00",
+                                        )
+                                            as u32;
 
                                         let mut talents = HashMap::new();
                                         if has_prop(&char_entry.raw_data, b"Talent_HP\x00") {
-                                            talents.insert("HP".to_string(), extract_int_prop(&char_entry.raw_data, b"Talent_HP\x00") as u32);
+                                            talents.insert(
+                                                "HP".to_string(),
+                                                extract_int_prop(
+                                                    &char_entry.raw_data,
+                                                    b"Talent_HP\x00",
+                                                )
+                                                    as u32,
+                                            );
                                         }
                                         if has_prop(&char_entry.raw_data, b"Talent_Shot\x00") {
-                                            talents.insert("Shot".to_string(), extract_int_prop(&char_entry.raw_data, b"Talent_Shot\x00") as u32);
+                                            talents.insert(
+                                                "Shot".to_string(),
+                                                extract_int_prop(
+                                                    &char_entry.raw_data,
+                                                    b"Talent_Shot\x00",
+                                                )
+                                                    as u32,
+                                            );
                                         }
                                         if has_prop(&char_entry.raw_data, b"Talent_Defense\x00") {
-                                            talents.insert("Defense".to_string(), extract_int_prop(&char_entry.raw_data, b"Talent_Defense\x00") as u32);
+                                            talents.insert(
+                                                "Defense".to_string(),
+                                                extract_int_prop(
+                                                    &char_entry.raw_data,
+                                                    b"Talent_Defense\x00",
+                                                )
+                                                    as u32,
+                                            );
                                         }
 
-                                        let passive_skills = extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
+                                        let passive_skills = extract_array_strings(
+                                            &char_entry.raw_data,
+                                            b"PassiveSkillList\x00",
+                                        );
 
                                         active_pals.push(PalSummary {
-                                            character_id: if char_id.is_empty() { "Unknown".to_string() } else { char_id },
-                                            gender: if pal_gender.is_empty() { "EPalGenderType::Male".to_string() } else { pal_gender },
+                                            character_id: if char_id.is_empty() {
+                                                "Unknown".to_string()
+                                            } else {
+                                                char_id
+                                            },
+                                            gender: if pal_gender.is_empty() {
+                                                "EPalGenderType::Male".to_string()
+                                            } else {
+                                                pal_gender
+                                            },
                                             level: if pal_level == 0 { 1 } else { pal_level },
                                             exp: pal_exp,
                                             hp: pal_hp,
                                             max_hp: pal_max_hp,
                                             satiety: pal_satiety,
-                                            physical_health: if pal_ph.is_empty() { "EPalStatusPhysicalHealthType::Normal".to_string() } else { pal_ph },
+                                            physical_health: if pal_ph.is_empty() {
+                                                "EPalStatusPhysicalHealthType::Normal".to_string()
+                                            } else {
+                                                pal_ph
+                                            },
                                             friendship,
                                             talents,
                                             passive_skills,
                                             slot_index,
                                         });
-                                    } else if !palbox_id.is_empty() && pal_container_id == palbox_id {
-                                        let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-                                        let pal_gender = extract_string_prop(&char_entry.raw_data, b"Gender\x00");
-                                        let pal_level = extract_byte_prop(&char_entry.raw_data, b"Level\x00");
-                                        let pal_exp = extract_int64_prop(&char_entry.raw_data, b"Exp\x00");
-                                        let pal_hp = extract_fixed_point_prop(&char_entry.raw_data, b"Hp\x00");
-                                        let pal_max_hp = extract_fixed_point_prop(&char_entry.raw_data, b"MaxHp\x00");
-                                        let pal_satiety = extract_float_prop(&char_entry.raw_data, b"FullStomach\x00");
-                                        let pal_ph = extract_string_prop(&char_entry.raw_data, b"PhysicalHealth\x00");
-                                        let friendship = extract_int_prop(&char_entry.raw_data, b"FriendshipPoint\x00") as u32;
-                                        let slot_index = extract_int_prop(&char_entry.raw_data, b"SlotIndex\x00") as u32;
+                                    } else if !palbox_id.is_empty() && pal_container_id == palbox_id
+                                    {
+                                        let char_id = extract_string_prop(
+                                            &char_entry.raw_data,
+                                            b"CharacterID\x00",
+                                        );
+                                        let pal_gender = extract_string_prop(
+                                            &char_entry.raw_data,
+                                            b"Gender\x00",
+                                        );
+                                        let pal_level =
+                                            extract_byte_prop(&char_entry.raw_data, b"Level\x00");
+                                        let pal_exp =
+                                            extract_int64_prop(&char_entry.raw_data, b"Exp\x00");
+                                        let pal_hp = extract_fixed_point_prop(
+                                            &char_entry.raw_data,
+                                            b"Hp\x00",
+                                        );
+                                        let pal_max_hp = extract_fixed_point_prop(
+                                            &char_entry.raw_data,
+                                            b"MaxHp\x00",
+                                        );
+                                        let pal_satiety = extract_float_prop(
+                                            &char_entry.raw_data,
+                                            b"FullStomach\x00",
+                                        );
+                                        let pal_ph = extract_string_prop(
+                                            &char_entry.raw_data,
+                                            b"PhysicalHealth\x00",
+                                        );
+                                        let friendship = extract_int_prop(
+                                            &char_entry.raw_data,
+                                            b"FriendshipPoint\x00",
+                                        )
+                                            as u32;
+                                        let slot_index = extract_int_prop(
+                                            &char_entry.raw_data,
+                                            b"SlotIndex\x00",
+                                        )
+                                            as u32;
 
                                         let mut talents = HashMap::new();
                                         if has_prop(&char_entry.raw_data, b"Talent_HP\x00") {
-                                            talents.insert("HP".to_string(), extract_int_prop(&char_entry.raw_data, b"Talent_HP\x00") as u32);
+                                            talents.insert(
+                                                "HP".to_string(),
+                                                extract_int_prop(
+                                                    &char_entry.raw_data,
+                                                    b"Talent_HP\x00",
+                                                )
+                                                    as u32,
+                                            );
                                         }
                                         if has_prop(&char_entry.raw_data, b"Talent_Shot\x00") {
-                                            talents.insert("Shot".to_string(), extract_int_prop(&char_entry.raw_data, b"Talent_Shot\x00") as u32);
+                                            talents.insert(
+                                                "Shot".to_string(),
+                                                extract_int_prop(
+                                                    &char_entry.raw_data,
+                                                    b"Talent_Shot\x00",
+                                                )
+                                                    as u32,
+                                            );
                                         }
                                         if has_prop(&char_entry.raw_data, b"Talent_Defense\x00") {
-                                            talents.insert("Defense".to_string(), extract_int_prop(&char_entry.raw_data, b"Talent_Defense\x00") as u32);
+                                            talents.insert(
+                                                "Defense".to_string(),
+                                                extract_int_prop(
+                                                    &char_entry.raw_data,
+                                                    b"Talent_Defense\x00",
+                                                )
+                                                    as u32,
+                                            );
                                         }
 
-                                        let passive_skills = extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
+                                        let passive_skills = extract_array_strings(
+                                            &char_entry.raw_data,
+                                            b"PassiveSkillList\x00",
+                                        );
 
                                         palbox_pals.push(PalSummary {
-                                            character_id: if char_id.is_empty() { "Unknown".to_string() } else { char_id },
-                                            gender: if pal_gender.is_empty() { "EPalGenderType::Male".to_string() } else { pal_gender },
+                                            character_id: if char_id.is_empty() {
+                                                "Unknown".to_string()
+                                            } else {
+                                                char_id
+                                            },
+                                            gender: if pal_gender.is_empty() {
+                                                "EPalGenderType::Male".to_string()
+                                            } else {
+                                                pal_gender
+                                            },
                                             level: if pal_level == 0 { 1 } else { pal_level },
                                             exp: pal_exp,
                                             hp: pal_hp,
                                             max_hp: pal_max_hp,
                                             satiety: pal_satiety,
-                                            physical_health: if pal_ph.is_empty() { "EPalStatusPhysicalHealthType::Normal".to_string() } else { pal_ph },
+                                            physical_health: if pal_ph.is_empty() {
+                                                "EPalStatusPhysicalHealthType::Normal".to_string()
+                                            } else {
+                                                pal_ph
+                                            },
                                             friendship,
                                             talents,
                                             passive_skills,
@@ -2563,29 +3208,50 @@ fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&str>) 
                         active_pals.sort_by_key(|p| p.slot_index);
                         palbox_pals.sort_by_key(|p| p.slot_index);
 
-                        let technology_points = extract_int_prop(&player_bytes, b"TechnologyPoint\x00") as u32;
-                        let unlocked_technologies = extract_array_strings(&player_bytes, b"UnlockedRecipeTechnologyNames\x00");
+                        let technology_points =
+                            extract_int_prop(&player_bytes, b"TechnologyPoint\x00") as u32;
+                        let unlocked_technologies = extract_array_strings(
+                            &player_bytes,
+                            b"UnlockedRecipeTechnologyNames\x00",
+                        );
                         let active_quest = extract_string_prop(&player_bytes, b"QuestName\x00");
-                        let completed_quests = extract_array_strings(&player_bytes, b"CompletedQuestArray\x00");
+                        let completed_quests =
+                            extract_array_strings(&player_bytes, b"CompletedQuestArray\x00");
 
-                        let relics_found = extract_int_prop(&player_bytes, b"RelicPossessNum\x00") as u32;
-                        let fast_travel_points = extract_map_keys(&player_bytes, b"FastTravelPointUnlockFlag\x00");
-                        let notes_found = extract_map_keys(&player_bytes, b"NoteObtainForInstanceFlag\x00");
-                        let npc_talk_counts = extract_map_counts(&player_bytes, b"NPCTalkCountMap\x00");
+                        let relics_found =
+                            extract_int_prop(&player_bytes, b"RelicPossessNum\x00") as u32;
+                        let fast_travel_points =
+                            extract_map_keys(&player_bytes, b"FastTravelPointUnlockFlag\x00");
+                        let notes_found =
+                            extract_map_keys(&player_bytes, b"NoteObtainForInstanceFlag\x00");
+                        let npc_talk_counts =
+                            extract_map_counts(&player_bytes, b"NPCTalkCountMap\x00");
 
                         let mut customization = HashMap::new();
                         let b_mesh = extract_string_prop(&player_bytes, b"BodyMeshName\x00");
-                        if !b_mesh.is_empty() { customization.insert("BodyMeshName".to_string(), Value::String(b_mesh)); }
+                        if !b_mesh.is_empty() {
+                            customization.insert("BodyMeshName".to_string(), Value::String(b_mesh));
+                        }
                         let h_mesh = extract_string_prop(&player_bytes, b"HeadMeshName\x00");
-                        if !h_mesh.is_empty() { customization.insert("HeadMeshName".to_string(), Value::String(h_mesh)); }
+                        if !h_mesh.is_empty() {
+                            customization.insert("HeadMeshName".to_string(), Value::String(h_mesh));
+                        }
                         let hair_mesh = extract_string_prop(&player_bytes, b"HairMeshName\x00");
-                        if !hair_mesh.is_empty() { customization.insert("HairMeshName".to_string(), Value::String(hair_mesh)); }
+                        if !hair_mesh.is_empty() {
+                            customization
+                                .insert("HairMeshName".to_string(), Value::String(hair_mesh));
+                        }
                         let voice_id = extract_int_prop(&player_bytes, b"VoiceID\x00");
-                        if voice_id > 0 { customization.insert("VoiceID".to_string(), Value::Number(voice_id.into())); }
+                        if voice_id > 0 {
+                            customization
+                                .insert("VoiceID".to_string(), Value::Number(voice_id.into()));
+                        }
 
                         players.push(PlayerSummary {
                             player_uid: player_uid_str,
-                            instance_id: player_char_entry.map(|c| c.instance_id.clone()).unwrap_or_default(),
+                            instance_id: player_char_entry
+                                .map(|c| c.instance_id.clone())
+                                .unwrap_or_default(),
                             nickname,
                             level,
                             exp,
@@ -2620,7 +3286,7 @@ fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&str>) 
     let output = OutputJson {
         status: "success".to_string(),
         world_path: world_path.to_string_lossy().into_owned(),
-        game_mode: detect_game_mode(&world_path),
+        game_mode: detect_game_mode(world_path),
         players,
         base_camps,
         guilds,
@@ -2633,11 +3299,16 @@ fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&str>) 
     }
 }
 
-fn execute_command_captured(world_path: &Path, cmd: &str, is_json: bool, target_uid: Option<&str>) -> String {
+fn execute_command_captured(
+    world_path: &Path,
+    cmd: &str,
+    is_json: bool,
+    target_uid: Option<&str>,
+) -> String {
     OUTPUT_BUFFER.with(|buf| {
         *buf.borrow_mut() = Some(String::new());
     });
-    
+
     match cmd {
         "time" => run_time_command(world_path, is_json),
         "settings" => run_settings_command(world_path, is_json),
@@ -2655,17 +3326,23 @@ fn execute_command_captured(world_path: &Path, cmd: &str, is_json: bool, target_
         }
         _ => println!("Unknown command"),
     }
-    
-    OUTPUT_BUFFER.with(|buf| {
-        buf.borrow_mut().take().unwrap_or_default()
-    })
+
+    OUTPUT_BUFFER.with(|buf| buf.borrow_mut().take().unwrap_or_default())
 }
 
-fn send_http_response(stream: &mut std::net::TcpStream, status: &str, content_type: &str, body: &str) {
+fn send_http_response(
+    stream: &mut std::net::TcpStream,
+    status: &str,
+    content_type: &str,
+    body: &str,
+) {
     use std::io::Write;
     let response = format!(
         "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-        status, content_type, body.len(), body
+        status,
+        content_type,
+        body.len(),
+        body
     );
     let _ = stream.write_all(response.as_bytes());
 }
@@ -2681,25 +3358,25 @@ fn handle_host_connection(mut stream: std::net::TcpStream, world_path: &Path, pa
         Some(l) => l,
         None => return,
     };
-    
+
     let parts: Vec<&str> = first_line.split_whitespace().collect();
     if parts.len() < 2 {
         send_http_response(&mut stream, "400 Bad Request", "text/plain", "Bad Request");
         return;
     }
-    
+
     let path_query = parts[1];
     let (path, query) = if let Some(idx) = path_query.find('?') {
-        (&path_query[..idx], &path_query[idx+1..])
+        (&path_query[..idx], &path_query[idx + 1..])
     } else {
         (path_query, "")
     };
-    
+
     if path != "/api/command" {
         send_http_response(&mut stream, "404 Not Found", "text/plain", "Not Found");
         return;
     }
-    
+
     let mut params = HashMap::new();
     for pair in query.split('&') {
         let kv: Vec<&str> = pair.split('=').collect();
@@ -2707,18 +3384,23 @@ fn handle_host_connection(mut stream: std::net::TcpStream, world_path: &Path, pa
             params.insert(kv[0], kv[1]);
         }
     }
-    
+
     let req_passcode = params.get("passcode").copied().unwrap_or("");
     if req_passcode != passcode {
-        send_http_response(&mut stream, "403 Forbidden", "text/plain", "Access Denied: Invalid passcode.");
+        send_http_response(
+            &mut stream,
+            "403 Forbidden",
+            "text/plain",
+            "Access Denied: Invalid passcode.",
+        );
         return;
     }
-    
+
     let cmd = params.get("cmd").copied().unwrap_or("full");
     let is_json = params.get("is_json").copied().unwrap_or("false") == "true";
     let target_uid = params.get("uid").copied().map(|s| s.to_string());
-    
-    let result = execute_command_captured(world_path, &cmd, is_json, target_uid.as_deref());
+
+    let result = execute_command_captured(world_path, cmd, is_json, target_uid.as_deref());
     send_http_response(&mut stream, "200 OK", "text/plain; charset=utf-8", &result);
 }
 
@@ -2731,38 +3413,45 @@ fn start_host_server(world_path: PathBuf, port: u16, passcode: String) {
             std::process::exit(1);
         }
     };
-    
+
     println!("==================================================");
     println!("   PALSYNC TELEMETRY HOST SERVER RUNNING");
     println!("==================================================");
     println!(" Address  : {}", address);
     println!(" Passcode : {}", passcode);
     println!("==================================================");
-    
-    for stream in listener.incoming() {
-        if let Ok(stream) = stream {
-            let world_path_clone = world_path.clone();
-            let passcode_clone = passcode.clone();
-            std::thread::spawn(move || {
-                handle_host_connection(stream, &world_path_clone, &passcode_clone);
-            });
-        }
+
+    for stream in listener.incoming().flatten() {
+        let world_path_clone = world_path.clone();
+        let passcode_clone = passcode.clone();
+        std::thread::spawn(move || {
+            handle_host_connection(stream, &world_path_clone, &passcode_clone);
+        });
     }
 }
 
-fn run_client_request(host_ip_port: &str, passcode: &str, cmd: &str, is_json: bool, uid: Option<&str>) {
+fn run_client_request(
+    host_ip_port: &str,
+    passcode: &str,
+    cmd: &str,
+    is_json: bool,
+    uid: Option<&str>,
+) {
     let mut stream = match std::net::TcpStream::connect(host_ip_port) {
         Ok(s) => s,
         Err(e) => {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Could not connect to host {}: {}", host_ip_port, e) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Could not connect to host {}: {}", host_ip_port, e) })
+                );
             } else {
                 println!("Could not connect to host {}: {}", host_ip_port, e);
             }
             std::process::exit(1);
         }
     };
-    
+
     let mut request_path = format!("/api/command?cmd={}&passcode={}", cmd, passcode);
     if is_json {
         request_path.push_str("&is_json=true");
@@ -2770,32 +3459,38 @@ fn run_client_request(host_ip_port: &str, passcode: &str, cmd: &str, is_json: bo
     if let Some(u) = uid {
         request_path.push_str(&format!("&uid={}", u));
     }
-    
+
     let request = format!(
         "GET {} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n",
         request_path, host_ip_port
     );
-    
+
     use std::io::Write;
     if let Err(e) = stream.write_all(request.as_bytes()) {
         if is_json {
-            println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to send request: {}", e) }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "error", "message": format!("Failed to send request: {}", e) })
+            );
         } else {
             println!("Failed to send request: {}", e);
         }
         std::process::exit(1);
     }
-    
+
     let mut response = Vec::new();
     if let Err(e) = stream.read_to_end(&mut response) {
         if is_json {
-            println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to read response: {}", e) }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "error", "message": format!("Failed to read response: {}", e) })
+            );
         } else {
             println!("Failed to read response: {}", e);
         }
         std::process::exit(1);
     }
-    
+
     let response_str = String::from_utf8_lossy(&response);
     if let Some(body_pos) = response_str.find("\r\n\r\n") {
         let status_line = response_str.lines().next().unwrap_or("");
@@ -2804,14 +3499,20 @@ fn run_client_request(host_ip_port: &str, passcode: &str, cmd: &str, is_json: bo
             print!("{}", body);
         } else if status_line.contains("403 Forbidden") {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": "Access Denied: Invalid passcode." }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": "Access Denied: Invalid passcode." })
+                );
             } else {
                 println!("Access Denied: Invalid passcode.");
             }
             std::process::exit(1);
         } else {
             if is_json {
-                println!("{}", serde_json::json!({ "status": "error", "message": format!("Server returned error: {}", status_line) }));
+                println!(
+                    "{}",
+                    serde_json::json!({ "status": "error", "message": format!("Server returned error: {}", status_line) })
+                );
             } else {
                 println!("Server returned error: {}", status_line);
             }
@@ -2819,11 +3520,332 @@ fn run_client_request(host_ip_port: &str, passcode: &str, cmd: &str, is_json: bo
         }
     } else {
         if is_json {
-            println!("{}", serde_json::json!({ "status": "error", "message": "Invalid response format from host." }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "error", "message": "Invalid response format from host." })
+            );
         } else {
             println!("Invalid response format from host.");
         }
         std::process::exit(1);
+    }
+}
+
+fn run_setup_antigravity() {
+    let home_dir = std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .unwrap_or_else(|_| "C:\\".to_string());
+
+    let current_exe =
+        std::env::current_exe().unwrap_or_else(|_| PathBuf::from("palsync-ai-liveagent.exe"));
+    let gemini_config_dir = Path::new(&home_dir).join(".gemini").join("config");
+
+    if let Err(e) = std::fs::create_dir_all(&gemini_config_dir) {
+        println!("Error creating Gemini config directory: {}", e);
+        std::process::exit(1);
+    }
+
+    let mcp_config_path = gemini_config_dir.join("mcp_config.json");
+    let mut mcp_config = if mcp_config_path.exists() {
+        let content = std::fs::read_to_string(&mcp_config_path).unwrap_or_default();
+        serde_json::from_str::<serde_json::Value>(&content)
+            .unwrap_or_else(|_| serde_json::json!({}))
+    } else {
+        serde_json::json!({})
+    };
+
+    if !mcp_config.is_object() {
+        mcp_config = serde_json::json!({});
+    }
+
+    if let Some(obj) = mcp_config.as_object_mut() {
+        let mcp_servers = obj
+            .entry("mcpServers")
+            .or_insert_with(|| serde_json::json!({}));
+        if let Some(servers_obj) = mcp_servers.as_object_mut() {
+            servers_obj.insert(
+                "palsync".to_string(),
+                serde_json::json!({
+                    "command": current_exe.to_string_lossy().replace("\\", "/"),
+                    "args": ["mcp"]
+                }),
+            );
+        }
+    }
+
+    if let Ok(json_str) = serde_json::to_string_pretty(&mcp_config) {
+        if let Err(e) = std::fs::write(&mcp_config_path, json_str) {
+            println!("Error writing mcp_config.json: {}", e);
+            std::process::exit(1);
+        }
+    }
+
+    let rule_content = "\n# PalSync Rules\nYou have access to PalSync telemetry and monitor tools via MCP.\nWhen the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palsync MCP tools to retrieve real-time data instead of guessing.\n";
+
+    let agents_md_path = gemini_config_dir.join("AGENTS.md");
+    let mut agents_content = if agents_md_path.exists() {
+        std::fs::read_to_string(&agents_md_path).unwrap_or_default()
+    } else {
+        String::new()
+    };
+    if !agents_content.contains("PalSync Rules") {
+        agents_content.push_str(rule_content);
+        let _ = std::fs::write(&agents_md_path, agents_content);
+    }
+
+    let gemini_md_path = Path::new(&home_dir).join(".gemini").join("GEMINI.md");
+    let mut gemini_content = if gemini_md_path.exists() {
+        std::fs::read_to_string(&gemini_md_path).unwrap_or_default()
+    } else {
+        String::new()
+    };
+    if !gemini_content.contains("PalSync Rules") {
+        gemini_content.push_str(rule_content);
+        let _ = std::fs::write(&gemini_md_path, gemini_content);
+    }
+
+    let skill_dir = gemini_config_dir.join("skills").join("palsync");
+    let _ = std::fs::create_dir_all(&skill_dir);
+    let skill_file_path = skill_dir.join("SKILL.md");
+    let skill_body = "---\nname: palsync\ndescription: Extract telemetry, stats, IVs, breeding combinations, and base camps from Palworld save files.\n---\n\n# PalSync Skill\n\nThis skill allows the agent to interact with the PalSync MCP server and query real-time Palworld statistics.\nUse the `palsync` tools when:\n- The user asks for the status of base camps or Palbox.\n- The user wants to analyze Pal IVs, stats, or passive skills.\n- The user requests breeding combinations.\n- The user needs to locate items in base chests.\n";
+    let _ = std::fs::write(&skill_file_path, skill_body);
+
+    println!("==================================================");
+    println!("   PALSYNC ANTIGRAVITY-CLI SETUP COMPLETED        ");
+    println!("==================================================");
+    println!(" MCP Config : {}", mcp_config_path.display());
+    println!(" Global Rule: {}", agents_md_path.display());
+    println!(" Skill File : {}", skill_file_path.display());
+    println!("==================================================");
+}
+
+fn run_mcp_loop(world_path: PathBuf) {
+    use std::io::{self, BufRead};
+    let stdin = io::stdin();
+    let mut handle = stdin.lock();
+    let mut line = String::new();
+
+    while let Ok(n) = handle.read_line(&mut line) {
+        if n == 0 {
+            break;
+        }
+        let line_trimmed = line.trim();
+        if line_trimmed.is_empty() {
+            line.clear();
+            continue;
+        }
+
+        if let Ok(req) = serde_json::from_str::<serde_json::Value>(line_trimmed) {
+            let id = req.get("id").cloned();
+            let method = req
+                .get("method")
+                .and_then(|m| m.as_str())
+                .unwrap_or_default();
+
+            match method {
+                "initialize" => {
+                    let resp = serde_json::json!({
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {
+                            "capabilities": {
+                                "tools": {}
+                            },
+                            "protocolVersion": "2024-11-05",
+                            "serverInfo": {
+                                "name": "palsync-ai-liveagent",
+                                "version": "0.1.0"
+                            }
+                        }
+                    });
+                    println!("{}", serde_json::to_string(&resp).unwrap());
+                }
+                "tools/list" => {
+                    let resp = serde_json::json!({
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {
+                            "tools": [
+                                {
+                                    "name": "query_time",
+                                    "description": "Get current in-game day, time, and cycle (day/night)",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                },
+                                {
+                                    "name": "query_settings",
+                                    "description": "Get server configuration and game difficulty settings",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                },
+                                {
+                                    "name": "search_chest",
+                                    "description": "Locate specific items across all base chests",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "query": {
+                                                "type": "string",
+                                                "description": "Item name to search (e.g. Berries, Wood)"
+                                            }
+                                        },
+                                        "required": ["query"]
+                                    }
+                                },
+                                {
+                                    "name": "query_breeding",
+                                    "description": "Analyze available gender combos and potential breeding offspring",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate breeding team"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "query_progress",
+                                    "description": "Check player notes found, fast travel unlocks, and capture progress",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate progress"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "monitor_pals",
+                                    "description": "Get real-time sanity (SAN), satiety (hunger), and HP levels of base/active Pals",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate monitored Pals"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "query_analyzer",
+                                    "description": "Analyze Pal talent IV stats (HP/Atk/Def bonuses) and passive skills",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate Pals"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "query_full",
+                                    "description": "Retrieve the complete world telemetry report including bases, players, and guilds",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "player_uid": {
+                                                "type": "string",
+                                                "description": "Optional Player UID to isolate report details"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    });
+                    println!("{}", serde_json::to_string(&resp).unwrap());
+                }
+                "tools/call" => {
+                    let params = req
+                        .get("params")
+                        .cloned()
+                        .unwrap_or_else(|| serde_json::json!({}));
+                    let tool_name = params
+                        .get("name")
+                        .and_then(|n| n.as_str())
+                        .unwrap_or_default();
+                    let arguments = params
+                        .get("arguments")
+                        .cloned()
+                        .unwrap_or_else(|| serde_json::json!({}));
+
+                    let player_uid = arguments.get("player_uid").and_then(|u| u.as_str());
+                    let search_query = arguments
+                        .get("query")
+                        .and_then(|q| q.as_str())
+                        .unwrap_or_default();
+
+                    let text_result = match tool_name {
+                        "query_time" => execute_command_captured(&world_path, "time", false, None),
+                        "query_settings" => {
+                            execute_command_captured(&world_path, "settings", false, None)
+                        }
+                        "search_chest" => execute_command_captured(
+                            &world_path,
+                            &format!("search-chest:{}", search_query),
+                            false,
+                            None,
+                        ),
+                        "query_breeding" => {
+                            execute_command_captured(&world_path, "breeding", false, player_uid)
+                        }
+                        "query_progress" => {
+                            execute_command_captured(&world_path, "progress", false, player_uid)
+                        }
+                        "monitor_pals" => {
+                            execute_command_captured(&world_path, "monitor", false, player_uid)
+                        }
+                        "query_analyzer" => {
+                            execute_command_captured(&world_path, "analyzer", false, player_uid)
+                        }
+                        "query_full" => {
+                            execute_command_captured(&world_path, "full", false, player_uid)
+                        }
+                        _ => format!("Unknown tool: {}", tool_name),
+                    };
+
+                    let resp = serde_json::json!({
+                        "jsonrpc": "2.0",
+                        "id": id,
+                        "result": {
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": text_result
+                                }
+                            ]
+                        }
+                    });
+                    println!("{}", serde_json::to_string(&resp).unwrap());
+                }
+                _ => {
+                    if id.is_some() {
+                        let resp = serde_json::json!({
+                            "jsonrpc": "2.0",
+                            "id": id,
+                            "error": {
+                                "code": -32601,
+                                "message": format!("Method not found: {}", method)
+                            }
+                        });
+                        println!("{}", serde_json::to_string(&resp).unwrap());
+                    }
+                }
+            }
+        }
+
+        line.clear();
     }
 }
 
@@ -2833,6 +3855,16 @@ fn main() {
     let args_list: Vec<String> = std::env::args().skip(1).collect();
     let is_json = args_list.iter().any(|arg| arg == "--json");
 
+    let has_setup_antigravity =
+        (args_list.len() >= 2 && args_list[0] == "setup" && args_list[1] == "antigravity-cli")
+            || args_list.iter().any(|arg| arg == "--setup-antigravity");
+    let has_mcp = args_list.iter().any(|arg| arg == "mcp" || arg == "--mcp");
+
+    if has_setup_antigravity {
+        run_setup_antigravity();
+        std::process::exit(0);
+    }
+
     let mut world_path_arg = None;
     let mut skip_next = false;
     for arg in &args_list {
@@ -2840,7 +3872,14 @@ fn main() {
             skip_next = false;
             continue;
         }
-        if arg == "--search-chest" || arg == "-c" || arg == "--connect" || arg == "--passcode" || arg == "--player-uid" || arg == "--uid" || arg == "--port" {
+        if arg == "--search-chest"
+            || arg == "-c"
+            || arg == "--connect"
+            || arg == "--passcode"
+            || arg == "--player-uid"
+            || arg == "--uid"
+            || arg == "--port"
+        {
             skip_next = true;
             continue;
         }
@@ -2851,13 +3890,25 @@ fn main() {
     }
 
     let has_time = args_list.iter().any(|arg| arg == "--time" || arg == "-t");
-    let has_settings = args_list.iter().any(|arg| arg == "--settings" || arg == "-s");
-    let has_breeding = args_list.iter().any(|arg| arg == "--breeding" || arg == "-b");
-    let has_progress = args_list.iter().any(|arg| arg == "--progress" || arg == "-p");
+    let has_settings = args_list
+        .iter()
+        .any(|arg| arg == "--settings" || arg == "-s");
+    let has_breeding = args_list
+        .iter()
+        .any(|arg| arg == "--breeding" || arg == "-b");
+    let has_progress = args_list
+        .iter()
+        .any(|arg| arg == "--progress" || arg == "-p");
     let has_clean_seeds = args_list.iter().any(|arg| arg == "--clean-seeds");
-    let has_monitor = args_list.iter().any(|arg| arg == "--monitor" || arg == "-m");
-    let has_analyzer = args_list.iter().any(|arg| arg == "--analyzer" || arg == "-a");
-    let has_list_worlds = args_list.iter().any(|arg| arg == "--list-worlds" || arg == "-l");
+    let has_monitor = args_list
+        .iter()
+        .any(|arg| arg == "--monitor" || arg == "-m");
+    let has_analyzer = args_list
+        .iter()
+        .any(|arg| arg == "--analyzer" || arg == "-a");
+    let has_list_worlds = args_list
+        .iter()
+        .any(|arg| arg == "--list-worlds" || arg == "-l");
     let has_select_world = args_list.iter().any(|arg| arg == "--select-world");
     let has_host = args_list.iter().any(|arg| arg == "--host");
 
@@ -2876,7 +3927,10 @@ fn main() {
     }
 
     let mut player_uid_arg = None;
-    if let Some(pos) = args_list.iter().position(|arg| arg == "--player-uid" || arg == "--uid") {
+    if let Some(pos) = args_list
+        .iter()
+        .position(|arg| arg == "--player-uid" || arg == "--uid")
+    {
         if pos + 1 < args_list.len() {
             player_uid_arg = Some(args_list[pos + 1].clone());
         }
@@ -2892,7 +3946,10 @@ fn main() {
     }
 
     let mut search_chest_query = None;
-    if let Some(pos) = args_list.iter().position(|arg| arg == "--search-chest" || arg == "-c") {
+    if let Some(pos) = args_list
+        .iter()
+        .position(|arg| arg == "--search-chest" || arg == "-c")
+    {
         if pos + 1 < args_list.len() {
             search_chest_query = Some(args_list[pos + 1].clone());
         }
@@ -2916,7 +3973,9 @@ fn main() {
                 path.display()
             );
         }
-        println!("\n================================================================================");
+        println!(
+            "\n================================================================================"
+        );
         std::process::exit(0);
     }
 
@@ -2942,8 +4001,39 @@ fn main() {
         } else {
             "full"
         };
-        
-        run_client_request(connect_host, &passcode, cmd, is_json, player_uid_arg.as_deref());
+
+        run_client_request(
+            connect_host,
+            &passcode,
+            cmd,
+            is_json,
+            player_uid_arg.as_deref(),
+        );
+        std::process::exit(0);
+    }
+
+    // MCP Mode execution
+    if has_mcp {
+        let world_path = match world_path_arg {
+            Some(ref p) => PathBuf::from(p),
+            None => {
+                let worlds = get_all_detected_worlds();
+                if worlds.is_empty() {
+                    let err_json = serde_json::json!({
+                        "status": "error",
+                        "message": i18n::t("error_detect_save")
+                    });
+                    println!("{}", serde_json::to_string_pretty(&err_json).unwrap());
+                    std::process::exit(1);
+                }
+                if has_select_world {
+                    select_world_interactively(&worlds)
+                } else {
+                    worlds[0].0.clone()
+                }
+            }
+        };
+        run_mcp_loop(world_path);
         std::process::exit(0);
     }
 
@@ -3042,7 +4132,11 @@ fn print_beautiful_report(output: &OutputJson) {
     println!("        {}        ", title);
     println!("{}", border);
     println!("{}: {}", i18n::t("world_save_path"), output.world_path);
-    println!("{}: {}", i18n::t("game_mode_label"), i18n::t(&output.game_mode));
+    println!(
+        "{}: {}",
+        i18n::t("game_mode_label"),
+        i18n::t(&output.game_mode)
+    );
     println!();
 
     for player in &output.players {
@@ -3056,44 +4150,136 @@ fn print_beautiful_report(output: &OutputJson) {
         println!("  * {:30} : {}", i18n::t("level"), player.level);
         println!("  * {:30} : {}", i18n::t("current_experience"), player.exp);
         println!("  * {:30} : {:.2}", i18n::t("health_hp"), player.hp);
-        println!("  * {:30} : {:.2} / 100", i18n::t("satiety_stomach"), player.full_stomach);
-        println!("  * {:30} : {}", i18n::t("physical_status"), i18n::t(&player.physical_health));
-        println!("  * {:30} : {}", i18n::t("tech_points_available"), player.technology_points);
+        println!(
+            "  * {:30} : {:.2} / 100",
+            i18n::t("satiety_stomach"),
+            player.full_stomach
+        );
+        println!(
+            "  * {:30} : {}",
+            i18n::t("physical_status"),
+            i18n::t(&player.physical_health)
+        );
+        println!(
+            "  * {:30} : {}",
+            i18n::t("tech_points_available"),
+            player.technology_points
+        );
         println!();
 
         println!("  [{}]", i18n::t("appearance_customization"));
-        println!("  * {:30} : {}", i18n::t("body_type"), i18n::t(player.customization.get("BodyMeshName").and_then(|v| v.as_str()).unwrap_or("Unknown")));
-        println!("  * {:30} : {}", i18n::t("head_model"), player.customization.get("HeadMeshName").and_then(|v| v.as_str()).unwrap_or("Unknown"));
-        println!("  * {:30} : {}", i18n::t("hair_model"), player.customization.get("HairMeshName").and_then(|v| v.as_str()).unwrap_or("Unknown"));
-        println!("  * {:30} : {}", i18n::t("voice_selection_id"), player.customization.get("VoiceID").and_then(|v| v.as_u64()).map(|v| v.to_string()).unwrap_or_else(|| "Unknown".to_string()));
+        println!(
+            "  * {:30} : {}",
+            i18n::t("body_type"),
+            i18n::t(
+                player
+                    .customization
+                    .get("BodyMeshName")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown")
+            )
+        );
+        println!(
+            "  * {:30} : {}",
+            i18n::t("head_model"),
+            player
+                .customization
+                .get("HeadMeshName")
+                .and_then(|v| v.as_str())
+                .unwrap_or("Unknown")
+        );
+        println!(
+            "  * {:30} : {}",
+            i18n::t("hair_model"),
+            player
+                .customization
+                .get("HairMeshName")
+                .and_then(|v| v.as_str())
+                .unwrap_or("Unknown")
+        );
+        println!(
+            "  * {:30} : {}",
+            i18n::t("voice_selection_id"),
+            player
+                .customization
+                .get("VoiceID")
+                .and_then(|v| v.as_u64())
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "Unknown".to_string())
+        );
         println!();
 
         println!("  [{}]", i18n::t("active_quest_progression"));
-        println!("  * {:30} : {}", i18n::t("active_quest"), i18n::t(&player.active_quest));
-        let completed_translated: Vec<String> = player.completed_quests.iter()
-            .map(|q| i18n::t(q))
-            .collect();
-        println!("  * {:30} : {}", i18n::t("completed_quests"), completed_translated.join(", "));
+        println!(
+            "  * {:30} : {}",
+            i18n::t("active_quest"),
+            i18n::t(&player.active_quest)
+        );
+        let completed_translated: Vec<String> =
+            player.completed_quests.iter().map(|q| i18n::t(q)).collect();
+        println!(
+            "  * {:30} : {}",
+            i18n::t("completed_quests"),
+            completed_translated.join(", ")
+        );
         println!();
 
         println!("  [{}]", i18n::t("exploration_discovery"));
-        println!("  * {:30} : {}", i18n::t("relics_found"), player.relics_found);
-        println!("  * {:30} : {}", i18n::t("notes_read"), player.notes_found.join(", "));
-        println!("  * {:30} : {} {}", i18n::t("fast_travel_unlocked"), player.fast_travel_points.len(), if player.fast_travel_points.len() == 1 { "point" } else { "points" });
+        println!(
+            "  * {:30} : {}",
+            i18n::t("relics_found"),
+            player.relics_found
+        );
+        println!(
+            "  * {:30} : {}",
+            i18n::t("notes_read"),
+            player.notes_found.join(", ")
+        );
+        println!(
+            "  * {:30} : {} {}",
+            i18n::t("fast_travel_unlocked"),
+            player.fast_travel_points.len(),
+            if player.fast_travel_points.len() == 1 {
+                "point"
+            } else {
+                "points"
+            }
+        );
         println!();
 
-        println!("  [{} ({})]", i18n::t("active_team_pals"), player.active_pals.len());
+        println!(
+            "  [{} ({})]",
+            i18n::t("active_team_pals"),
+            player.active_pals.len()
+        );
         if player.active_pals.is_empty() {
             println!("    {}", i18n::t("no_pals_in_team"));
         } else {
             for (idx, pal) in player.active_pals.iter().enumerate() {
-                let gender_str = if pal.gender.contains("Female") { "Female" } else { "Male" };
-                println!("    {}. {} [{} {}] ({})", idx + 1, i18n::t(&pal.character_id), i18n::t("level"), pal.level, i18n::t(gender_str));
-                println!("       - HP                 : {:.2} / {:.2}", pal.hp, pal.max_hp);
+                let gender_str = if pal.gender.contains("Female") {
+                    "Female"
+                } else {
+                    "Male"
+                };
+                println!(
+                    "    {}. {} [{} {}] ({})",
+                    idx + 1,
+                    i18n::t(&pal.character_id),
+                    i18n::t("level"),
+                    pal.level,
+                    i18n::t(gender_str)
+                );
+                println!(
+                    "       - HP                 : {:.2} / {:.2}",
+                    pal.hp, pal.max_hp
+                );
                 println!("       - Satiety (Stomach)  : {:.2}", pal.satiety);
-                println!("       - Status             : {}", i18n::t(&pal.physical_health));
+                println!(
+                    "       - Status             : {}",
+                    i18n::t(&pal.physical_health)
+                );
                 println!("       - Friendship         : {}", pal.friendship);
-                
+
                 let talents_str = format!(
                     "HP: {}, Atk: {}, Def: {}",
                     pal.talents.get("HP").unwrap_or(&0),
@@ -3103,28 +4289,55 @@ fn print_beautiful_report(output: &OutputJson) {
                 println!("       - {:18} : {}", i18n::t("talents"), talents_str);
 
                 if !pal.passive_skills.is_empty() {
-                    let passives_str = pal.passive_skills.iter()
+                    let passives_str = pal
+                        .passive_skills
+                        .iter()
                         .map(|p| i18n::t(p))
                         .collect::<Vec<String>>()
                         .join(", ");
-                    println!("       - {:18} : {}", i18n::t("passive_skills"), passives_str);
+                    println!(
+                        "       - {:18} : {}",
+                        i18n::t("passive_skills"),
+                        passives_str
+                    );
                 }
             }
         }
         println!();
 
-        println!("  [{} ({})]", i18n::t("palbox_pals"), player.palbox_pals.len());
+        println!(
+            "  [{} ({})]",
+            i18n::t("palbox_pals"),
+            player.palbox_pals.len()
+        );
         if player.palbox_pals.is_empty() {
             println!("    {}", i18n::t("no_pals_in_palbox"));
         } else {
             for (idx, pal) in player.palbox_pals.iter().enumerate() {
-                let gender_str = if pal.gender.contains("Female") { "Female" } else { "Male" };
-                println!("    {}. {} [{} {}] ({})", idx + 1, i18n::t(&pal.character_id), i18n::t("level"), pal.level, i18n::t(gender_str));
-                println!("       - HP                 : {:.2} / {:.2}", pal.hp, pal.max_hp);
+                let gender_str = if pal.gender.contains("Female") {
+                    "Female"
+                } else {
+                    "Male"
+                };
+                println!(
+                    "    {}. {} [{} {}] ({})",
+                    idx + 1,
+                    i18n::t(&pal.character_id),
+                    i18n::t("level"),
+                    pal.level,
+                    i18n::t(gender_str)
+                );
+                println!(
+                    "       - HP                 : {:.2} / {:.2}",
+                    pal.hp, pal.max_hp
+                );
                 println!("       - Satiety (Stomach)  : {:.2}", pal.satiety);
-                println!("       - Status             : {}", i18n::t(&pal.physical_health));
+                println!(
+                    "       - Status             : {}",
+                    i18n::t(&pal.physical_health)
+                );
                 println!("       - Friendship         : {}", pal.friendship);
-                
+
                 let talents_str = format!(
                     "HP: {}, Atk: {}, Def: {}",
                     pal.talents.get("HP").unwrap_or(&0),
@@ -3134,11 +4347,17 @@ fn print_beautiful_report(output: &OutputJson) {
                 println!("       - {:18} : {}", i18n::t("talents"), talents_str);
 
                 if !pal.passive_skills.is_empty() {
-                    let passives_str = pal.passive_skills.iter()
+                    let passives_str = pal
+                        .passive_skills
+                        .iter()
                         .map(|p| i18n::t(p))
                         .collect::<Vec<String>>()
                         .join(", ");
-                    println!("       - {:18} : {}", i18n::t("passive_skills"), passives_str);
+                    println!(
+                        "       - {:18} : {}",
+                        i18n::t("passive_skills"),
+                        passives_str
+                    );
                 }
             }
         }
@@ -3149,7 +4368,10 @@ fn print_beautiful_report(output: &OutputJson) {
             println!("    {}", i18n::t("no_weapons_equipped"));
         } else {
             for item in &player.weapons {
-                println!("    * Slot {}: {} (x{})", item.slot_index, item.item_id, item.count);
+                println!(
+                    "    * Slot {}: {} (x{})",
+                    item.slot_index, item.item_id, item.count
+                );
             }
         }
         println!();
@@ -3159,7 +4381,10 @@ fn print_beautiful_report(output: &OutputJson) {
             println!("    {}", i18n::t("no_armor_equipped"));
         } else {
             for item in &player.armor {
-                println!("    * Slot {}: {} (x{})", item.slot_index, item.item_id, item.count);
+                println!(
+                    "    * Slot {}: {} (x{})",
+                    item.slot_index, item.item_id, item.count
+                );
             }
         }
         println!();
@@ -3169,7 +4394,10 @@ fn print_beautiful_report(output: &OutputJson) {
             println!("    {}", i18n::t("backpack_empty"));
         } else {
             for item in &player.common_inventory {
-                println!("    * Slot {}: {} (x{})", item.slot_index, item.item_id, item.count);
+                println!(
+                    "    * Slot {}: {} (x{})",
+                    item.slot_index, item.item_id, item.count
+                );
             }
         }
         println!();
@@ -3183,7 +4411,10 @@ fn print_beautiful_report(output: &OutputJson) {
             println!("    * Base Camp ID : {}", camp.base_camp_id);
             println!("      - Level      : {}", camp.level);
             println!("      - Guild ID   : {}", camp.group_id);
-            println!("      - Coordinates: ({:.1}, {:.1}, {:.1})", camp.coordinates.0, camp.coordinates.1, camp.coordinates.2);
+            println!(
+                "      - Coordinates: ({:.1}, {:.1}, {:.1})",
+                camp.coordinates.0, camp.coordinates.1, camp.coordinates.2
+            );
         }
     }
     println!();
