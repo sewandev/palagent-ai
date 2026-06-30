@@ -23,7 +23,7 @@
 > [!TIP]
 > **Instalación fácil usando la misma IA (la IA hará todo por ti)**
 >
-> Copia y pega el prompt de [INSTRUCTIONS.es.md](file:///C:/workspace/palsync-ai-liveagent/INSTRUCTIONS.es.md) directamente en tu asistente de IA.
+> Copia y pega el prompt de `https://raw.githubusercontent.com/sewandev/palagent-ai/main/INSTRUCTIONS.es.md` directamente en tu asistente de IA.
 
 ## Instalación y Configuración
 

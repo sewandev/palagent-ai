@@ -23,7 +23,7 @@
 > [!TIP]
 > **Easy installation using the AI itself (the AI will do everything for you)**
 >
-> Copy-paste the prompt from [INSTRUCTIONS.md](file:///C:/workspace/palsync-ai-liveagent/INSTRUCTIONS.md) directly to your AI assistant.
+> Copy-paste the prompt from `https://raw.githubusercontent.com/sewandev/palagent-ai/main/INSTRUCTIONS.md` directly to your AI assistant.
 
 ## Installation & Setup
 

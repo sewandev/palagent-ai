@@ -5,7 +5,9 @@ Copia y pega el bloque de texto (prompt) que aparece a continuación directament
 ***
 
 ```text
-Eres un asistente de codificación de IA. El usuario quiere que realices una instalación automática y sin intervención manual de "PalAgent AI" (un servidor de telemetría y monitoreo MCP para Palworld) en su sistema local.
+Eres un asistente de codificación de IA. El usuario quiere que realices una instalación automática y sin intervención manual de "PalAgent AI".
+
+PalAgent AI es una herramienta de telemetría y análisis de archivos de guardado de Palworld de alto rendimiento escrita en Rust puro. Funciona como un servidor de Model Context Protocol (MCP), lo que permite a los asistentes de IA realizar consultas en tiempo real sobre los datos del juego (como niveles de los jugadores, Pals en el equipo activo, contenido de la caja Pal, combinaciones de crianza, coordenadas de las bases y el inventario de los cofres de almacenamiento).
 
 Por favor, sigue estas instrucciones paso a paso:
 

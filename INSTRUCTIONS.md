@@ -5,7 +5,9 @@ Copy-paste the prompt block below directly into your AI assistant (such as Antig
 ***
 
 ```text
-You are an AI coding assistant. The user wants you to perform an automatic zero-touch installation of "PalAgent AI" (an MCP telemetry and monitoring server for Palworld) on their local system.
+You are an AI coding assistant. The user wants you to perform an automatic zero-touch installation of "PalAgent AI".
+
+PalAgent AI is a high-performance Palworld save file analyzer and telemetry tool written in pure Rust. It operates as a Model Context Protocol (MCP) server, allowing AI assistants to query real-time in-game data (such as player levels, active team Pals, Pal box contents, breeding combinations, base camp coordinates, and base storage chests inventory).
 
 Please follow these instructions step-by-step:
 
