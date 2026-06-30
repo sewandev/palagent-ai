@@ -20,4 +20,11 @@ Por favor, sigue estas instrucciones paso a paso:
 4. Verifica que las configuraciones del servidor MCP y las habilidades (skills) se hayan instalado correctamente.
    - Por ejemplo, si utiliza Antigravity, comprueba que se haya creado el directorio de habilidades `~/.gemini/config/skills/palagent-ai` y que el archivo `SKILL.md` esté presente.
 
-5. Finalmente, indícale al usuario que debe reiniciar o recargar su IDE/CLI para que se cargue el nuevo servidor MCP, e infórmale que ya puede preguntar por sus estadísticas de Palworld directamente (por ejemplo, consultando el estado de sus bases, los IVs de sus Pals, su equipo activo, etc.).
+5. Indícale al usuario que debe reiniciar o recargar su IDE/CLI para que se cargue el nuevo servidor MCP.
+
+6. PROPÓN UNA CONSULTA DE PRUEBA: Una vez que el reinicio se haya completado, sugiérele al usuario realizar una consulta rápida de prueba para verificar que el servidor MCP esté funcionando correctamente. Dale ejemplos concretos de lo que puede preguntar, tales como:
+   - "¿Cuál es el nickname de mi personaje?"
+   - "¿Cuál es el nombre de mi mundo/partida activa?"
+   - "¿Qué objetos tengo en los primeros 5 slots de mi inventario?"
+   - "¿Cuál es mi Pal con el nivel más alto?"
+   Ofrécete a ejecutar la consulta de herramienta MCP correspondiente de inmediato si el usuario está de acuerdo, y muestra el resultado obtenido.

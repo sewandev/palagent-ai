@@ -20,4 +20,11 @@ Please follow these instructions step-by-step:
 4. Verify that the MCP server configurations and skills are correctly installed.
    - For example, if they use Antigravity, check that the skills directory `~/.gemini/config/skills/palagent-ai` was created and that `SKILL.md` is present.
 
-5. Finally, instruct the user to reload or restart their IDE/CLI so that the new MCP server is loaded, and inform them they can now query their Palworld stats directly (e.g. asking for their base status, Pal IVs, active team, etc.).
+5. Instruct the user to reload or restart their IDE/CLI so that the new MCP server is loaded.
+
+6. PROPOSE A TEST QUERY: Once the restart is complete, suggest the user to run a quick test query to verify that the MCP server is working correctly. Give them concrete examples of what they can ask, such as:
+   - "What is my character nickname?"
+   - "What is the name of my active world/save?"
+   - "What items do I have in the first 5 slots of my backpack?"
+   - "Which of my Pals has the highest level?"
+   Offer to run the corresponding MCP tool query immediately if they agree, and display the result.
