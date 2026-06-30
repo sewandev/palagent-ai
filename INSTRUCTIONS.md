@@ -20,11 +20,4 @@ Please follow these instructions step-by-step:
 4. Verify that the MCP server configurations and skills are correctly installed.
    - For example, if they use Antigravity, check that the skills directory `~/.gemini/config/skills/palagent-ai` was created and that `SKILL.md` is present.
 
-5. Instruct the user to reload or restart their IDE/CLI so that the new MCP server is loaded.
-
-6. PROPOSE A TEST QUERY: Once the restart is complete, suggest the user to run a quick test query to verify that the MCP server is working correctly. Give them concrete examples of what they can ask, such as:
-   - "What is my character nickname?"
-   - "What is the name of my active world/save?"
-   - "What items do I have in the first 5 slots of my backpack?"
-   - "Which of my Pals has the highest level?"
-   Offer to run the corresponding MCP tool query immediately if they agree, and display the result.
+5. Finally, instruct the user to reload or restart their IDE/CLI so that the new MCP server is loaded. At the same time, suggest concrete test queries for them to try as soon as they reload (such as asking for their character nickname, their active world/save name, the first 5 slots of their backpack, or their highest-level Pal) so they can verify the installation is working correctly.
