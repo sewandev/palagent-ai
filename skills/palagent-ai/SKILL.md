@@ -79,43 +79,93 @@ Use the `palagent-ai` tools when:
 
 The PalAgent AI MCP server exposes the following tools:
 
-1. **`query_time`**:
+1. **`list_worlds`**:
+   - Description: List all detected Palworld save worlds and their paths.
+   - Parameters: None.
+
+2. **`query_time`**:
    - Description: Get current in-game day, time, and cycle (day/night).
    - Parameters: None.
 
-2. **`query_settings`**:
+3. **`query_settings`**:
    - Description: Get server configuration and game difficulty settings.
    - Parameters: None.
 
-3. **`chest_search`**:
+4. **`search_chest`**:
    - Description: Locate specific items across all base chests.
    - Parameters:
      - `query` (string, required): Item name to search (e.g. "Berries", "Wood").
 
-4. **`query_breeding`**:
+5. **`query_breeding`**:
    - Description: Analyze available gender combos and potential breeding offspring.
    - Parameters:
      - `player_uid` (string, optional): Optional Player UID to isolate breeding team.
 
-5. **`query_progress`**:
+6. **`query_progress`**:
    - Description: Check player notes found, fast travel unlocks, and capture progress.
    - Parameters:
      - `player_uid` (string, optional): Optional Player UID to isolate progress.
 
-6. **`monitor_pals`**:
+7. **`monitor_pals`**:
    - Description: Get real-time sanity (SAN), satiety (hunger), and HP levels of base/active Pals.
    - Parameters:
      - `player_uid` (string, optional): Optional Player UID to isolate monitored Pals.
 
-7. **`query_analyzer`**:
+8. **`query_analyzer`**:
    - Description: Analyze Pal talent IV stats (HP/Atk/Def bonuses) and passive skills.
    - Parameters:
      - `player_uid` (string, optional): Optional Player UID to isolate Pals.
 
-8. **`query_full`**:
+9. **`query_full`**:
    - Description: Retrieve the complete world telemetry report including bases, players, and guilds.
    - Parameters:
      - `player_uid` (string, optional): Optional Player UID to isolate report details.
+
+10. **`query_recipes`**:
+    - Description: Query crafting recipes and ingredients for items like Pal Spheres.
+    - Parameters:
+      - `item_id` (string, optional): Optional Item ID to query (e.g. palsphere, palsphere_mega, palsphere_giga).
+
+11. **`query_active_skills`**:
+    - Description: Query combat active skill stats like power, cooldown, and element.
+    - Parameters:
+      - `skill_id` (string, optional): Optional Skill ID to query (e.g. AirCanon, HydroLaser, FireBlast).
+
+12. **`query_target_breeding`**:
+    - Description: Query all parent combinations that produce a specific child Pal.
+    - Parameters:
+      - `target_pal` (string, required): Target child Pal name or internal ID (e.g. Anubis, Jetragon).
+
+13. **`query_drops`**:
+    - Description: Query drops of a Pal or locate which Pals drop a specific item.
+    - Parameters:
+      - `pal_name` (string, optional): Pal name to query drops for (e.g. Lamball, Foxsparks).
+      - `item_name` (string, optional): Item name to query dropping Pals (e.g. wool, flame_organ).
+
+14. **`calculate_capture_rate`**:
+    - Description: Calculate capture rate percentages based on creature level, HP, sphere types, and Lifmunk statue level.
+    - Parameters:
+      - `pal_level` (integer, required): Creature level.
+      - `current_hp` (integer, optional): Optional current HP of the creature (default 100).
+      - `max_hp` (integer, optional): Optional maximum HP of the creature (default 100).
+      - `lifmunk_level` (integer, optional): Optional player Lifmunk capture bonus level (0 to 10).
+
+15. **`query_db_schema`**:
+    - Description: Retrieve the SQLite database schema summary showing tables, columns, and types.
+    - Parameters: None.
+
+## SQLite Telemetry Database Schema
+
+The local SQLite database (`palworld_data.db`) holds static game metrics and definitions:
+- **`pals`**: Registries of Pals, their breed power, and work suitability skill levels (`kindling`, `watering`, `planting`, `generating`, `handwork`, `gathering`, `lumbering`, `mining`, `medicine`, `cooling`, `transporting`, `farming`).
+- **`passives`**: Passive skills descriptions and translations in English and Spanish.
+- **`items`**: Item catalog and translations in English and Spanish.
+- **`active_skills`**: Attack skill stats including cooldown, power, and element.
+- **`recipes`**: Resource crafting recipes representing inputs and quantities.
+- **`pal_drops`**: Drop chances and quantities for each item dropped by wild Pals.
+- **`breeding_exceptions`**: Unique parent combinations that bypass the power formula logic.
+
+*Note: All user live save data (Pals in possession, base coordinates, chest contents) is processed dynamically in memory directly from Level.sav, and is not stored persistently in the SQLite DB.*
 
 ## CLI & Interactive Console Reference
 

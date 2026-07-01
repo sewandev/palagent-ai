@@ -1991,3 +1991,43 @@ pub fn calculate_capture_rate(
     let final_rate = base_rate * hp_multiplier * sphere_multiplier * lifmunk_multiplier;
     final_rate.min(100.0)
 }
+
+pub fn get_db_schema_summary(use_es: bool) -> String {
+    if use_es {
+        "Base de datos SQLite local (palworld_data.db):\n\
+         Tablas estáticas:\n\
+         - pals (pals registrados y su poder de crianza/aptitudes):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT), breed_power (INTEGER), kindling..farming (INTEGER)\n\
+         - passives (habilidades pasivas):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT), description_en (TEXT), description_es (TEXT)\n\
+         - items (objetos y materiales):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT)\n\
+         - breeding_exceptions (excepciones de crianza especiales):\n\
+           parent_a (TEXT), parent_b (TEXT), child (TEXT), PRIMARY KEY (parent_a, parent_b)\n\
+         - active_skills (habilidades de combate):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT), power (INTEGER), cooldown (INTEGER), element (TEXT)\n\
+         - recipes (recetas de crafteo):\n\
+           item_id (TEXT), ingredient_id (TEXT), count (INTEGER), PRIMARY KEY (item_id, ingredient_id)\n\
+         - pal_drops (objetos que sueltan los Pals):\n\
+           pal_id (TEXT), item_id (TEXT), chance (INTEGER), min_qty (INTEGER), max_qty (INTEGER), PRIMARY KEY (pal_id, item_id)\n\n\
+         Nota: Toda la información de la partida del usuario (Pals en posesión, coordenadas de cofres, salud de campamentos) se analiza y procesa en caliente en memoria desde el archivo Level.sav directamente, por lo que no reside de forma persistente en SQLite.".to_string()
+    } else {
+        "Local SQLite telemetry DB (palworld_data.db):\n\
+         Static Tables:\n\
+         - pals (registered Pals, breeding power, and work suitabilities):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT), breed_power (INTEGER), kindling..farming (INTEGER)\n\
+         - passives (passive skills):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT), description_en (TEXT), description_es (TEXT)\n\
+         - items (in-game items and materials):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT)\n\
+         - breeding_exceptions (special unique breeding combos):\n\
+           parent_a (TEXT), parent_b (TEXT), child (TEXT), PRIMARY KEY (parent_a, parent_b)\n\
+         - active_skills (combat active skills):\n\
+           internal_id (TEXT PRIMARY KEY), name_en (TEXT), name_es (TEXT), power (INTEGER), cooldown (INTEGER), element (TEXT)\n\
+         - recipes (crafting recipes ingredients):\n\
+           item_id (TEXT), ingredient_id (TEXT), count (INTEGER), PRIMARY KEY (item_id, ingredient_id)\n\
+         - pal_drops (items dropped by wild Pals):\n\
+           pal_id (TEXT), item_id (TEXT), chance (INTEGER), min_qty (INTEGER), max_qty (INTEGER), PRIMARY KEY (pal_id, item_id)\n\n\
+         Note: All user live save data (Pals in possession, base coordinates, chest contents) is processed dynamically in memory directly from Level.sav, and is not stored persistently in the SQLite DB.".to_string()
+    }
+}

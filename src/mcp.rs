@@ -237,6 +237,14 @@ pub fn run_mcp_loop(
                                         },
                                         "required": ["pal_level"]
                                     }
+                                },
+                                {
+                                    "name": "query_db_schema",
+                                    "description": "Retrieve the database schema showing tables, columns, and types in the local SQLite telemetry DB",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
                                 }
                             ]
                         }
@@ -488,6 +496,9 @@ pub fn run_mcp_loop(
                             out.push_str(&format!("  - {}: {:.1}%\n", sphere_name, rate));
                         }
                         out
+                    } else if tool_name == "query_db_schema" {
+                        let use_es = i18n::current_language() == i18n::Language::Es;
+                        crate::db::get_db_schema_summary(use_es)
                     } else if let Some((host, passcode, default_uid)) = &client_conn {
                         let target_uid = player_uid.or(default_uid.as_deref());
                         let cmd = match tool_name {
@@ -604,5 +615,16 @@ mod tests {
         assert!(!drops.is_empty());
         let item_drops = crate::db::get_pals_dropping_item("wool");
         assert!(item_drops.contains(&"SheepBall".to_string()));
+    }
+
+    #[test]
+    fn test_db_schema_summary() {
+        let summary_en = crate::db::get_db_schema_summary(false);
+        assert!(summary_en.contains("Local SQLite telemetry DB"));
+        assert!(summary_en.contains("pals"));
+
+        let summary_es = crate::db::get_db_schema_summary(true);
+        assert!(summary_es.contains("Base de datos SQLite local"));
+        assert!(summary_es.contains("pals"));
     }
 }
