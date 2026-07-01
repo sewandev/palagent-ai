@@ -4,7 +4,7 @@ Please follow these steps:
 
 1. Download the latest release binary `palagent-ai.exe` from the official repository:
    - Fetch the latest release metadata from the GitHub API: https://api.github.com/repos/sewandev/palagent-ai/releases/latest
-   - Locate the download URL for `palagent-ai.exe` under assets (e.g. `https://github.com/sewandev/palagent-ai/releases/download/v0.0.2/palagent-ai.exe`), and download the executable file.
+   - Locate the download URL for `palagent-ai.exe` under assets (e.g. `https://github.com/sewandev/palagent-ai/releases/download/v0.0.1/palagent-ai.exe`), and download the executable file.
    - *CRITICAL*: Do NOT attempt to build the binary from source using `cargo build` unless downloading fails AND you verify that the user has Visual Studio Build Tools (MSVC compiler / `link.exe` linker) installed, as Rust compilation on Windows will fail without it.
 
 2. Run the setup command for the user's selected client:

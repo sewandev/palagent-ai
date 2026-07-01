@@ -39,7 +39,7 @@ pub fn run_mcp_loop(
                             "protocolVersion": "2024-11-05",
                             "serverInfo": {
                                 "name": "palagent-ai",
-                                "version": "0.0.2"
+                                "version": "0.0.1"
                             }
                         }
                     });
