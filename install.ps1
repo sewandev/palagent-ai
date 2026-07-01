@@ -2,24 +2,124 @@ $ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "  =====================================" -ForegroundColor Green
-Write-Host "         PalAgent AI Installer         " -ForegroundColor Green
+Write-Host "         PalAgent AI Manager           " -ForegroundColor Green
 Write-Host "  =====================================" -ForegroundColor Green
 Write-Host ""
 
 $repo = "sewandev/palagent-ai"
 $installDir = Join-Path $env:USERPROFILE ".palagent-ai"
-if (-not (Test-Path $installDir)) {
-    New-Item -ItemType Directory -Path $installDir | Out-Null
-}
-
 $destExe = Join-Path $installDir "palagent-ai.exe"
 $destDll = Join-Path $installDir "oo2core_9_win64.dll"
+
+# Detect previous installation
+$hasPreviousInstall = Test-Path $destExe
+if ($hasPreviousInstall) {
+    Write-Host "      [!] Previous installation detected at: $installDir" -ForegroundColor Yellow
+}
+
+Write-Host "Please select an option:"
+Write-Host "  1. Install / Upgrade PalAgent AI" -ForegroundColor Green
+Write-Host "  2. Uninstall and clean up all residues" -ForegroundColor Red
+Write-Host "  3. Exit"
+Write-Host ""
+
+$menuSelection = Read-Host "Enter your choice (1-3)"
+
+if ($menuSelection -eq "2") {
+    Write-Host ""
+    Write-Host "=== Starting Uninstallation & Cleanup ===" -ForegroundColor Red
+    
+    # 1. Remove PowerShell profile function helper
+    Write-Host "[-] Cleaning up PowerShell profile helper..." -ForegroundColor Cyan
+    $profilePath = $PROFILE
+    if (Test-Path $profilePath) {
+        try {
+            $content = Get-Content -Path $profilePath -Raw -ErrorAction SilentlyContinue
+            if ($content -and $content -like "*/palworld*") {
+                $cleanContent = $content -replace "(?s)# PalAgent AI Custom Console Helper.*", ""
+                Set-Content -Path $profilePath -Value $cleanContent -Force
+                Write-Host "      Removed /palworld helper from $profilePath" -ForegroundColor DarkGray
+            }
+        } catch {
+            Write-Host "      Could not clean profile file: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+
+    # 2. Clean MCP configuration server entries from files without breaking other tools
+    Write-Host "[-] Removing MCP server config registrations..." -ForegroundColor Cyan
+    $mcpConfigs = @(
+        Join-Path $env:USERPROFILE ".gemini\config\mcp_config.json",
+        Join-Path $env:USERPROFILE ".gemini\antigravity-cli\mcp_config.json"
+    )
+
+    foreach ($configPath in $mcpConfigs) {
+        if (Test-Path $configPath) {
+            try {
+                $json = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+                if ($json.mcpServers -and $json.mcpServers."palagent-ai") {
+                    $json.mcpServers.PSObject.Properties.Remove("palagent-ai")
+                    $cleanJson = $json | ConvertTo-Json -Depth 10
+                    Set-Content -Path $configPath -Value $cleanJson -Force
+                    Write-Host "      Removed 'palagent-ai' registration from $configPath" -ForegroundColor DarkGray
+                }
+            } catch {
+                Write-Host "      Failed to clean MCP config ${configPath}: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+        }
+    }
+
+    # 3. Remove agent skills and rules directories
+    Write-Host "[-] Deleting agent skill templates..." -ForegroundColor Cyan
+    $skillPaths = @(
+        Join-Path $env:USERPROFILE ".gemini\config\skills\palagent-ai",
+        Join-Path $env:USERPROFILE ".gemini\antigravity-cli\skills\palagent-ai"
+    )
+    foreach ($skillPath in $skillPaths) {
+        if (Test-Path $skillPath) {
+            Remove-Item -Path $skillPath -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "      Deleted skill directory: $skillPath" -ForegroundColor DarkGray
+        }
+    }
+
+    # 4. Remove installation binary folder
+    Write-Host "[-] Deleting permanent binaries directory..." -ForegroundColor Cyan
+    if (Test-Path $installDir) {
+        try {
+            # Try to release lock first by deleting old executables
+            Remove-Item -Path (Join-Path $installDir "palagent-ai.exe.old") -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $installDir -Recurse -Force
+            Write-Host "      Deleted installation folder: $installDir" -ForegroundColor DarkGray
+        } catch {
+            Write-Host "      Some files were locked. Attempting to delete individual files..." -ForegroundColor Yellow
+            Remove-Item -Path $destDll -Force -ErrorAction SilentlyContinue
+            Rename-Item -Path $destExe -NewName "palagent-ai.exe.trash" -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path (Join-Path $installDir "palagent-ai.exe.trash") -Force -ErrorAction SilentlyContinue
+            Write-Host "      Binary folder marked for deletion on next boot or release." -ForegroundColor DarkGray
+        }
+    }
+
+    Write-Host ""
+    Write-Host "======================================================" -ForegroundColor Green
+    Write-Host "     Uninstallation and cleanup completed!           " -ForegroundColor Green
+    Write-Host "======================================================" -ForegroundColor Green
+    Write-Host ""
+    exit 0
+}
+
+if ($menuSelection -ne "1") {
+    Write-Host "Exiting installer."
+    exit 0
+}
+
+# --- INSTALLATION FLOW ---
+Write-Host ""
+Write-Host "=== Starting Installation & Upgrade ===" -ForegroundColor Green
+
 $localExePath = Join-Path "target\release" "palagent-ai.exe"
+$downloadedNew = $false
 
 # Step 1: Resolving/Downloading the executable
 Write-Host "[1/4] Resolving PalAgent AI executable..." -ForegroundColor Cyan
-
-$downloadedNew = $false
 
 if (Test-Path $localExePath) {
     Write-Host "      Detected local development build. Copying from: $localExePath" -ForegroundColor DarkGray
