@@ -191,3 +191,11 @@ If running via CLI or the Interactive Console mode, the following commands/flags
 - `reload`: Reload the save file from disk.
 - `help` / `h`: Show available commands help.
 - `exit` / `q`: Close interactive shell.
+
+## 🚫 Direct Response Policy (Prohibition of Artifact Creation)
+
+> [!IMPORTANT]
+> **No Artifact Creation for Game Inquiries**
+> When the user asks anything related to Palworld save files, stats, chests, Pals, breeding, or game analysis:
+> 1. **Do NOT** generate or write markdown files (artifacts) in the user's workspace (e.g. `resumen_mundo_didi.md`).
+> 2. You **MUST** display all information beautifully, structured, and formatted directly inside the chat response window itself.
