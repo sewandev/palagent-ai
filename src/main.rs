@@ -44,6 +44,7 @@ macro_rules! println {
 mod commands;
 mod decompress;
 mod i18n;
+mod interactive;
 mod mcp;
 mod models;
 mod output;
@@ -138,6 +139,9 @@ fn main() {
     let has_local_uid = args_list
         .iter()
         .any(|arg| arg == "local-uid" || arg == "--local-uid");
+    let has_interactive = args_list
+        .iter()
+        .any(|arg| arg == "--interactive" || arg == "-i");
 
     let mut connect_arg = None;
     if let Some(pos) = args_list.iter().position(|arg| arg == "--connect") {
@@ -362,6 +366,11 @@ fn main() {
             }
         }
     };
+
+    if has_interactive {
+        crate::interactive::run_interactive_loop(&world_path, is_json);
+        std::process::exit(0);
+    }
 
     if has_time {
         run_time_command(&world_path, is_json);
