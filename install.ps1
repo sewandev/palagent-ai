@@ -7,23 +7,46 @@ Write-Host "  =====================================" -ForegroundColor Green
 Write-Host ""
 
 # Step 1: Compiling the Rust application
-Write-Host "[1/5] Compiling PalAgent AI in release mode..." -ForegroundColor Cyan
+Write-Host "[1/4] Compiling PalAgent AI in release mode..." -ForegroundColor Cyan
+
+$repoUrl = "https://github.com/sewandev/palagent-ai.git"
+$tempBuildDir = Join-Path $env:TEMP "palagent-ai-build"
+$mustPopLocation = $false
+
+if (-not (Test-Path "Cargo.toml")) {
+    Write-Host "      Cargo.toml not found in current directory. Cloning repository to temporary folder..." -ForegroundColor DarkGray
+    Remove-Item -Path $tempBuildDir -Recurse -Force -ErrorAction SilentlyContinue
+    try {
+        & git clone $repoUrl $tempBuildDir
+        Push-Location $tempBuildDir
+        $mustPopLocation = $true
+    } catch {
+        Write-Host "Git clone failed. Ensure git is installed and online." -ForegroundColor Red
+        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+        exit 1
+    }
+}
+
 try {
     & cargo build --release
 } catch {
     Write-Host "Compilation failed. Ensure Rust and Cargo are installed." -ForegroundColor Red
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+    if ($mustPopLocation) {
+        Pop-Location
+        Remove-Item -Path $tempBuildDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
     exit 1
 }
 
 # Step 2: Creating permanent folder and copying binary
-Write-Host "[2/5] Installing executable to user profile..." -ForegroundColor Cyan
+Write-Host "[2/4] Installing executable to user profile..." -ForegroundColor Cyan
 $installDir = Join-Path $env:USERPROFILE ".palagent-ai"
 if (-not (Test-Path $installDir)) {
     New-Item -ItemType Directory -Path $installDir | Out-Null
 }
 
-$sourceExe = Join-Path "target\release" "palagent-ai.exe"
+$sourceExe = if ($mustPopLocation) { Join-Path $tempBuildDir "target\release\palagent-ai.exe" } else { Join-Path "target\release" "palagent-ai.exe" }
 $destExe = Join-Path $installDir "palagent-ai.exe"
 
 # If the file is locked, rename it first
@@ -117,6 +140,11 @@ if ($inputSelection -match "A" -or $inputSelection -match "a") {
             & $destExe setup $choice
         }
     }
+}
+
+if ($mustPopLocation) {
+    Pop-Location
+    Remove-Item -Path $tempBuildDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host ""
