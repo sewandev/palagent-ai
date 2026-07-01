@@ -5,12 +5,13 @@ description: Extract telemetry, stats, IVs, breeding combinations, and base camp
 
 # PalAgent AI Skill
 
-This skill allows the agent to interact with the PalAgent AI MCP server and query real-time Palworld statistics.
+This skill allows the agent to interact with the PalAgent AI MCP server, CLI, and query real-time Palworld statistics.
 Use the `palagent-ai` tools when:
 - The user asks for the status of base camps or Palbox.
-- The user wants to analyze Pal IVs, stats, or passive skills.
-- The user requests breeding combinations.
+- The user wants to analyze Pal IVs, stats, or passive skills (optionally filtering by trait, level, or gender).
+- The user requests breeding combinations or wants to find a multi-generational breeding path to get a target Pal (breeding pathfinder).
 - The user needs to locate items in base chests.
+- The user wants to run multiple consecutive commands fast using the memory-cached `--interactive` console mode.
 
 ## Mandatory Data Enrichment & External Knowledge Policy
 
