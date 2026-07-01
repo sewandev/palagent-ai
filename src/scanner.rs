@@ -764,7 +764,10 @@ pub fn scan_character_save_parameters(level_bytes: &[u8]) -> Vec<CharacterEntry>
     entries
 }
 
-pub fn parse_container_items(level_bytes: &[u8], container_guid_le: &[u8; 16]) -> Vec<InventoryItem> {
+pub fn parse_container_items(
+    level_bytes: &[u8],
+    container_guid_le: &[u8; 16],
+) -> Vec<InventoryItem> {
     let mut level_container_pos = None;
     for i in 0..level_bytes.len() - 16 {
         if &level_bytes[i..i + 16] == container_guid_le {
@@ -1148,6 +1151,7 @@ pub fn extract_vector_coords(bytes: &[u8], offset: &mut usize) -> (i32, i32, i32
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn find_chest_containers(level_bytes: &[u8]) -> Vec<([u8; 16], String, (i32, i32, i32))> {
     let mut results = Vec::new();
     let pattern = b"EPalMapObjectConcreteModelModuleType::ItemContainer\x00";

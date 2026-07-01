@@ -41,28 +41,28 @@ macro_rules! println {
     }};
 }
 
+mod commands;
 mod decompress;
 mod i18n;
+mod mcp;
 mod models;
 mod output;
 mod scanner;
-mod utils;
-mod commands;
-mod setup;
 mod server;
-mod mcp;
+mod setup;
+mod utils;
 
-use std::path::PathBuf;
-use crate::utils::{get_all_detected_worlds, select_world_interactively};
-use crate::setup::run_setup;
-use crate::server::run_client_request;
-use crate::mcp::run_mcp_loop;
-use crate::server::start_host_server;
 use crate::commands::{
     run_analyzer_command, run_breeding_command, run_clean_seeds_command, run_full_command,
     run_monitor_command, run_progress_command, run_search_chest_command, run_settings_command,
     run_time_command,
 };
+use crate::mcp::run_mcp_loop;
+use crate::server::run_client_request;
+use crate::server::start_host_server;
+use crate::setup::run_setup;
+use crate::utils::{get_all_detected_worlds, select_world_interactively};
+use std::path::PathBuf;
 
 fn main() {
     i18n::init(i18n::detect_system_language());
@@ -135,7 +135,9 @@ fn main() {
         .any(|arg| arg == "--list-worlds" || arg == "-l");
     let has_select_world = args_list.iter().any(|arg| arg == "--select-world");
     let has_host = args_list.iter().any(|arg| arg == "--host");
-    let has_local_uid = args_list.iter().any(|arg| arg == "local-uid" || arg == "--local-uid");
+    let has_local_uid = args_list
+        .iter()
+        .any(|arg| arg == "local-uid" || arg == "--local-uid");
 
     let mut connect_arg = None;
     if let Some(pos) = args_list.iter().position(|arg| arg == "--connect") {

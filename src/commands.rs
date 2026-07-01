@@ -2,13 +2,13 @@ use crate::decompress::decompress_gvas;
 use crate::i18n;
 use crate::models::{OutputJson, PalSummary, PlayerSummary};
 use crate::scanner::{
-    clean_seeds_in_bytes, compress_and_write_gvas, extract_array_strings,
-    extract_bool_prop, extract_byte_prop, extract_enum_prop, extract_fixed_point_prop,
-    extract_float_prop, extract_guid_bytes_prop, extract_guid_prop, extract_int64_prop,
-    extract_int_prop, extract_string_prop, find_chest_containers, format_guid,
-    parse_container_items, scan_base_camps, scan_character_save_parameters, scan_guilds,
+    clean_seeds_in_bytes, compress_and_write_gvas, extract_array_strings, extract_bool_prop,
+    extract_byte_prop, extract_enum_prop, extract_fixed_point_prop, extract_float_prop,
+    extract_guid_bytes_prop, extract_guid_prop, extract_int64_prop, extract_int_prop,
+    extract_string_prop, find_chest_containers, format_guid, parse_container_items,
+    scan_base_camps, scan_character_save_parameters, scan_guilds,
 };
-use crate::utils::{find_child_pal, detect_game_mode, BREED_POWER};
+use crate::utils::{detect_game_mode, find_child_pal, BREED_POWER};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
@@ -1213,7 +1213,7 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                             let ph =
                                 extract_string_prop(&char_entry.raw_data, b"PhysicalHealth\x00");
                             if !ph.is_empty() {
-                                  physical_health = ph;
+                                physical_health = ph;
                             }
                         }
 
@@ -1307,7 +1307,10 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                                             as u32;
 
                                         let mut talents = HashMap::new();
-                                        if crate::scanner::has_prop(&char_entry.raw_data, b"Talent_HP\x00") {
+                                        if crate::scanner::has_prop(
+                                            &char_entry.raw_data,
+                                            b"Talent_HP\x00",
+                                        ) {
                                             talents.insert(
                                                 "HP".to_string(),
                                                 extract_int_prop(
@@ -1317,7 +1320,10 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                                                     as u32,
                                             );
                                         }
-                                        if crate::scanner::has_prop(&char_entry.raw_data, b"Talent_Shot\x00") {
+                                        if crate::scanner::has_prop(
+                                            &char_entry.raw_data,
+                                            b"Talent_Shot\x00",
+                                        ) {
                                             talents.insert(
                                                 "Shot".to_string(),
                                                 extract_int_prop(
@@ -1327,7 +1333,10 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                                                     as u32,
                                             );
                                         }
-                                        if crate::scanner::has_prop(&char_entry.raw_data, b"Talent_Defense\x00") {
+                                        if crate::scanner::has_prop(
+                                            &char_entry.raw_data,
+                                            b"Talent_Defense\x00",
+                                        ) {
                                             talents.insert(
                                                 "Defense".to_string(),
                                                 extract_int_prop(
@@ -1411,7 +1420,10 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                                             as u32;
 
                                         let mut talents = HashMap::new();
-                                        if crate::scanner::has_prop(&char_entry.raw_data, b"Talent_HP\x00") {
+                                        if crate::scanner::has_prop(
+                                            &char_entry.raw_data,
+                                            b"Talent_HP\x00",
+                                        ) {
                                             talents.insert(
                                                 "HP".to_string(),
                                                 extract_int_prop(
@@ -1421,7 +1433,10 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                                                     as u32,
                                             );
                                         }
-                                        if crate::scanner::has_prop(&char_entry.raw_data, b"Talent_Shot\x00") {
+                                        if crate::scanner::has_prop(
+                                            &char_entry.raw_data,
+                                            b"Talent_Shot\x00",
+                                        ) {
                                             talents.insert(
                                                 "Shot".to_string(),
                                                 extract_int_prop(
@@ -1431,7 +1446,10 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
                                                     as u32,
                                             );
                                         }
-                                        if crate::scanner::has_prop(&char_entry.raw_data, b"Talent_Defense\x00") {
+                                        if crate::scanner::has_prop(
+                                            &char_entry.raw_data,
+                                            b"Talent_Defense\x00",
+                                        ) {
                                             talents.insert(
                                                 "Defense".to_string(),
                                                 extract_int_prop(
@@ -1493,12 +1511,18 @@ pub fn run_full_command(world_path: &Path, is_json: bool, target_uid: Option<&st
 
                         let relics_found =
                             extract_int_prop(&player_bytes, b"RelicPossessNum\x00") as u32;
-                        let fast_travel_points =
-                            crate::scanner::extract_map_keys(&player_bytes, b"FastTravelPointUnlockFlag\x00");
-                        let notes_found =
-                            crate::scanner::extract_map_keys(&player_bytes, b"NoteObtainForInstanceFlag\x00");
-                        let npc_talk_counts =
-                            crate::scanner::extract_map_counts(&player_bytes, b"NPCTalkCountMap\x00");
+                        let fast_travel_points = crate::scanner::extract_map_keys(
+                            &player_bytes,
+                            b"FastTravelPointUnlockFlag\x00",
+                        );
+                        let notes_found = crate::scanner::extract_map_keys(
+                            &player_bytes,
+                            b"NoteObtainForInstanceFlag\x00",
+                        );
+                        let npc_talk_counts = crate::scanner::extract_map_counts(
+                            &player_bytes,
+                            b"NPCTalkCountMap\x00",
+                        );
 
                         let mut customization = HashMap::new();
                         let b_mesh = extract_string_prop(&player_bytes, b"BodyMeshName\x00");
