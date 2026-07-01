@@ -42,15 +42,13 @@ Use the `palagent-ai` tools when:
    - Compare the user's running version against the latest official version.
    - If the user's version is outdated, notify them of the mismatch and explicitly list key content (such as new Pals, items, islands, or system changes) they are missing.
 
-## Context Window & Performance Optimization Policy
+## Golden Rule: Direct Telemetry Output (Zero Data Processing)
 
-1. **Avoid Full Server Dumps**:
-   - For Dedicated Servers or multiplayer worlds, the global save database contains data for all players and guilds.
-   - Do not invoke `query_full` (which lists all players, bases, and guilds) unless explicitly requested by the user. It can return massive JSON payloads that exceed context window limits or cause slower response times.
-
-2. **Isolate Queries with Player UID**:
-   - Always prefer targeted query tools: `monitor_pals`, `query_progress`, `query_analyzer`, and `query_breeding` using the optional `player_uid` argument.
-   - If the player's UID is unknown, perform a quick initial query or check their local save game filenames (`Players/<PlayerUID>.sav`) to find it.
+> [!IMPORTANT]
+> **Trust the MCP tool text output**
+> 1. All Palworld telemetry MCP tools (such as `query_full`, `query_progress`, `monitor_pals`, `query_analyzer`, `query_time`, etc.) return beautiful, pre-formatted, localized text tables directly from the Rust binary CLI.
+> 2. You **MUST NOT** parse JSON data, write python helper scripts, search workspace folders, or call raw bash commands to get stats.
+> 3. Simply invoke the target MCP tool (e.g. `query_full` for world summaries, `query_analyzer` for Pal IVs, `query_progress` for player accomplishments) and output its return string **exactly as-is** directly to the user in your chat. Do not re-wrap it in a markdown code block, and do not write summary markdown files.
 
 ## Troubleshooting & Decompression Support Policy
 
