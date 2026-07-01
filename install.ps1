@@ -51,6 +51,14 @@ function Get-PalworldInstallPath {
     return $null
 }
 
+$repo = "sewandev/palagent-ai"
+$installDir = Join-Path $env:USERPROFILE ".palagent-ai"
+$destExe = Join-Path $installDir "palagent-ai.exe"
+$destDll = Join-Path $installDir "oo2core_9_win64.dll"
+
+# Detect previous installation
+$hasPreviousInstall = Test-Path $destExe
+
 # --- LOCALIZATION STRINGS ---
 $msgs = @{
     en = @{
