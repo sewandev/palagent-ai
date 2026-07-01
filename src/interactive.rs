@@ -200,7 +200,9 @@ pub fn run_interactive_loop(world_path: &Path, _is_json: bool) {
                 break;
             }
             _ => {
-                println!("Comando desconocido. Escribe 'help' o 'h' para ver la lista de comandos.");
+                println!(
+                    "Comando desconocido. Escribe 'help' o 'h' para ver la lista de comandos."
+                );
             }
         }
     }
@@ -250,7 +252,12 @@ fn handle_time(level_bytes: &[u8]) {
     println!("\n=== {} ===\n", i18n::t("time_report_title"));
     println!(" {:<35} : {}", i18n::t("ticks_totales"), ticks);
     println!(" {:<35} : {}", i18n::t("dia_juego"), day_number);
-    println!(" {:<35} : {:02}:{:02}", i18n::t("hora_partida"), hour, minute);
+    println!(
+        " {:<35} : {:02}:{:02}",
+        i18n::t("hora_partida"),
+        hour,
+        minute
+    );
     println!(" {:<35} : {}", i18n::t("estado_actual"), state);
     println!("\n=========================================");
 }
@@ -293,7 +300,9 @@ fn handle_chest(level_bytes: &[u8], query: &str) {
     if !found_any {
         println!(" {}", i18n::t("no_items_found"));
     }
-    println!("\n=====================================================================================");
+    println!(
+        "\n====================================================================================="
+    );
 }
 
 fn run_progress_command_internal(world_path: &Path, player_uid: &str) {
@@ -301,7 +310,10 @@ fn run_progress_command_internal(world_path: &Path, player_uid: &str) {
     let stem = player_uid.replace("-", "");
     let path = players_dir.join(format!("{}.sav", stem));
     if !path.exists() {
-        println!("No se encontró el archivo de guardado para el jugador: {}", player_uid);
+        println!(
+            "No se encontró el archivo de guardado para el jugador: {}",
+            player_uid
+        );
         return;
     }
 
@@ -322,7 +334,11 @@ fn run_progress_command_internal(world_path: &Path, player_uid: &str) {
     println!("\n=== {} ===\n", i18n::t("progress_report_title"));
     println!(" {:<35} : {}", i18n::t("relics_found_label"), relics.len());
     println!(" {:<35} : {}", i18n::t("notes_found_label"), notes.len());
-    println!(" {:<35} : {}", i18n::t("fast_travel_label"), fast_travels.len());
+    println!(
+        " {:<35} : {}",
+        i18n::t("fast_travel_label"),
+        fast_travels.len()
+    );
     println!(" {:<35} : {}", i18n::t("areas_found_label"), areas.len());
     println!("\n--- {} ---", i18n::t("capture_stats_header"));
 
@@ -355,7 +371,8 @@ fn handle_monitor(level_bytes: &[u8], player_uid: &str) {
             continue;
         }
 
-        let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+        let owner_uid =
+            extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
         if owner_uid != player_uid {
             continue;
         }
@@ -442,7 +459,8 @@ fn handle_analyzer(
             continue;
         }
 
-        let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+        let owner_uid =
+            extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
         if owner_uid != player_uid {
             continue;
         }
@@ -471,7 +489,11 @@ fn handle_analyzer(
         };
 
         if let Some(gen) = filter_gender {
-            let gen_short = if gen.to_lowercase().starts_with("m") { "male" } else { "female" };
+            let gen_short = if gen.to_lowercase().starts_with("m") {
+                "male"
+            } else {
+                "female"
+            };
             if !gender.to_lowercase().starts_with(gen_short) {
                 continue;
             }
@@ -501,7 +523,9 @@ fn handle_analyzer(
             let trait_lower = tr.to_lowercase();
             let mut matches_trait = false;
             for p in &passive_skills {
-                if p.to_lowercase().contains(&trait_lower) || i18n::t(p).to_lowercase().contains(&trait_lower) {
+                if p.to_lowercase().contains(&trait_lower)
+                    || i18n::t(p).to_lowercase().contains(&trait_lower)
+                {
                     matches_trait = true;
                     break;
                 }
@@ -516,7 +540,13 @@ fn handle_analyzer(
         let translated_passives: Vec<String> = passive_skills.iter().map(|p| i18n::t(p)).collect();
         println!(
             " {:<20} | {:<5} | {:<6} | {:>5} | {:>5} | {:>5} | {}",
-            pal_name, level_val, gender, iv_hp, iv_atk, iv_def, translated_passives.join(", ")
+            pal_name,
+            level_val,
+            gender,
+            iv_hp,
+            iv_atk,
+            iv_def,
+            translated_passives.join(", ")
         );
     }
 
@@ -539,7 +569,8 @@ fn handle_breeding(level_bytes: &[u8], player_uid: &str, target_pal: Option<&str
             continue;
         }
 
-        let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+        let owner_uid =
+            extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
         if owner_uid == player_uid {
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
             if char_id.is_empty() || char_id == "Desconocido" {
@@ -564,12 +595,19 @@ fn handle_breeding(level_bytes: &[u8], player_uid: &str, target_pal: Option<&str
     }
 
     if let Some(target) = target_pal {
-        println!("\n=== {} para '{}' ===\n", i18n::t("breeding_assistant_title"), target);
+        println!(
+            "\n=== {} para '{}' ===\n",
+            i18n::t("breeding_assistant_title"),
+            target
+        );
         if let Some(path) = find_breeding_path(&owned_pals, target) {
             if path.is_empty() {
                 println!(" Ya posees un {} en tu Palbox.", target);
             } else {
-                println!(" Se ha encontrado una ruta de crianza en {} pasos:", path.len());
+                println!(
+                    " Se ha encontrado una ruta de crianza en {} pasos:",
+                    path.len()
+                );
                 for (idx, (p1, p2, child)) in path.iter().enumerate() {
                     println!("   Paso {}: {} + {} -> {}", idx + 1, p1, p2, child);
                 }
@@ -582,8 +620,16 @@ fn handle_breeding(level_bytes: &[u8], player_uid: &str, target_pal: Option<&str
         let mut combinations = Vec::new();
         for male in &males {
             for female in &females {
-                let power_a = BREED_POWER.iter().find(|&&(name, _)| name == *male).map(|&(_, p)| p).unwrap_or(1500);
-                let power_b = BREED_POWER.iter().find(|&&(name, _)| name == *female).map(|&(_, p)| p).unwrap_or(1500);
+                let power_a = BREED_POWER
+                    .iter()
+                    .find(|&&(name, _)| name == *male)
+                    .map(|&(_, p)| p)
+                    .unwrap_or(1500);
+                let power_b = BREED_POWER
+                    .iter()
+                    .find(|&&(name, _)| name == *female)
+                    .map(|&(_, p)| p)
+                    .unwrap_or(1500);
                 let (child, avg_power) = find_child_pal(power_a, power_b);
                 combinations.push((male.clone(), female.clone(), child.to_string(), avg_power));
             }
@@ -597,17 +643,32 @@ fn handle_breeding(level_bytes: &[u8], player_uid: &str, target_pal: Option<&str
         println!(
             " {}: {}",
             i18n::t("males_available"),
-            if males_vec.is_empty() { i18n::t("none_m") } else { males_vec.join(", ") }
+            if males_vec.is_empty() {
+                i18n::t("none_m")
+            } else {
+                males_vec.join(", ")
+            }
         );
         println!(
             " {}: {}",
             i18n::t("females_available"),
-            if females_vec.is_empty() { i18n::t("none_f") } else { females_vec.join(", ") }
+            if females_vec.is_empty() {
+                i18n::t("none_f")
+            } else {
+                females_vec.join(", ")
+            }
         );
         println!("\n {}", i18n::t("possible_combinations_header"));
         println!("--------------------------------------------------");
         for c in &combinations {
-            println!(" * {} + {} -> {} ({}: {})", c.0, c.1, c.2, i18n::t("potencia_promedio"), c.3);
+            println!(
+                " * {} + {} -> {} ({}: {})",
+                c.0,
+                c.1,
+                c.2,
+                i18n::t("potencia_promedio"),
+                c.3
+            );
         }
         println!("\n========================================================");
     }
@@ -695,7 +756,8 @@ fn handle_export(
                 continue;
             }
 
-            let owner_uid = extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
+            let owner_uid =
+                extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
             if owner_uid != player_uid {
                 continue;
             }
@@ -748,12 +810,24 @@ fn handle_export(
                 0
             };
 
-            let passive_skills = extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
+            let passive_skills =
+                extract_array_strings(&char_entry.raw_data, b"PassiveSkillList\x00");
             let passives_str = passive_skills.join(";");
 
             csv_content.push_str(&format!(
                 "{},{},{},{},{:.1},{:.1},{:.1},{:.1},{},{},{},{}\n",
-                owner_uid, char_id, level_val, gender, hp_cur, hp_max, san_val, satiety, iv_hp, iv_atk, iv_def, passives_str
+                owner_uid,
+                char_id,
+                level_val,
+                gender,
+                hp_cur,
+                hp_max,
+                san_val,
+                satiety,
+                iv_hp,
+                iv_atk,
+                iv_def,
+                passives_str
             ));
         }
 
@@ -808,7 +882,11 @@ pub fn find_breeding_path(
                         new_additions = true;
 
                         if child_str == target {
-                            return Some(reconstruct_breeding_tree(&parent_map, target, available_pals));
+                            return Some(reconstruct_breeding_tree(
+                                &parent_map,
+                                target,
+                                available_pals,
+                            ));
                         }
                     }
                 }
