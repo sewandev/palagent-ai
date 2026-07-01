@@ -6,50 +6,55 @@ Write-Host "         PalAgent AI Installer         " -ForegroundColor Green
 Write-Host "  =====================================" -ForegroundColor Green
 Write-Host ""
 
-# Step 1: Compiling the Rust application
-Write-Host "[1/4] Compiling PalAgent AI in release mode..." -ForegroundColor Cyan
-
-$repoUrl = "https://github.com/sewandev/palagent-ai.git"
-$tempBuildDir = Join-Path $env:TEMP "palagent-ai-build"
-$mustPopLocation = $false
-
-if (-not (Test-Path "Cargo.toml")) {
-    Write-Host "      Cargo.toml not found in current directory. Cloning repository to temporary folder..." -ForegroundColor DarkGray
-    Remove-Item -Path $tempBuildDir -Recurse -Force -ErrorAction SilentlyContinue
-    try {
-        & git clone $repoUrl $tempBuildDir
-        Push-Location $tempBuildDir
-        $mustPopLocation = $true
-    } catch {
-        Write-Host "Git clone failed. Ensure git is installed and online." -ForegroundColor Red
-        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-        exit 1
-    }
-}
-
-try {
-    & cargo build --release
-} catch {
-    Write-Host "Compilation failed. Ensure Rust and Cargo are installed." -ForegroundColor Red
-    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-    if ($mustPopLocation) {
-        Pop-Location
-        Remove-Item -Path $tempBuildDir -Recurse -Force -ErrorAction SilentlyContinue
-    }
-    exit 1
-}
-
-# Step 2: Creating permanent folder and copying binary
-Write-Host "[2/4] Installing executable to user profile..." -ForegroundColor Cyan
+$repo = "sewandev/palagent-ai"
 $installDir = Join-Path $env:USERPROFILE ".palagent-ai"
 if (-not (Test-Path $installDir)) {
     New-Item -ItemType Directory -Path $installDir | Out-Null
 }
 
-$sourceExe = if ($mustPopLocation) { Join-Path $tempBuildDir "target\release\palagent-ai.exe" } else { Join-Path "target\release" "palagent-ai.exe" }
 $destExe = Join-Path $installDir "palagent-ai.exe"
+$destDll = Join-Path $installDir "oo2core_9_win64.dll"
+$localExePath = Join-Path "target\release" "palagent-ai.exe"
 
-# If the file is locked, rename it first
+# Step 1: Resolving/Downloading the executable
+Write-Host "[1/4] Resolving PalAgent AI executable..." -ForegroundColor Cyan
+
+$downloadedNew = $false
+
+if (Test-Path $localExePath) {
+    Write-Host "      Detected local development build. Copying from: $localExePath" -ForegroundColor DarkGray
+    $sourceExe = $localExePath
+} else {
+    Write-Host "      Downloading latest precompiled release from GitHub..." -ForegroundColor DarkGray
+    $releaseUrl = "https://api.github.com/repos/$repo/releases/latest"
+    
+    try {
+        $releaseData = Invoke-RestMethod -Uri $releaseUrl -UseBasicParsing -Headers @{"Cache-Control"="no-cache"}
+        $asset = $releaseData.assets | Where-Object { $_.name -match "\.exe$" } | Select-Object -First 1
+        
+        if (-not $asset) {
+            Write-Host "Error: No precompiled executable was found in the latest GitHub release." -ForegroundColor Red
+            exit 1
+        }
+        
+        $downloadUrl = $asset.browser_download_url
+        $tempExe = Join-Path $env:TEMP $asset.name
+        
+        Write-Host "      Downloading $($releaseData.tag_name) ($($asset.name))..." -ForegroundColor DarkGray
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $tempExe -UseBasicParsing
+        Unblock-File -Path $tempExe -ErrorAction SilentlyContinue
+        
+        $sourceExe = $tempExe
+        $downloadedNew = $true
+    } catch {
+        Write-Host "Failed to resolve or download the precompiled release from GitHub: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "Ensure you are connected to the internet and try again." -ForegroundColor Yellow
+        exit 1
+    }
+}
+
+# Step 2: Copying binary to destination
+Write-Host "[2/4] Installing executable to user profile..." -ForegroundColor Cyan
 if (Test-Path $destExe) {
     try {
         Copy-Item -Path $sourceExe -Destination $destExe -Force
@@ -63,12 +68,14 @@ if (Test-Path $destExe) {
 } else {
     Copy-Item -Path $sourceExe -Destination $destExe -Force
 }
-Write-Host "      PalAgent AI binary copied to: $destExe" -ForegroundColor DarkGray
 
-# Step 3: Finding oo2core_9_win64.dll
-Write-Host "[3/5] Resolving oo2core_9_win64.dll for GVAS decompression..." -ForegroundColor Cyan
-$destDll = Join-Path $installDir "oo2core_9_win64.dll"
+if ($downloadedNew) {
+    Remove-Item -Path $sourceExe -Force -ErrorAction SilentlyContinue
+}
+Write-Host "      PalAgent AI binary installed to: $destExe" -ForegroundColor DarkGray
 
+# Step 3: Resolving oo2core_9_win64.dll
+Write-Host "[3/4] Resolving oo2core_9_win64.dll for GVAS decompression..." -ForegroundColor Cyan
 if (-not (Test-Path $destDll)) {
     $standardDllPaths = @(
         "C:\Program Files (x86)\Steam\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
@@ -96,6 +103,7 @@ if (-not (Test-Path $destDll)) {
 } else {
     Write-Host "      oo2core_9_win64.dll is already resolved." -ForegroundColor DarkGray
 }
+
 # Step 4: Configuring MCP Clients
 Write-Host "[4/4] Configuring MCP integrations for developers..." -ForegroundColor Cyan
 
@@ -140,11 +148,6 @@ if ($inputSelection -match "A" -or $inputSelection -match "a") {
             & $destExe setup $choice
         }
     }
-}
-
-if ($mustPopLocation) {
-    Pop-Location
-    Remove-Item -Path $tempBuildDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host ""
