@@ -71,7 +71,10 @@ fn main() {
     crate::db::init_database();
 
     let all_args: Vec<String> = std::env::args().collect();
-    crate::utils::log_message("INFO", &format!("Executing palagent-ai with args: {:?}", all_args));
+    crate::utils::log_message(
+        "INFO",
+        &format!("Executing palagent-ai with args: {:?}", all_args),
+    );
 
     let args_list: Vec<String> = std::env::args().skip(1).collect();
     let is_json = args_list.iter().any(|arg| arg == "--json");
@@ -87,10 +90,12 @@ fn main() {
         }
     }
 
-    if setup_agent.is_none() && args_list.iter().any(|arg| {
-        let a = arg.trim().to_lowercase();
-        a == "--setup-antigravity"
-    }) {
+    if setup_agent.is_none()
+        && args_list.iter().any(|arg| {
+            let a = arg.trim().to_lowercase();
+            a == "--setup-antigravity"
+        })
+    {
         setup_agent = Some("antigravity-cli".to_string());
     }
 

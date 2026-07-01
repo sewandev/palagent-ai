@@ -264,7 +264,10 @@ pub fn run_mcp_loop(
                         .unwrap_or_default();
 
                     let text_result = if tool_name == "query_recipes" {
-                        let item_id = arguments.get("item_id").and_then(|i| i.as_str()).unwrap_or("");
+                        let item_id = arguments
+                            .get("item_id")
+                            .and_then(|i| i.as_str())
+                            .unwrap_or("");
                         let use_es = i18n::current_language() == i18n::Language::Es;
                         if item_id.is_empty() {
                             if use_es {
@@ -295,7 +298,10 @@ pub fn run_mcp_loop(
                             }
                         }
                     } else if tool_name == "query_active_skills" {
-                        let skill_id = arguments.get("skill_id").and_then(|s| s.as_str()).unwrap_or("");
+                        let skill_id = arguments
+                            .get("skill_id")
+                            .and_then(|s| s.as_str())
+                            .unwrap_or("");
                         let use_es = i18n::current_language() == i18n::Language::Es;
                         if skill_id.is_empty() {
                             if use_es {
@@ -304,7 +310,9 @@ pub fn run_mcp_loop(
                                 "Known skills: AirCanon, HydroLaser, DragonBreath, DarkLaser, FireBlast, WindCutter, AquaGun, ElectroBall, SandBlast, IceMissile".to_string()
                             }
                         } else {
-                            if let Some((name, power, cd, element)) = crate::db::translate_active_skill(skill_id, use_es) {
+                            if let Some((name, power, cd, element)) =
+                                crate::db::translate_active_skill(skill_id, use_es)
+                            {
                                 if use_es {
                                     format!("Habilidad: {}\n  - Poder: {}\n  - Tiempo de Recarga: {}s\n  - Elemento: {}", name, power, cd, element)
                                 } else {
@@ -319,13 +327,18 @@ pub fn run_mcp_loop(
                             }
                         }
                     } else if tool_name == "query_target_breeding" {
-                        let target_pal = arguments.get("target_pal").and_then(|t| t.as_str()).unwrap_or("");
+                        let target_pal = arguments
+                            .get("target_pal")
+                            .and_then(|t| t.as_str())
+                            .unwrap_or("");
                         let use_es = i18n::current_language() == i18n::Language::Es;
                         if target_pal.is_empty() {
                             if use_es {
-                                "Error: Debes proporcionar el nombre del Pal objetivo (target_pal).".to_string()
+                                "Error: Debes proporcionar el nombre del Pal objetivo (target_pal)."
+                                    .to_string()
                             } else {
-                                "Error: You must provide a target child Pal name (target_pal).".to_string()
+                                "Error: You must provide a target child Pal name (target_pal)."
+                                    .to_string()
                             }
                         } else {
                             let combos = crate::db::find_breeding_parents_for_target(target_pal);
@@ -333,14 +346,26 @@ pub fn run_mcp_loop(
                                 if use_es {
                                     format!("No se encontraron combinaciones de crianza para obtener a '{}'.", target_pal)
                                 } else {
-                                    format!("No breeding combinations found to produce '{}'.", target_pal)
+                                    format!(
+                                        "No breeding combinations found to produce '{}'.",
+                                        target_pal
+                                    )
                                 }
                             } else {
-                                let target_translated = crate::db::translate_pal(target_pal, use_es);
+                                let target_translated =
+                                    crate::db::translate_pal(target_pal, use_es);
                                 let mut out = if use_es {
-                                    format!("Parejas para criar a {} ({} combinaciones):\n", target_translated, combos.len())
+                                    format!(
+                                        "Parejas para criar a {} ({} combinaciones):\n",
+                                        target_translated,
+                                        combos.len()
+                                    )
                                 } else {
-                                    format!("Parents to breed {} ({} combinations):\n", target_translated, combos.len())
+                                    format!(
+                                        "Parents to breed {} ({} combinations):\n",
+                                        target_translated,
+                                        combos.len()
+                                    )
                                 };
                                 for (pa, pb) in combos {
                                     let trans_a = crate::db::translate_pal(&pa, use_es);
@@ -351,8 +376,14 @@ pub fn run_mcp_loop(
                             }
                         }
                     } else if tool_name == "query_drops" {
-                        let pal_name = arguments.get("pal_name").and_then(|p| p.as_str()).unwrap_or("");
-                        let item_name = arguments.get("item_name").and_then(|i| i.as_str()).unwrap_or("");
+                        let pal_name = arguments
+                            .get("pal_name")
+                            .and_then(|p| p.as_str())
+                            .unwrap_or("");
+                        let item_name = arguments
+                            .get("item_name")
+                            .and_then(|i| i.as_str())
+                            .unwrap_or("");
                         let use_es = i18n::current_language() == i18n::Language::Es;
 
                         if !pal_name.is_empty() {
@@ -372,7 +403,10 @@ pub fn run_mcp_loop(
                                 };
                                 for (item, chance, min_q, max_q) in drops {
                                     let trans_item = crate::db::translate_item(&item, use_es);
-                                    out.push_str(&format!("  - {}: {}% (Cant: {}-{})\n", trans_item, chance, min_q, max_q));
+                                    out.push_str(&format!(
+                                        "  - {}: {}% (Cant: {}-{})\n",
+                                        trans_item, chance, min_q, max_q
+                                    ));
                                 }
                                 out
                             }
@@ -380,7 +414,10 @@ pub fn run_mcp_loop(
                             let pals = crate::db::get_pals_dropping_item(item_name);
                             if pals.is_empty() {
                                 if use_es {
-                                    format!("No se encontraron Pals que suelten el objeto: {}", item_name)
+                                    format!(
+                                        "No se encontraron Pals que suelten el objeto: {}",
+                                        item_name
+                                    )
                                 } else {
                                     format!("No Pals found dropping item: {}", item_name)
                                 }
@@ -399,16 +436,30 @@ pub fn run_mcp_loop(
                             }
                         } else {
                             if use_es {
-                                "Error: Proporciona pal_name o item_name para consultar drops.".to_string()
+                                "Error: Proporciona pal_name o item_name para consultar drops."
+                                    .to_string()
                             } else {
-                                "Error: Provide either pal_name or item_name to query drops.".to_string()
+                                "Error: Provide either pal_name or item_name to query drops."
+                                    .to_string()
                             }
                         }
                     } else if tool_name == "calculate_capture_rate" {
-                        let pal_level = arguments.get("pal_level").and_then(|l| l.as_i64()).unwrap_or(1) as i32;
-                        let current_hp = arguments.get("current_hp").and_then(|h| h.as_i64()).unwrap_or(100) as i32;
-                        let max_hp = arguments.get("max_hp").and_then(|m| m.as_i64()).unwrap_or(100) as i32;
-                        let lifmunk_level = arguments.get("lifmunk_level").and_then(|l| l.as_i64()).unwrap_or(0) as i32;
+                        let pal_level = arguments
+                            .get("pal_level")
+                            .and_then(|l| l.as_i64())
+                            .unwrap_or(1) as i32;
+                        let current_hp = arguments
+                            .get("current_hp")
+                            .and_then(|h| h.as_i64())
+                            .unwrap_or(100) as i32;
+                        let max_hp = arguments
+                            .get("max_hp")
+                            .and_then(|m| m.as_i64())
+                            .unwrap_or(100) as i32;
+                        let lifmunk_level = arguments
+                            .get("lifmunk_level")
+                            .and_then(|l| l.as_i64())
+                            .unwrap_or(0) as i32;
                         let use_es = i18n::current_language() == i18n::Language::Es;
 
                         let spheres = [
@@ -427,7 +478,13 @@ pub fn run_mcp_loop(
                         };
 
                         for (sphere_id, sphere_name) in spheres {
-                            let rate = crate::db::calculate_capture_rate(pal_level, current_hp, max_hp, sphere_id, lifmunk_level);
+                            let rate = crate::db::calculate_capture_rate(
+                                pal_level,
+                                current_hp,
+                                max_hp,
+                                sphere_id,
+                                lifmunk_level,
+                            );
                             out.push_str(&format!("  - {}: {:.1}%\n", sphere_name, rate));
                         }
                         out

@@ -573,7 +573,8 @@ fn handle_breeding(level_bytes: &[u8], player_uid: &str, target_pal: Option<&str
             extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
         if owner_uid == player_uid {
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() || char_id == "Desconocido" || !crate::db::is_valid_pal(&char_id) {
+            if char_id.is_empty() || char_id == "Desconocido" || !crate::db::is_valid_pal(&char_id)
+            {
                 continue;
             }
             let translated_name = i18n::t(&char_id);
