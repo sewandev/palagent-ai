@@ -32,11 +32,11 @@ function Get-PalworldInstallPath {
 
     $backupDrives = @("C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
     foreach ($drive in $backupDrives) {
-        $standardPath = "$drive:\Program Files (x86)\Steam"
+        $standardPath = "${drive}:\Program Files (x86)\Steam"
         if ((Test-Path $standardPath) -and -not $libraries.Contains($standardPath)) {
             $libraries.Add($standardPath)
         }
-        $libraryPath = "$drive:\SteamLibrary"
+        $libraryPath = "${drive}:\SteamLibrary"
         if ((Test-Path $libraryPath) -and -not $libraries.Contains($libraryPath)) {
             $libraries.Add($libraryPath)
         }
