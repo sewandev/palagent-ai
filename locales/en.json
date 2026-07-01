@@ -170,7 +170,7 @@
   "game_mode_coop": "Co-op Multiplayer",
   "game_mode_dedicated": "Dedicated Server",
   "list_worlds_title": "DETECTED WORLD SAVES",
-  "list_worlds_header": "Index | Last Modified | World Name | Path",
+  "list_worlds_header": "Index | Last Modified | Game Mode | World Name | Path",
   "select_world_prompt": "Enter the index of the world you want to inspect (1-{}): ",
   "invalid_selection": "Invalid selection. Proceeding with the latest world.",
   "no_worlds_detected": "No Palworld save folders were automatically detected.",

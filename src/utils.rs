@@ -84,10 +84,13 @@ pub fn select_world_interactively(worlds: &[(PathBuf, std::time::SystemTime)]) -
     for (idx, (path, modified)) in worlds.iter().enumerate() {
         let datetime: chrono::DateTime<chrono::Local> = (*modified).into();
         let world_name = get_world_name(path);
+        let game_mode_key = detect_game_mode(path);
+        let game_mode = i18n::t(&game_mode_key);
         println!(
-            " [{}] | {} | {} | {}",
+            " [{}] | {} | {} | {} | {}",
             idx + 1,
             datetime.format("%Y-%m-%d %H:%M:%S"),
+            game_mode,
             world_name,
             path.display()
         );
