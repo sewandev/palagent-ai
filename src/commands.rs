@@ -494,6 +494,12 @@ pub fn run_progress_command(world_path: &Path, is_json: bool, target_uid: Option
             }
         }
     }
+    if player_sav.is_none() {
+        let local_host_sav = players_dir.join("00000000000000000000000000000001.sav");
+        if local_host_sav.exists() {
+            player_sav = Some(local_host_sav);
+        }
+    }
 
     let player_sav = match player_sav {
         Some(p) => p,

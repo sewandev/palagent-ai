@@ -144,9 +144,26 @@ pub fn run_setup(agent_slug: &str) {
     let dest_exe = palagent_dir.join("palagent-ai.exe");
     if current_exe != dest_exe {
         if let Err(e) = std::fs::copy(&current_exe, &dest_exe) {
-            let warn_msg = format!("Could not copy executable to permanent folder: {}", e);
-            crate::utils::log_message("WARNING", &warn_msg);
-            println!("Warning: {}", warn_msg);
+            let old_exe = palagent_dir.join("palagent-ai.exe.old");
+            let _ = std::fs::remove_file(&old_exe);
+            if std::fs::rename(&dest_exe, &old_exe).is_ok() {
+                if let Err(err) = std::fs::copy(&current_exe, &dest_exe) {
+                    let warn_msg = format!("Could not copy executable to permanent folder (even after rename): {}", err);
+                    crate::utils::log_message("WARNING", &warn_msg);
+                    println!("Warning: {}", warn_msg);
+                } else {
+                    let log_msg = format!(
+                        "Copied executable to permanent location (via hot-reload rename): {}",
+                        dest_exe.display()
+                    );
+                    crate::utils::log_message("INFO", &log_msg);
+                    println!("{}", log_msg);
+                }
+            } else {
+                let warn_msg = format!("Could not copy executable to permanent folder: {}", e);
+                crate::utils::log_message("WARNING", &warn_msg);
+                println!("Warning: {}", warn_msg);
+            }
         } else {
             let log_msg = format!(
                 "Copied executable to permanent location: {}",
