@@ -42,6 +42,7 @@ macro_rules! println {
 }
 
 mod commands;
+mod db;
 mod decompress;
 mod i18n;
 mod interactive;
@@ -67,11 +68,18 @@ use std::path::PathBuf;
 
 fn main() {
     i18n::init(i18n::detect_system_language());
+    crate::db::init_database();
+
+    let all_args: Vec<String> = std::env::args().collect();
+    crate::utils::log_message("INFO", &format!("Executing palagent-ai with args: {:?}", all_args));
 
     let args_list: Vec<String> = std::env::args().skip(1).collect();
     let is_json = args_list.iter().any(|arg| arg == "--json");
 
-    let setup_pos = args_list.iter().position(|arg| arg == "setup");
+    let setup_pos = args_list.iter().position(|arg| {
+        let a = arg.trim().to_lowercase();
+        a == "setup"
+    });
     let mut setup_agent = None;
     if let Some(pos) = setup_pos {
         if pos + 1 < args_list.len() {
@@ -79,11 +87,17 @@ fn main() {
         }
     }
 
-    if setup_agent.is_none() && args_list.iter().any(|arg| arg == "--setup-antigravity") {
+    if setup_agent.is_none() && args_list.iter().any(|arg| {
+        let a = arg.trim().to_lowercase();
+        a == "--setup-antigravity"
+    }) {
         setup_agent = Some("antigravity-cli".to_string());
     }
 
-    let has_mcp = args_list.iter().any(|arg| arg == "mcp" || arg == "--mcp");
+    let has_mcp = args_list.iter().any(|arg| {
+        let a = arg.trim().to_lowercase();
+        a == "mcp" || a == "--mcp"
+    });
 
     if let Some(ref agent) = setup_agent {
         run_setup(agent);
@@ -108,7 +122,14 @@ fn main() {
             skip_next = true;
             continue;
         }
-        if !arg.starts_with("-") {
+        let arg_clean = arg.trim().to_lowercase();
+        if !arg.starts_with("-")
+            && arg_clean != "mcp"
+            && arg_clean != "host"
+            && arg_clean != "setup"
+            && arg_clean != "local-uid"
+            && arg_clean != "interactive"
+        {
             world_path_arg = Some(arg.clone());
             break;
         }

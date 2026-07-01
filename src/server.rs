@@ -25,6 +25,33 @@ pub fn execute_command_captured(
             let query = &c["search-chest:".len()..];
             run_search_chest_command(world_path, query, is_json);
         }
+        "list-worlds" => {
+            let worlds = crate::utils::get_all_detected_worlds();
+            if worlds.is_empty() {
+                println!("{}", crate::i18n::t("no_worlds_detected"));
+            } else {
+                println!("\n=== {} ===\n", crate::i18n::t("list_worlds_title"));
+                println!(" {}", crate::i18n::t("list_worlds_header"));
+                println!("{}", "-".repeat(80));
+                for (idx, (path, modified)) in worlds.iter().enumerate() {
+                    let datetime: chrono::DateTime<chrono::Local> = (*modified).into();
+                    let world_name = crate::utils::get_world_name(path);
+                    let game_mode_key = crate::utils::detect_game_mode(path);
+                    let game_mode = crate::i18n::t(&game_mode_key);
+                    println!(
+                        " [{}] | {} | {} | {} | {}",
+                        idx + 1,
+                        datetime.format("%Y-%m-%d %H:%M:%S"),
+                        game_mode,
+                        world_name,
+                        path.display()
+                    );
+                }
+                println!(
+                    "\n================================================================================"
+                );
+            }
+        }
         "full" => {
             run_full_command(world_path, is_json, target_uid);
         }

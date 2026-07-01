@@ -49,6 +49,30 @@ pub fn current_language() -> Language {
 }
 
 pub fn t(key: &str) -> String {
+    let use_es = current_language() == Language::Es;
+
+    // 1. Try to translate Pal names from SQLite
+    let db_translated_pal = crate::db::translate_pal(key, use_es);
+    if db_translated_pal != key {
+        return db_translated_pal;
+    }
+
+    // 2. Try to translate Passive skills from SQLite
+    let (db_translated_passive, db_desc) = crate::db::translate_passive(key, use_es);
+    if db_translated_passive != key {
+        if !db_desc.is_empty() {
+            return format!("{} ({})", db_translated_passive, db_desc);
+        }
+        return db_translated_passive;
+    }
+
+    // 3. Try to translate Items from SQLite
+    let db_translated_item = crate::db::translate_item(key, use_es);
+    if db_translated_item != key {
+        return db_translated_item;
+    }
+
+    // Fallback to local JSON files for UI strings
     let lang = current_language();
     let primary = match lang {
         Language::Es => ES.get(),

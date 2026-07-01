@@ -8,7 +8,7 @@ use crate::scanner::{
     extract_int64_prop, extract_int_prop, extract_string_prop, find_chest_containers,
     parse_container_items, scan_base_camps, scan_character_save_parameters, scan_guilds,
 };
-use crate::utils::{detect_game_mode, find_child_pal, BREED_POWER};
+use crate::utils::{detect_game_mode, find_child_pal};
 use std::collections::{HashMap, HashSet};
 use std::io::{self, Read, Write};
 use std::path::Path;
@@ -573,15 +573,10 @@ fn handle_breeding(level_bytes: &[u8], player_uid: &str, target_pal: Option<&str
             extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
         if owner_uid == player_uid {
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() || char_id == "Desconocido" {
+            if char_id.is_empty() || char_id == "Desconocido" || !crate::db::is_valid_pal(&char_id) {
                 continue;
             }
             let translated_name = i18n::t(&char_id);
-
-            let has_power = BREED_POWER.iter().any(|&(name, _)| name == translated_name);
-            if !has_power {
-                continue;
-            }
 
             owned_pals.insert(translated_name.clone());
 
@@ -620,18 +615,8 @@ fn handle_breeding(level_bytes: &[u8], player_uid: &str, target_pal: Option<&str
         let mut combinations = Vec::new();
         for male in &males {
             for female in &females {
-                let power_a = BREED_POWER
-                    .iter()
-                    .find(|&&(name, _)| name == *male)
-                    .map(|&(_, p)| p)
-                    .unwrap_or(1500);
-                let power_b = BREED_POWER
-                    .iter()
-                    .find(|&&(name, _)| name == *female)
-                    .map(|&(_, p)| p)
-                    .unwrap_or(1500);
-                let (child, avg_power) = find_child_pal(power_a, power_b);
-                combinations.push((male.clone(), female.clone(), child.to_string(), avg_power));
+                let (child, avg_power) = find_child_pal(male, female);
+                combinations.push((male.clone(), female.clone(), child, avg_power));
             }
         }
         combinations.sort_by(|a, b| a.2.cmp(&b.2));
@@ -862,18 +847,9 @@ pub fn find_breeding_path(
                 let parent_a = &current_reached[i];
                 let parent_b = &current_reached[j];
 
-                let power_a = BREED_POWER
-                    .iter()
-                    .find(|&&(name, _)| name == parent_a)
-                    .map(|&(_, p)| p);
-                let power_b = BREED_POWER
-                    .iter()
-                    .find(|&&(name, _)| name == parent_b)
-                    .map(|&(_, p)| p);
-
-                if let (Some(pa), Some(pb)) = (power_a, power_b) {
-                    let (child, _) = find_child_pal(pa, pb);
-                    let child_str = child.to_string();
+                {
+                    let (child, _) = find_child_pal(parent_a, parent_b);
+                    let child_str = child;
 
                     if !reached.contains(&child_str) {
                         reached.insert(child_str.clone());

@@ -2,42 +2,24 @@ use crate::i18n;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-pub static BREED_POWER: &[(&str, u32)] = &[
-    ("Chikipi", 1500),
-    ("Teafant", 1490),
-    ("Lamball", 1470),
-    ("Mau", 1480),
-    ("Cremis", 1455),
-    ("Vixy", 1450),
-    ("Cattiva", 1460),
-    ("Lifmunk", 1430),
-    ("Hoocrates", 1420),
-    ("Sparkit", 1410),
-    ("Foxsparks", 1400),
-    ("Depresso", 1390),
-    ("Jolthog", 1370),
-    ("Pengullet", 1350),
-    ("Fuddler", 1210),
-    ("Tanzee", 1230),
-    ("Daedream", 1220),
-    ("Gumoss", 1240),
-    ("Melpaca", 1100),
-    ("Celaray", 1080),
-    ("Rushoar", 1120),
-];
-
-pub fn find_child_pal(power_a: u32, power_b: u32) -> (&'static str, u32) {
-    let avg_power = (power_a + power_b).div_ceil(2);
-    let mut closest_pal = "Unknown";
-    let mut min_diff = u32::MAX;
-    for &(name, power) in BREED_POWER {
-        let diff = (power as i32 - avg_power as i32).unsigned_abs();
-        if diff < min_diff {
-            min_diff = diff;
-            closest_pal = name;
-        }
+pub fn find_child_pal(parent_a: &str, parent_b: &str) -> (String, u32) {
+    // 1. Check for breeding exceptions
+    if let Some(child_id) = crate::db::check_breeding_exception(parent_a, parent_b) {
+        let use_es = i18n::current_language() == i18n::Language::Es;
+        let child_translated = crate::db::translate_pal(&child_id, use_es);
+        return (child_translated, 0);
     }
-    (closest_pal, avg_power)
+
+    // 2. Query breed power dynamically
+    let power_a = crate::db::get_breed_power_by_name(parent_a);
+    let power_b = crate::db::get_breed_power_by_name(parent_b);
+    let avg_power = (power_a + power_b + 1) / 2;
+
+    // 3. Find closest pal by power
+    let child_id = crate::db::find_closest_pal_by_breed_power(avg_power);
+    let use_es = i18n::current_language() == i18n::Language::Es;
+    let child_translated = crate::db::translate_pal(&child_id, use_es);
+    (child_translated, avg_power as u32)
 }
 
 pub fn get_all_detected_worlds() -> Vec<(PathBuf, std::time::SystemTime)> {

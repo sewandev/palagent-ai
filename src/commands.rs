@@ -8,7 +8,7 @@ use crate::scanner::{
     extract_string_prop, find_chest_containers, format_guid, parse_container_items,
     scan_base_camps, scan_character_save_parameters, scan_guilds,
 };
-use crate::utils::{detect_game_mode, find_child_pal, BREED_POWER};
+use crate::utils::{detect_game_mode, find_child_pal};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
@@ -379,15 +379,10 @@ pub fn run_breeding_command(world_path: &Path, is_json: bool, target_uid: Option
             extract_guid_prop(&char_entry.raw_data, b"OwnerPlayerUId\x00").unwrap_or_default();
         if owner_uid == player_uid {
             let char_id = extract_string_prop(&char_entry.raw_data, b"CharacterID\x00");
-            if char_id.is_empty() {
+            if char_id.is_empty() || !crate::db::is_valid_pal(&char_id) {
                 continue;
             }
             let translated_name = i18n::t(&char_id);
-
-            let has_power = BREED_POWER.iter().any(|&(name, _)| name == translated_name);
-            if !has_power {
-                continue;
-            }
 
             let gender = extract_string_prop(&char_entry.raw_data, b"Gender\x00");
             if gender.contains("Male") {
@@ -401,18 +396,8 @@ pub fn run_breeding_command(world_path: &Path, is_json: bool, target_uid: Option
     let mut combinations = Vec::new();
     for male in &males {
         for female in &females {
-            let power_a = BREED_POWER
-                .iter()
-                .find(|&&(name, _)| name == *male)
-                .map(|&(_, p)| p)
-                .unwrap_or(1500);
-            let power_b = BREED_POWER
-                .iter()
-                .find(|&&(name, _)| name == *female)
-                .map(|&(_, p)| p)
-                .unwrap_or(1500);
-            let (child, avg_power) = find_child_pal(power_a, power_b);
-            combinations.push((male.clone(), female.clone(), child.to_string(), avg_power));
+            let (child, avg_power) = find_child_pal(male, female);
+            combinations.push((male.clone(), female.clone(), child, avg_power));
         }
     }
     combinations.sort_by(|a, b| a.2.cmp(&b.2));
@@ -1013,7 +998,8 @@ pub fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option
                     "defense": iv_def
                 },
                 "passive_skills": passive_skills,
-                "passive_skills_translated": passive_skills_translated
+                "passive_skills_translated": passive_skills_translated,
+                "work_suitabilities": crate::db::get_pal_suitabilities(&char_id)
             }));
         }
         let out_json = serde_json::json!({

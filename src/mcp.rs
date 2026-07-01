@@ -1,3 +1,4 @@
+use crate::i18n;
 use crate::server::{execute_command_captured, execute_command_remote};
 use std::io::{self, BufRead};
 use std::path::PathBuf;
@@ -51,6 +52,14 @@ pub fn run_mcp_loop(
                         "id": id,
                         "result": {
                             "tools": [
+                                {
+                                    "name": "list_worlds",
+                                    "description": "List all detected Palworld save worlds and their paths",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                },
                                 {
                                     "name": "query_time",
                                     "description": "Get current in-game day, time, and cycle (day/night)",
@@ -145,6 +154,32 @@ pub fn run_mcp_loop(
                                             }
                                         }
                                     }
+                                },
+                                {
+                                    "name": "query_recipes",
+                                    "description": "Query crafting recipes for items like Pal Spheres",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "item_id": {
+                                                "type": "string",
+                                                "description": "Optional Item ID to query (e.g. palsphere, palsphere_mega, palsphere_giga)"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "query_active_skills",
+                                    "description": "Query combat active skill stats like power, cooldown, and element",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "skill_id": {
+                                                "type": "string",
+                                                "description": "Optional Skill ID to query (e.g. AirCanon, HydroLaser, FireBlast)"
+                                            }
+                                        }
+                                    }
                                 }
                             ]
                         }
@@ -171,9 +206,65 @@ pub fn run_mcp_loop(
                         .and_then(|q| q.as_str())
                         .unwrap_or_default();
 
-                    let text_result = if let Some((host, passcode, default_uid)) = &client_conn {
+                    let text_result = if tool_name == "query_recipes" {
+                        let item_id = arguments.get("item_id").and_then(|i| i.as_str()).unwrap_or("");
+                        let use_es = i18n::current_language() == i18n::Language::Es;
+                        if item_id.is_empty() {
+                            if use_es {
+                                "Objetos conocidos con recetas: palsphere (Esfera Pal), palsphere_mega (Megaesfera), palsphere_giga (Gigaesfera)".to_string()
+                            } else {
+                                "Known items with recipes: palsphere, palsphere_mega, palsphere_giga".to_string()
+                            }
+                        } else {
+                            let recipe = crate::db::get_recipe(item_id);
+                            if recipe.is_empty() {
+                                if use_es {
+                                    format!("No se encontró receta para: {}", item_id)
+                                } else {
+                                    format!("No recipe found for: {}", item_id)
+                                }
+                            } else {
+                                let translated_item = crate::db::translate_item(item_id, use_es);
+                                let mut out = if use_es {
+                                    format!("Receta para {}:\n", translated_item)
+                                } else {
+                                    format!("Recipe for {}:\n", translated_item)
+                                };
+                                for (ing, cnt) in recipe {
+                                    let translated_ing = crate::db::translate_item(&ing, use_es);
+                                    out.push_str(&format!("  - {}: {}\n", translated_ing, cnt));
+                                }
+                                out
+                            }
+                        }
+                    } else if tool_name == "query_active_skills" {
+                        let skill_id = arguments.get("skill_id").and_then(|s| s.as_str()).unwrap_or("");
+                        let use_es = i18n::current_language() == i18n::Language::Es;
+                        if skill_id.is_empty() {
+                            if use_es {
+                                "Habilidades conocidas: AirCanon, HydroLaser, DragonBreath, DarkLaser, FireBlast, WindCutter, AquaGun, ElectroBall, SandBlast, IceMissile".to_string()
+                            } else {
+                                "Known skills: AirCanon, HydroLaser, DragonBreath, DarkLaser, FireBlast, WindCutter, AquaGun, ElectroBall, SandBlast, IceMissile".to_string()
+                            }
+                        } else {
+                            if let Some((name, power, cd, element)) = crate::db::translate_active_skill(skill_id, use_es) {
+                                if use_es {
+                                    format!("Habilidad: {}\n  - Poder: {}\n  - Tiempo de Recarga: {}s\n  - Elemento: {}", name, power, cd, element)
+                                } else {
+                                    format!("Skill: {}\n  - Power: {}\n  - Cooldown: {}s\n  - Element: {}", name, power, cd, element)
+                                }
+                            } else {
+                                if use_es {
+                                    format!("Habilidad desconocida: {}", skill_id)
+                                } else {
+                                    format!("Unknown skill: {}", skill_id)
+                                }
+                            }
+                        }
+                    } else if let Some((host, passcode, default_uid)) = &client_conn {
                         let target_uid = player_uid.or(default_uid.as_deref());
                         let cmd = match tool_name {
+                            "list_worlds" => "list-worlds".to_string(),
                             "query_time" => "time".to_string(),
                             "query_settings" => "settings".to_string(),
                             "search_chest" => format!("search-chest:{}", search_query),
@@ -192,6 +283,9 @@ pub fn run_mcp_loop(
                     } else {
                         let path = world_path.as_ref().unwrap();
                         match tool_name {
+                            "list_worlds" => {
+                                execute_command_captured(path, "list-worlds", false, None)
+                            }
                             "query_time" => execute_command_captured(path, "time", false, None),
                             "query_settings" => {
                                 execute_command_captured(path, "settings", false, None)
