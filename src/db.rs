@@ -14,7 +14,6 @@ pub fn init_database() {
 
     let _ = DB_PATH.set(target_path);
 
-    // Populate database dynamically in Rust if recently initialized or updated
     if let Some(mut conn) = get_conn() {
         if let Ok(tx) = conn.transaction() {
             // Create tables
@@ -92,7 +91,19 @@ pub fn init_database() {
                 [],
             ).ok();
 
-            // Populate Pals (internal_id, name_en, name_es, breed_power, kindling, watering, planting, generating, handwork, gathering, lumbering, mining, medicine, cooling, transporting, farming)
+            tx.execute(
+                "CREATE TABLE IF NOT EXISTS pal_drops (
+                    pal_id TEXT,
+                    item_id TEXT,
+                    chance INTEGER,
+                    min_qty INTEGER,
+                    max_qty INTEGER,
+                    PRIMARY KEY (pal_id, item_id)
+                )",
+                [],
+            ).ok();
+
+            // Populate Pals
             let pals_data: &[(&str, &str, &str, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32)] = &[
                 ("SheepBall", "Lamball", "Lamball", 1470, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1),
                 ("PinkCat", "Cattiva", "Cattiva", 1460, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0),
@@ -246,6 +257,8 @@ pub fn init_database() {
                 ("copperore", "Copper Ore", "Mineral de cobre"),
                 ("coal", "Coal", "Carbón"),
                 ("sulfur", "Sulfur", "Azufre"),
+                ("flame_organ", "Flame Organ", "Órgano de ignición"),
+                ("electric_organ", "Electric Organ", "Órgano de generación"),
             ];
 
             for i in items_data {
@@ -311,6 +324,28 @@ pub fn init_database() {
                 tx.execute(
                     "INSERT OR REPLACE INTO recipes VALUES (?1, ?2, ?3)",
                     rusqlite::params![r.0, r.1, r.2],
+                ).ok();
+            }
+
+            // Populate Pal Drops (pal_id, item_id, chance, min_qty, max_qty)
+            let drops_data: &[(&str, &str, i32, i32, i32)] = &[
+                ("SheepBall", "wool", 100, 1, 2),
+                ("SheepBall", "meat_sheepball", 100, 1, 1),
+                ("PinkCat", "fiber", 100, 1, 2),
+                ("ChickenPal", "egg", 100, 1, 1),
+                ("ChickenPal", "meat_chickenpal", 100, 1, 1),
+                ("Kitsunebi", "flame_organ", 100, 1, 1),
+                ("ElecCat", "electric_organ", 100, 1, 1),
+                ("Hedgehog", "electric_organ", 100, 1, 1),
+                ("Hedgehog_Ice", "flame_organ", 0, 0, 0), // Cryst doesn't drop flame
+                ("Boar", "leather", 100, 1, 1),
+                ("Alpaca", "wool", 100, 2, 4),
+            ];
+
+            for d in drops_data {
+                tx.execute(
+                    "INSERT OR REPLACE INTO pal_drops VALUES (?1, ?2, ?3, ?4, ?5)",
+                    rusqlite::params![d.0, d.1, d.2, d.3, d.4],
                 ).ok();
             }
 
@@ -523,4 +558,142 @@ pub fn is_valid_pal(internal_id: &str) -> bool {
 
     let query = "SELECT 1 FROM pals WHERE internal_id = ?1 OR name_en = ?1 OR name_es = ?1";
     conn.query_row(query, [base_id], |_| Ok(())).is_ok()
+}
+
+// 1. Finding breeding combinations for a target child Pal
+pub fn find_breeding_parents_for_target(child_name: &str) -> Vec<(String, String)> {
+    let mut parents = Vec::new();
+    let conn = match get_conn() {
+        Some(c) => c,
+        None => return parents,
+    };
+
+    // Resolve child internal ID or name
+    let child_id_query = "SELECT internal_id FROM pals WHERE internal_id = ?1 OR name_en = ?1 OR name_es = ?1";
+    let target_child_id: String = match conn.query_row(child_id_query, [child_name], |row| row.get(0)) {
+        Ok(id) => id,
+        Err(_) => return parents,
+    };
+
+    // Load all non-boss Pals for combinations
+    let mut stmt = match conn.prepare("SELECT internal_id, breed_power FROM pals WHERE internal_id NOT LIKE 'BOSS_%'") {
+        Ok(s) => s,
+        Err(_) => return parents,
+    };
+
+    let pals_list: Vec<(String, i32)> = stmt.query_map([], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, i32>(1)?))
+    }).unwrap().filter_map(|r| r.ok()).collect();
+
+    // Check exceptions first
+    let mut exc_stmt = conn.prepare("SELECT parent_a, parent_b FROM breeding_exceptions WHERE child = ?1 OR child = (SELECT name_en FROM pals WHERE internal_id = ?1)").unwrap();
+    if let Ok(mut rows) = exc_stmt.query([&target_child_id]) {
+        while let Ok(Some(row)) = rows.next() {
+            if let (Ok(pa), Ok(pb)) = (row.get::<_, String>(0), row.get::<_, String>(1)) {
+                parents.push((pa, pb));
+            }
+        }
+    }
+
+    // Normal combinations via breed power
+    for i in 0..pals_list.len() {
+        for j in i..pals_list.len() {
+            let pa = &pals_list[i];
+            let pb = &pals_list[j];
+            let avg_power = (pa.1 + pb.1 + 1) / 2;
+            let resulting_child = find_closest_pal_by_breed_power(avg_power);
+            if resulting_child == target_child_id {
+                parents.push((pa.0.clone(), pb.0.clone()));
+            }
+        }
+    }
+
+    parents
+}
+
+// 2. Query drops of a Pal
+pub fn get_pal_drops(pal_name: &str) -> Vec<(String, i32, i32, i32)> {
+    let mut drops = Vec::new();
+    let conn = match get_conn() {
+        Some(c) => c,
+        None => return drops,
+    };
+
+    let pal_id_query = "SELECT internal_id FROM pals WHERE internal_id = ?1 OR name_en = ?1 OR name_es = ?1";
+    let target_pal_id: String = match conn.query_row(pal_id_query, [pal_name], |row| row.get(0)) {
+        Ok(id) => id,
+        Err(_) => return drops,
+    };
+
+    let mut stmt = conn.prepare("SELECT item_id, chance, min_qty, max_qty FROM pal_drops WHERE pal_id = ?1").unwrap();
+    if let Ok(mut rows) = stmt.query([&target_pal_id]) {
+        while let Ok(Some(row)) = rows.next() {
+            if let (Ok(item), Ok(chance), Ok(min_q), Ok(max_q)) = (
+                row.get::<_, String>(0),
+                row.get::<_, i32>(1),
+                row.get::<_, i32>(2),
+                row.get::<_, i32>(3)
+            ) {
+                drops.push((item, chance, min_q, max_q));
+            }
+        }
+    }
+    drops
+}
+
+// 3. Query Pals dropping a specific item
+pub fn get_pals_dropping_item(item_name: &str) -> Vec<String> {
+    let mut pals = Vec::new();
+    let conn = match get_conn() {
+        Some(c) => c,
+        None => return pals,
+    };
+
+    let item_id_query = "SELECT internal_id FROM items WHERE internal_id = ?1 OR name_en = ?1 OR name_es = ?1";
+    let target_item_id: String = match conn.query_row(item_id_query, [item_name], |row| row.get(0)) {
+        Ok(id) => id,
+        Err(_) => return pals,
+    };
+
+    let mut stmt = conn.prepare("SELECT pal_id FROM pal_drops WHERE item_id = ?1").unwrap();
+    if let Ok(mut rows) = stmt.query([&target_item_id]) {
+        while let Ok(Some(row)) = rows.next() {
+            if let Ok(pal) = row.get::<_, String>(0) {
+                pals.push(pal);
+            }
+        }
+    }
+    pals
+}
+
+pub fn calculate_capture_rate(
+    pal_level: i32,
+    current_hp: i32,
+    max_hp: i32,
+    sphere_type: &str,
+    lifmunk_level: i32,
+) -> f64 {
+    let sphere_multiplier = match sphere_type.to_ascii_lowercase().as_str() {
+        "palsphere" | "common" | "comun" => 1.0,
+        "palsphere_mega" | "mega" => 2.0,
+        "palsphere_giga" | "giga" => 3.0,
+        "palsphere_tera" | "tera" => 5.0,
+        "palsphere_ultra" | "ultra" => 7.0,
+        "palsphere_legendary" | "legendary" | "legendaria" => 12.0,
+        _ => 1.0,
+    };
+
+    let base_rate = (100.0 - (pal_level as f64 * 2.2)).max(4.0);
+
+    let hp_ratio = if max_hp > 0 {
+        current_hp as f64 / max_hp as f64
+    } else {
+        1.0
+    };
+    let hp_multiplier = 1.0 + (1.0 - hp_ratio) * 2.5;
+
+    let lifmunk_multiplier = 1.0 + (lifmunk_level as f64 * 0.10);
+
+    let final_rate = base_rate * hp_multiplier * sphere_multiplier * lifmunk_multiplier;
+    final_rate.min(100.0)
 }

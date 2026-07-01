@@ -180,6 +180,63 @@ pub fn run_mcp_loop(
                                             }
                                         }
                                     }
+                                },
+                                {
+                                    "name": "query_target_breeding",
+                                    "description": "Query all parent combinations that produce a specific child Pal",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "target_pal": {
+                                                "type": "string",
+                                                "description": "Target child Pal name or internal ID (e.g. Anubis, Jetragon)"
+                                            }
+                                        },
+                                        "required": ["target_pal"]
+                                    }
+                                },
+                                {
+                                    "name": "query_drops",
+                                    "description": "Query drops of a Pal or locate which Pals drop a specific item",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "pal_name": {
+                                                "type": "string",
+                                                "description": "Pal name to query drops for (e.g. Lamball, Foxsparks)"
+                                            },
+                                            "item_name": {
+                                                "type": "string",
+                                                "description": "Item name to query dropping Pals (e.g. wool, flame_organ)"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "calculate_capture_rate",
+                                    "description": "Calculate capture rate percentages based on creature level, HP, sphere types, and Lifmunk statue level",
+                                    "inputSchema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "pal_level": {
+                                                "type": "integer",
+                                                "description": "Creature level"
+                                            },
+                                            "current_hp": {
+                                                "type": "integer",
+                                                "description": "Optional current HP of the creature (default 100)"
+                                            },
+                                            "max_hp": {
+                                                "type": "integer",
+                                                "description": "Optional maximum HP of the creature (default 100)"
+                                            },
+                                            "lifmunk_level": {
+                                                "type": "integer",
+                                                "description": "Optional player Lifmunk capture bonus level (0 to 10)"
+                                            }
+                                        },
+                                        "required": ["pal_level"]
+                                    }
                                 }
                             ]
                         }
@@ -261,6 +318,119 @@ pub fn run_mcp_loop(
                                 }
                             }
                         }
+                    } else if tool_name == "query_target_breeding" {
+                        let target_pal = arguments.get("target_pal").and_then(|t| t.as_str()).unwrap_or("");
+                        let use_es = i18n::current_language() == i18n::Language::Es;
+                        if target_pal.is_empty() {
+                            if use_es {
+                                "Error: Debes proporcionar el nombre del Pal objetivo (target_pal).".to_string()
+                            } else {
+                                "Error: You must provide a target child Pal name (target_pal).".to_string()
+                            }
+                        } else {
+                            let combos = crate::db::find_breeding_parents_for_target(target_pal);
+                            if combos.is_empty() {
+                                if use_es {
+                                    format!("No se encontraron combinaciones de crianza para obtener a '{}'.", target_pal)
+                                } else {
+                                    format!("No breeding combinations found to produce '{}'.", target_pal)
+                                }
+                            } else {
+                                let target_translated = crate::db::translate_pal(target_pal, use_es);
+                                let mut out = if use_es {
+                                    format!("Parejas para criar a {} ({} combinaciones):\n", target_translated, combos.len())
+                                } else {
+                                    format!("Parents to breed {} ({} combinations):\n", target_translated, combos.len())
+                                };
+                                for (pa, pb) in combos {
+                                    let trans_a = crate::db::translate_pal(&pa, use_es);
+                                    let trans_b = crate::db::translate_pal(&pb, use_es);
+                                    out.push_str(&format!("  - {} + {}\n", trans_a, trans_b));
+                                }
+                                out
+                            }
+                        }
+                    } else if tool_name == "query_drops" {
+                        let pal_name = arguments.get("pal_name").and_then(|p| p.as_str()).unwrap_or("");
+                        let item_name = arguments.get("item_name").and_then(|i| i.as_str()).unwrap_or("");
+                        let use_es = i18n::current_language() == i18n::Language::Es;
+
+                        if !pal_name.is_empty() {
+                            let drops = crate::db::get_pal_drops(pal_name);
+                            if drops.is_empty() {
+                                if use_es {
+                                    format!("No se registraron drops para el Pal: {}", pal_name)
+                                } else {
+                                    format!("No drops registered for Pal: {}", pal_name)
+                                }
+                            } else {
+                                let pal_translated = crate::db::translate_pal(pal_name, use_es);
+                                let mut out = if use_es {
+                                    format!("Drops de {}:\n", pal_translated)
+                                } else {
+                                    format!("Drops for {}:\n", pal_translated)
+                                };
+                                for (item, chance, min_q, max_q) in drops {
+                                    let trans_item = crate::db::translate_item(&item, use_es);
+                                    out.push_str(&format!("  - {}: {}% (Cant: {}-{})\n", trans_item, chance, min_q, max_q));
+                                }
+                                out
+                            }
+                        } else if !item_name.is_empty() {
+                            let pals = crate::db::get_pals_dropping_item(item_name);
+                            if pals.is_empty() {
+                                if use_es {
+                                    format!("No se encontraron Pals que suelten el objeto: {}", item_name)
+                                } else {
+                                    format!("No Pals found dropping item: {}", item_name)
+                                }
+                            } else {
+                                let item_translated = crate::db::translate_item(item_name, use_es);
+                                let mut out = if use_es {
+                                    format!("Pals que sueltan {}:\n", item_translated)
+                                } else {
+                                    format!("Pals dropping {}:\n", item_translated)
+                                };
+                                for pal in pals {
+                                    let trans_pal = crate::db::translate_pal(&pal, use_es);
+                                    out.push_str(&format!("  - {}\n", trans_pal));
+                                }
+                                out
+                            }
+                        } else {
+                            if use_es {
+                                "Error: Proporciona pal_name o item_name para consultar drops.".to_string()
+                            } else {
+                                "Error: Provide either pal_name or item_name to query drops.".to_string()
+                            }
+                        }
+                    } else if tool_name == "calculate_capture_rate" {
+                        let pal_level = arguments.get("pal_level").and_then(|l| l.as_i64()).unwrap_or(1) as i32;
+                        let current_hp = arguments.get("current_hp").and_then(|h| h.as_i64()).unwrap_or(100) as i32;
+                        let max_hp = arguments.get("max_hp").and_then(|m| m.as_i64()).unwrap_or(100) as i32;
+                        let lifmunk_level = arguments.get("lifmunk_level").and_then(|l| l.as_i64()).unwrap_or(0) as i32;
+                        let use_es = i18n::current_language() == i18n::Language::Es;
+
+                        let spheres = [
+                            ("palsphere", "Común / Common"),
+                            ("palsphere_mega", "Mega Esfera"),
+                            ("palsphere_giga", "Giga Esfera"),
+                            ("palsphere_tera", "Tera Esfera"),
+                            ("palsphere_ultra", "Ultra Esfera"),
+                            ("palsphere_legendary", "Legendaria / Legendary"),
+                        ];
+
+                        let mut out = if use_es {
+                            format!("Probabilidades estimadas de captura para un Pal Nvl {} (HP: {}/{} | Bonus Estatua Nvl {}):\n", pal_level, current_hp, max_hp, lifmunk_level)
+                        } else {
+                            format!("Estimated capture rates for a Lvl {} Pal (HP: {}/{} | Statue Bonus Lvl {}):\n", pal_level, current_hp, max_hp, lifmunk_level)
+                        };
+
+                        for (sphere_id, sphere_name) in spheres {
+                            let rate = crate::db::calculate_capture_rate(pal_level, current_hp, max_hp, sphere_id, lifmunk_level);
+                            out.push_str(&format!("  - {}: {:.1}%\n", sphere_name, rate));
+                        }
+                        out
                     } else if let Some((host, passcode, default_uid)) = &client_conn {
                         let target_uid = player_uid.or(default_uid.as_deref());
                         let cmd = match tool_name {

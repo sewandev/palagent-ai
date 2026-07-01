@@ -310,6 +310,25 @@ The PalAgent AI MCP server exposes the following tools:
     - Description: Query combat active skill stats like power, cooldown, and element.
     - Parameters:
       - `skill_id` (string, optional): Optional Skill ID to query (e.g. AirCanon, HydroLaser, FireBlast).
+
+12. **`query_target_breeding`**:
+    - Description: Query all parent combinations that produce a specific child Pal.
+    - Parameters:
+      - `target_pal` (string, required): Target child Pal name (e.g. Anubis, Jetragon).
+
+13. **`query_drops`**:
+    - Description: Query drops of a Pal or locate which Pals drop a specific item.
+    - Parameters:
+      - `pal_name` (string, optional): Pal name to query drops (e.g. Lamball, Foxsparks).
+      - `item_name` (string, optional): Item name to query dropping Pals (e.g. wool, flame_organ).
+
+14. **`calculate_capture_rate`**:
+    - Description: Calculate capture rate percentages based on creature level, HP, sphere types, and Lifmunk statue level.
+    - Parameters:
+      - `pal_level` (integer, required): Creature level.
+      - `current_hp` (integer, optional): Current HP.
+      - `max_hp` (integer, optional): Maximum HP.
+      - `lifmunk_level` (integer, optional): Player Lifmunk capture bonus level (0 to 10).
 "#;
 
     match agent_slug {
