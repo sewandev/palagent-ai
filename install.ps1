@@ -1,5 +1,56 @@
 $ErrorActionPreference = "Stop"
 
+function Get-PalworldInstallPath {
+    $steamPath = $null
+    try {
+        $steamPath = Get-ItemPropertyValue -Path "HKCU:\Software\Valve\Steam" -Name "SteamPath" -ErrorAction SilentlyContinue
+    } catch {}
+    if (-not $steamPath) {
+        try {
+            $steamPath = Get-ItemPropertyValue -Path "HKLM:\Software\Wow6432Node\Valve\Steam" -Name "InstallPath" -ErrorAction SilentlyContinue
+        } catch {}
+    }
+    
+    $libraries = [System.Collections.Generic.List[string]]::new()
+    if ($steamPath -and (Test-Path $steamPath)) {
+        $libraries.Add($steamPath)
+        
+        $vdfPath = Join-Path $steamPath "steamapps\libraryfolders.vdf"
+        if (Test-Path $vdfPath) {
+            $vdfContent = Get-Content -Path $vdfPath -Raw -ErrorAction SilentlyContinue
+            if ($vdfContent) {
+                $matches = [regex]::Matches($vdfContent, '"path"\s+"([^"]+)"')
+                foreach ($match in $matches) {
+                    $path = $match.Groups[1].Value.Replace("\\", "\")
+                    if ($path -and (Test-Path $path) -and -not $libraries.Contains($path)) {
+                        $libraries.Add($path)
+                    }
+                }
+            }
+        }
+    }
+
+    $backupDrives = @("C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
+    foreach ($drive in $backupDrives) {
+        $standardPath = "$drive:\Program Files (x86)\Steam"
+        if ((Test-Path $standardPath) -and -not $libraries.Contains($standardPath)) {
+            $libraries.Add($standardPath)
+        }
+        $libraryPath = "$drive:\SteamLibrary"
+        if ((Test-Path $libraryPath) -and -not $libraries.Contains($libraryPath)) {
+            $libraries.Add($libraryPath)
+        }
+    }
+
+    foreach ($lib in $libraries) {
+        $palworldPath = Join-Path $lib "steamapps\common\Palworld"
+        if (Test-Path $palworldPath) {
+            return $palworldPath
+        }
+    }
+    return $null
+}
+
 Write-Host ""
 Write-Host "  =====================================" -ForegroundColor Green
 Write-Host "         PalAgent AI Manager           " -ForegroundColor Green
@@ -177,38 +228,27 @@ Write-Host "      PalAgent AI binary installed to: $destExe" -ForegroundColor Da
 # Step 3: Resolving oo2core_9_win64.dll
 Write-Host "[3/4] Resolving oo2core_9_win64.dll for GVAS decompression..." -ForegroundColor Cyan
 
-$palworldFolders = @(
-    "C:\Program Files (x86)\Steam\steamapps\common\Palworld",
-    "C:\Program Files\Steam\steamapps\common\Palworld",
-    "D:\SteamLibrary\steamapps\common\Palworld",
-    "E:\SteamLibrary\steamapps\common\Palworld",
-    "F:\SteamLibrary\steamapps\common\Palworld"
-)
-
-$gameDetected = $false
-foreach ($folder in $palworldFolders) {
-    if (Test-Path $folder) {
-        $gameDetected = $true
-        break
-    }
-}
+$palworldInstallPath = Get-PalworldInstallPath
+$gameDetected = $null -ne $palworldInstallPath
 
 if (-not $gameDetected) {
-    Write-Host "      [!] Warning: Palworld (Steam version) was not detected in standard installation paths." -ForegroundColor Yellow
+    Write-Host "      [!] Warning: Palworld (Steam version) was not detected in your Steam libraries." -ForegroundColor Yellow
     Write-Host "          Ensure Palworld is installed on Steam on this PC, as PalAgent AI requires" -ForegroundColor Yellow
     Write-Host "          local save files to function." -ForegroundColor Yellow
 }
 
 if (-not (Test-Path $destDll)) {
-    $standardDllPaths = @(
-        Join-Path $PSScriptRoot "oo2core_9_win64.dll",
-        "oo2core_9_win64.dll",
-        "C:\Program Files (x86)\Steam\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
-        "C:\Program Files\Steam\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
-        "D:\SteamLibrary\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
-        "E:\SteamLibrary\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
-        "F:\SteamLibrary\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll"
-    )
+    $standardDllPaths = [System.Collections.Generic.List[string]]::new()
+    
+    $standardDllPaths.Add((Join-Path $PSScriptRoot "oo2core_9_win64.dll"))
+    $standardDllPaths.Add("oo2core_9_win64.dll")
+
+    if ($gameDetected) {
+        $standardDllPaths.Add((Join-Path $palworldInstallPath "Binaries\Win64\oo2core_9_win64.dll"))
+    }
+
+    $standardDllPaths.Add("C:\Program Files (x86)\Steam\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll")
+    $standardDllPaths.Add("D:\SteamLibrary\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll")
 
     $foundDll = $null
     foreach ($path in $standardDllPaths) {
