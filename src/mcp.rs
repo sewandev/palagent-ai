@@ -575,3 +575,34 @@ pub fn run_mcp_loop(
         line.clear();
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_capture_rate_calculation() {
+        let rate_common = crate::db::calculate_capture_rate(10, 100, 100, "palsphere", 0);
+        assert!(rate_common > 0.0);
+        assert!(rate_common <= 100.0);
+
+        let rate_legendary =
+            crate::db::calculate_capture_rate(10, 100, 100, "palsphere_legendary", 0);
+        assert!(rate_legendary > rate_common);
+    }
+
+    #[test]
+    fn test_find_parents() {
+        crate::db::init_database();
+        let combos = crate::db::find_breeding_parents_for_target("Anubis");
+        assert!(!combos.is_empty());
+    }
+
+    #[test]
+    fn test_drops() {
+        crate::db::init_database();
+        let drops = crate::db::get_pal_drops("SheepBall");
+        assert!(!drops.is_empty());
+        let item_drops = crate::db::get_pals_dropping_item("wool");
+        assert!(item_drops.contains(&"SheepBall".to_string()));
+    }
+}
