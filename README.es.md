@@ -2,19 +2,13 @@
   <h1 align="center">PalAgent AI</h1>
 </p>
 
-<p align="center">Real-time telemetry, monitoring, breeding and inventory search CLI for Palworld.</p>
+<p align="center">CLI y Servidor MCP en tiempo real para telemetría, monitoreo, crianza y búsqueda en inventarios de Palworld.</p>
 
 <p align="center">
   <a href="https://github.com/sewandev/palagent-ai/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/sewandev/palagent-ai/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://github.com/sewandev/palagent-ai/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/sewandev/palagent-ai/actions/workflows/codeql.yml/badge.svg" /></a>
-  <img alt="Version" src="https://img.shields.io/github/v/release/sewandev/palagent-ai?style=flat-square&label=version&color=blueviolet" />
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078d4?style=flat-square" />
   <img alt="Built with Rust" src="https://img.shields.io/badge/built_with-Rust-CE422B?style=flat-square" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
-</p>
-<p align="center">
-  <img alt="Compatibilidad con Palworld" src="https://img.shields.io/badge/Palworld%20Compatibility-100%25-green?style=flat-square" />
-  <img alt="PalAgent v1.0" src="https://img.shields.io/badge/v1.0%20Release-Coming%20July%2010%2C%202026-blueviolet?style=flat-square" />
 </p>
 
 <p align="center">
@@ -24,81 +18,61 @@
 
 ---
 
-## Descripción General
+## 🚀 Descripción General
 
-**PalAgent AI** es un asistente inteligente y servidor de Model Context Protocol (MCP) para Palworld. En lugar de tener que revisar manualmente tu caja Pal, rastrear coordenadas de bases, buscar en cofres o ingresar manualmente estadísticas en calculadoras de crianza y bases de datos web externas, PalAgent AI conecta tu asistente de IA local directamente con tu partida guardada.
+**PalAgent AI** conecta tu asistente de IA local (Antigravity, Cursor, VS Code Copilot, Windsurf, Claude Code, Gemini CLI, etc.) directamente con tus partidas guardadas de Palworld.
 
-Dado que la IA posee contexto completo en tiempo real sobre tu mundo activo, progreso, inventario y Pals, puedes pedirle consejos personalizados, combinaciones de crianza óptimas, optimización de flujos de trabajo en tus bases o la ubicación exacta de objetos. Cada sugerencia está adaptada a tu estado real del juego, haciendo que la gestión del juego sea fluida y altamente eficiente.
-
----
-
-## Capacidades de la IA (Qué puedes preguntar)
-
-Una vez configurado, podrás consultar a tu asistente de IA de forma natural sobre el estado de tu partida. Aquí tienes algunos ejemplos prácticos:
-
-### Diagnósticos Profundos con IA (Ejemplos)
-* **Asignación Óptima de Trabajadores**: *"Basado en los Pals que tengo en mi caja, ¿cuáles son los más eficientes para enviar a minar hierro y por qué?"* (La IA analizará el nivel de minería, habilidades pasivas como Artesano/Serio, y propondrá el equipo óptimo).
-* **Análisis de Equipo de Combate**: *"¿Cuál es mi Pal de tipo Fuego más fuerte en mi caja y puedes explicarme detalladamente por qué?"* (La IA leerá los IVs de talento ocultos, habilidades pasivas, estadísticas base y los cruzará con el meta actual).
-* **Optimización y Salud de la Base**: *"¿Cuáles de mis trabajadores actuales tienen pasivas negativas (como Vago o Destructivo) que están reduciendo la eficiencia, y por quiénes de mi caja debería reemplazarlos?"*
-
-### Telemetría y Consultas Generales
-* **Localizar Objetos Almacenados**: Encuentra recursos sin tener que abrir cada cofre de tus bases (por ejemplo: *"¿Dónde tengo guardado el carbón?"* o *"¿Tengo suficientes lingotes de metal Pal en mis bases?"*).
-* **Monitoreo de Salud y Cordura (SAN)**: Revisa el estado de tus trabajadores (por ejemplo: *"¿Hay algún Pal hambriento en la base?"* o *"¿Cuál es el nivel de SAN de mi equipo de combate activo?"*).
-* **Emparejamiento de Crianza Óptimo**: Calcula combinaciones utilizando los Pals que ya posees en tu caja (por ejemplo: *"¿Cómo puedo criar un Anubis con los Pals que tengo?"* o *"¿A quiénes debo emparejar para obtener un Jetragon con la pasiva Corredor?"*).
-* **Progreso de Capturas y Diarios**: Realiza un seguimiento de tus logros y coleccionables (por ejemplo: *"¿Cuál es mi progreso de captura de Lamball?"* o *"¿Cuántos diarios de exploración he recolectado?"*).
-* **Reglas del Servidor y Tiempo**: Consulta configuraciones y el ciclo del día (por ejemplo: *"¿Cuáles son los multiplicadores del servidor?"* o *"¿Estamos de día o de noche en el juego?"*).
+Al exponer datos en tiempo real de tu mundo, bases, inventarios y caja Pal mediante el **Model Context Protocol (MCP)**, tu asistente puede analizar estadísticas de combate, calcular rutas de crianza óptimas, estimar probabilidades de captura, localizar objetos en cofres y ayudarte a gestionar eficientemente tus campamentos desde la ventana del chat.
 
 ---
 
-## Características de Servidor Host y Cliente
+## 🛠️ Opciones de Instalación
 
-PalAgent AI está diseñado para integrarse nativamente con servidores multijugador y dedicados:
-* **Identificación Zero-Touch**: La herramienta escanea automáticamente la caché local de tu sesión de Steam para calcular tu Player UID en formato GUID de manera precisa. No necesitas buscar ni escribir identificadores complejos.
-* **Verificación de Identidad**: Durante la instalación del cliente, el asistente valida la conexión con el servidor host y recupera automáticamente tu nickname de personaje real en el juego.
-* **Persistencia en Servidores (Host)**: Para administradores de servidores dedicados, el instalador puede registrar un servicio silencioso en segundo plano mediante el Programador de Tareas de Windows que se inicia automáticamente al arrancar el sistema.
+Elige el método de instalación que prefieras:
 
----
-
-## Requisitos Previos
-
-| Requisito | Especificación Compatible | Nota / Detalles |
-| :--- | :--- | :--- |
-| **Asistente de IA / CLI** | Antigravity CLI, Claude Code, OpenCode, VS Code Copilot, Cursor, Windsurf, Codex, Qwen, Kiro, etc. | No requiere suscripción activa. |
-| **Sistema Operativo** | Windows (64 bits) | Probado en Windows; se necesita ayuda de la comunidad para otros sistemas. |
-| **Juego** | Palworld (Solo Versión de Steam) | Debe estar instalado y actualizado. |
+| Método | Dificultad | Comando | Detalles |
+| :--- | :--- | :--- | :--- |
+| **1. Asistente de IA (Chat)** | 🟢 **Súper Fácil** | Pega este prompt en el chat de tu IA:<br>`sigue estas instrucciones https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/system_prompt.md` | Tu asistente de desarrollo clonará, compilará y configurará la base de datos y el servidor MCP de forma automática en el chat. |
+| **2. PowerShell Interactivo** | 🟡 **Rápido y Automático** | Ejecuta en PowerShell:<br>`Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/sewandev/palagent-ai/main/install.ps1')` | Compila el binario en modo release, vincula la DLL de Oodle, registra el comando `/palworld` en tu consola y ofrece un menú para configurar tus editores. |
+| **3. Compilación Manual (Rust)** | 🔴 **Avanzado** | `git clone https://github.com/sewandev/palagent-ai`<br>`cargo build --release`<br>`target/release/palagent-ai setup <editor>` | Clona, compila el binario manualmente en Rust, resuelve la DLL `oo2core_9_win64.dll`, genera la base de datos SQLite y configura los clientes MCP. |
 
 > [!TIP]
-> **¡No requiere suscripciones costosas!**
-> Puedes utilizar los modelos o cuotas gratuitas de tu cliente de IA preferido. Si deseas probar esto de manera 100% gratuita sin gastar nada, te recomendamos usar **OpenCode con el modelo ZEN** (que no tiene costo alguno).
-
-> [!IMPORTANT]
-> **Solo para Windows y la Versión de Steam**
-> Actualmente, la lectura de firmas del analizador de archivos de guardado solo está probada en Windows y requiere la versión de Steam de Palworld.
+> **Comando de PowerShell Integrado**:
+> Si instalas con la **Opción 2**, el script registrará un comando global `/palworld` en tu perfil de PowerShell. Podrás escribir `/palworld help`, `/palworld analyzer`, `/palworld monitor` o `/palworld breeding` directamente en cualquier terminal.
 
 ---
 
-## Instalación Fácil en 1 Clic usando tu IA
+## 🧬 Capacidades de la IA y Prompts
 
-Para instalar y configurar automáticamente PalAgent AI en tu máquina, copia y pega este comando directamente en tu asistente de IA o chat de CLI favorito:
+Una vez configurado el servidor MCP en tu editor, tu asistente de IA podrá acceder a los datos de tu partida en tiempo real para responder a preguntas como:
 
-```text
-sigue estas instrucciones https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/system_prompt.md
-```
+> [!NOTE]
+> * **Asignación Óptima**: *"¿Cuáles de mis Pals en la caja son los más eficientes para minar metal en la base?"* (La IA lee estadísticas de trabajo, habilidades pasivas como Artesano/Serio y propone el mejor equipo).
+> * **Emparejamiento de Crianza**: *"¿Cómo puedo criar un Anubis? Revisa si tengo a los padres necesarios en mi caja Pal."* (La IA calcula los cruces, comprueba excepciones y busca compatibilidades en tu partida activa).
+> * **Porcentaje de Captura**: *"¿Cuál es mi probabilidad de capturar a un Chillet nivel 33 usando una Megasfera con mi nivel actual de estatua Lifmunk?"*
+> * **Rastreo de Objetos**: *"¿En qué cofre de mi base guardé los Fragmentos de Paldio? ¿Tengo suficiente madera para una Megaesfera?"*
+> * **Monitoreo**: *"¿Hay algún Pal en la base campamento que esté deprimido o hambriento?"*
 
 ---
 
-## Cómo Funciona (Resumen a Grandes Rasgos)
+## 📦 Referencia de Herramientas y Base de Datos
 
-Cuando pegues el prompt de instalación, tu asistente de IA te guiará paso a paso:
+La base de datos SQLite local se genera en el primer inicio y expone las siguientes herramientas del Model Context Protocol (MCP):
 
-### 1. Validación y Configuración
-* **Detección del Idioma**: El asistente de IA te saludará y operará en el idioma que prefieras para comunicarte.
-* **Modos de Ejecución**: Elegirás una de tres configuraciones:
-  * **Singleplayer / Co-op Host Local**: Lee los archivos de guardado locales directamente en tu disco sin necesidad de servidor en segundo plano.
-  * **Host de Servidor Dedicado**: Configura un servidor de telemetría en segundo plano que corre de forma persistente mediante el Programador de Tareas de Windows.
-  * **Cliente Remoto (Multijugador)**: Se conecta a un servidor remoto a través de la red usando su IP y passcode.
+*   **`list_worlds`**: Lista todas las rutas de guardado locales detectadas.
+*   **`query_time`**: Ciclos de día y noche de la partida.
+*   **`query_settings`**: Multiplicadores de dificultad y configuraciones globales del servidor.
+*   **`search_chest`**: Busca objetos en todos los contenedores y cofres del jugador.
+*   **`query_breeding`**: Sugerencias de crianza dinámica basadas en los Pals de tu caja.
+*   **`query_target_breeding`**: Encuentra los combos de padres para obtener un Pal específico.
+*   **`query_progress`**: Progreso de viajes rápidos, diarios de diarios y efigies de Lifmunk.
+*   **`monitor_pals`**: Monitoreo de HP, hambre y nivel de cordura (SAN) en tiempo real.
+*   **`query_recipes`**: Materiales y costes para fabricar esferas y estructuras.
+*   **`query_active_skills`**: Cooldown, elemento y daño de las habilidades de combate activas.
+*   **`query_drops`**: Tabla y probabilidad de obtención de objetos al derrotar o capturar Pals.
 
-### 2. Configuración Sin Intervención Manual (Zero-Touch)
-* **Autodetección de Player UID**: Lee de forma automática tu caché de sesión de Steam local mediante `local-uid` para calcular matemáticamente tu GUID. No necesitas buscarlo ni escribirlo manualmente.
-* **Autodetección de Nickname**: Se conecta al servidor host remoto, localiza tu perfil, extrae tu nickname del personaje dentro del juego y te saluda de forma personalizada para confirmar.
-* **Persistencia al Arrancar**: Para servidores dedicados, registra un proceso silencioso en segundo plano que se inicia automáticamente con el arranque de Windows.
+---
+
+## ⚖️ Licencia
+
+Distribuido bajo la Licencia MIT. Consulta [LICENSE](LICENSE) para más información.
