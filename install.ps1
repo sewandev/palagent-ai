@@ -201,6 +201,8 @@ if (-not $gameDetected) {
 
 if (-not (Test-Path $destDll)) {
     $standardDllPaths = @(
+        Join-Path $PSScriptRoot "oo2core_9_win64.dll",
+        "oo2core_9_win64.dll",
         "C:\Program Files (x86)\Steam\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
         "C:\Program Files\Steam\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
         "D:\SteamLibrary\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
