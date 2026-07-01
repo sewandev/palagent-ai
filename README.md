@@ -33,12 +33,8 @@ Choose the installation method that fits your preferences:
 | Method | Setup Difficulty | Command | Details |
 | :--- | :--- | :--- | :--- |
 | **1. Chat AI Agent** | 🟢 **Super Easy** | Paste this prompt into your AI chat:<br>`follow these instructions https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/system_prompt.md` | Your AI coding assistant will clone, compile, and configure the entire database and MCP setup automatically for you. |
-| **2. Interactive PowerShell** | 🟡 **Quick & Automated** | Run in PowerShell:<br>`Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/sewandev/palagent-ai/main/install.ps1')` | Automatically compiles the binary in release, links Oodle DLLs, registers `/palworld` shell command, and displays an interactive menu to set up your editors. |
+| **2. Interactive PowerShell** | 🟡 **Quick & Automated** | Run in PowerShell:<br>`Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/sewandev/palagent-ai/main/install.ps1')` | Automatically compiles the binary in release, links Oodle DLLs, and displays an interactive menu to set up your editors. |
 | **3. Manual Rust Build** | 🔴 **Advanced** | `git clone https://github.com/sewandev/palagent-ai`<br>`cargo build --release`<br>`target/release/palagent-ai setup <editor>` | Build the Rust binary manually, resolve `oo2core_9_win64.dll`, populate SQLite database, and configure your MCP client manually. |
-
-> [!TIP]
-> **PowerShell Command Helper**:
-> If you install using **Option 2**, the script registers a global `/palworld` command in your profile. You can type `/palworld help`, `/palworld analyzer`, `/palworld monitor`, or `/palworld breeding` directly in any shell.
 
 ---
 

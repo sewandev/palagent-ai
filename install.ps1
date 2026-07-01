@@ -73,69 +73,8 @@ if (-not (Test-Path $destDll)) {
 } else {
     Write-Host "      oo2core_9_win64.dll is already resolved." -ForegroundColor DarkGray
 }
-
-# Step 4: Registering PowerShell exclusive command /palworld
-Write-Host "[4/5] Registering exclusive command '/palworld' in your PowerShell Profile..." -ForegroundColor Cyan
-$profileDir = Split-Path $PROFILE
-if (-not (Test-Path $profileDir)) {
-    New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
-}
-if (-not (Test-Path $PROFILE)) {
-    New-Item -ItemType File -Path $PROFILE -Force | Out-Null
-}
-
-$functionCode = @"
-
-# PalAgent AI Custom Console Helper
-function /palworld {
-    param([string]`$cmd)
-    
-    `$exePath = "$($destExe.Replace('\', '/'))"
-    if (`$cmd -eq "help" -or -not `$cmd) {
-        Write-Host ""
-        Write-Host "  =======================================================" -ForegroundColor Green
-        Write-Host "                 PalAgent AI Console Helper              " -ForegroundColor Green
-        Write-Host "  =======================================================" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "  Uso: /palworld <comando>" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "  Comandos locales disponibles:"
-        Write-Host "    help        : Muestra este menú de ayuda." -ForegroundColor Cyan
-        Write-Host "    analyzer    : Muestra análisis de IVs y pasivas de tus Pals." -ForegroundColor Cyan
-        Write-Host "    monitor     : Revisa la SAN, hambre y salud de tus Pals." -ForegroundColor Cyan
-        Write-Host "    time        : Obtén el día y hora actual en la partida." -ForegroundColor Cyan
-        Write-Host "    settings    : Configuración y dificultad del mundo." -ForegroundColor Cyan
-        Write-Host "    breeding    : Calculadora y sugerencias de crianza." -ForegroundColor Cyan
-        Write-Host "    progress    : Progreso del mapa y coleccionables." -ForegroundColor Cyan
-        Write-Host "    list-worlds : Muestra las partidas de Palworld guardadas." -ForegroundColor Cyan
-        Write-Host ""
-    } else {
-        switch (`$cmd) {
-            "analyzer"    { & `$exePath --analyzer }
-            "monitor"     { & `$exePath --monitor }
-            "time"        { & `$exePath --time }
-            "settings"    { & `$exePath --settings }
-            "breeding"    { & `$exePath --breeding }
-            "progress"    { & `$exePath --progress }
-            "list-worlds" { & `$exePath --list-worlds }
-            default {
-                Write-Host "Comando desconocido: `$cmd. Escribe '/palworld help' para ver la lista." -ForegroundColor Red
-            }
-        }
-    }
-}
-"@
-
-$profileContent = Get-Content -Path $PROFILE -Raw -ErrorAction SilentlyContinue
-if ($profileContent -notlike "*/palworld*") {
-    Add-Content -Path $PROFILE -Value $functionCode
-    Write-Host "      Registered successfully. Restart your terminal or run '. `$PROFILE' to use it." -ForegroundColor DarkGray
-} else {
-    Write-Host "      Exclusive command is already registered in your profile." -ForegroundColor DarkGray
-}
-
-# Step 5: Configuring MCP Clients
-Write-Host "[5/5] Configuring MCP integrations for developers..." -ForegroundColor Cyan
+# Step 4: Configuring MCP Clients
+Write-Host "[4/4] Configuring MCP integrations for developers..." -ForegroundColor Cyan
 
 $choices = @(
     "antigravity-cli",
@@ -185,5 +124,5 @@ Write-Host "======================================================" -ForegroundC
 Write-Host "         Installation completed successfully!         " -ForegroundColor Green
 Write-Host "======================================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "You can now open a new terminal and type '/palworld help' to explore." -ForegroundColor Yellow
+Write-Host "Your PalAgent AI MCP Server is configured and ready." -ForegroundColor Yellow
 Write-Host ""
