@@ -51,7 +51,7 @@ function Get-PalworldInstallPath {
     return $null
 }
 
-Write-Host ""
+Clear-Host
 Write-Host "  =====================================" -ForegroundColor Green
 Write-Host "         PalAgent AI Manager           " -ForegroundColor Green
 Write-Host "  =====================================" -ForegroundColor Green
@@ -77,7 +77,7 @@ Write-Host ""
 $menuSelection = Read-Host "Enter your choice (1-3)"
 
 if ($menuSelection -eq "2") {
-    Write-Host ""
+    Clear-Host
     Write-Host "=== Starting Uninstallation & Cleanup ===" -ForegroundColor Red
     
     # 1. Remove PowerShell profile function helper
@@ -136,7 +136,6 @@ if ($menuSelection -eq "2") {
     Write-Host "[-] Deleting permanent binaries directory..." -ForegroundColor Cyan
     if (Test-Path $installDir) {
         try {
-            # Try to release lock first by deleting old executables
             Remove-Item -Path (Join-Path $installDir "palagent-ai.exe.old") -Force -ErrorAction SilentlyContinue
             Remove-Item -Path $installDir -Recurse -Force
             Write-Host "      Deleted installation folder: $installDir" -ForegroundColor DarkGray
@@ -163,8 +162,9 @@ if ($menuSelection -ne "1") {
 }
 
 # --- INSTALLATION FLOW ---
-Write-Host ""
+Clear-Host
 Write-Host "=== Starting Installation & Upgrade ===" -ForegroundColor Green
+Write-Host ""
 
 $localExePath = Join-Path "target\release" "palagent-ai.exe"
 $downloadedNew = $false
@@ -269,8 +269,49 @@ if (-not (Test-Path $destDll)) {
     Write-Host "      oo2core_9_win64.dll is already resolved." -ForegroundColor DarkGray
 }
 
-# Step 4: Configuring MCP Clients
-Write-Host "[4/4] Configuring MCP integrations for developers..." -ForegroundColor Cyan
+# Step 4: Configuring Game Type & MCP Client
+Clear-Host
+Write-Host "=== Configure Game Type & Client ===" -ForegroundColor Green
+Write-Host ""
+Write-Host "Select your Palworld setup:"
+Write-Host "  1. Singleplayer / Co-op Host (Local game on this PC)" -ForegroundColor Green
+Write-Host "  2. Dedicated Server Host (Admin of a dedicated server on this PC)" -ForegroundColor Cyan
+Write-Host "  3. Remote Client (You play on a remote server/friend's dedicated host)" -ForegroundColor Yellow
+Write-Host ""
+
+$gameTypeChoice = Read-Host "Select game type (1-3)"
+
+$serverUrl = ""
+$serverPasscode = ""
+
+if ($gameTypeChoice -eq "2") {
+    Clear-Host
+    Write-Host "=== Dedicated Server Host Configuration ===" -ForegroundColor Cyan
+    $serverPasscode = Read-Host "Set a secure server access passcode (or press Enter for none)"
+    
+    Write-Host "Registering background server service via Windows Task Scheduler..." -ForegroundColor DarkGray
+    if ($serverPasscode) {
+        & $destExe setup-service --passcode $serverPasscode
+    } else {
+        & $destExe setup-service
+    }
+    Write-Host "Dedicated server service registered to launch on boot." -ForegroundColor DarkGray
+} elseif ($gameTypeChoice -eq "3") {
+    Clear-Host
+    Write-Host "=== Remote Client Configuration ===" -ForegroundColor Yellow
+    $serverUrl = Read-Host "Enter the host server IP and Port (e.g. 192.168.1.50:8080)"
+    $serverPasscode = Read-Host "Enter the server access passcode"
+    
+    if ([string]::IsNullOrWhiteSpace($serverUrl)) {
+        Write-Host "Error: Host URL is required for remote client configuration." -ForegroundColor Red
+        exit 1
+    }
+}
+
+# Choose MCP editor configurations
+Clear-Host
+Write-Host "=== Configure Developer Integrations (MCP) ===" -ForegroundColor Green
+Write-Host ""
 
 $choices = @(
     "antigravity-cli",
@@ -293,13 +334,24 @@ for ($i = 0; $i -lt $choices.Count; $i++) {
 }
 Write-Host "  A. Configure ALL available environments"
 Write-Host "  S. Skip MCP configuration"
+Write-Host ""
 
 $inputSelection = Read-Host "Your selection"
+
+$setupParams = @()
+if ($gameTypeChoice -eq "3") {
+    $setupParams += "--host"
+    $setupParams += $serverUrl
+    if ($serverPasscode) {
+        $setupParams += "--passcode"
+        $setupParams += $serverPasscode
+    }
+}
 
 if ($inputSelection -match "A" -or $inputSelection -match "a") {
     foreach ($choice in $choices) {
         Write-Host "Configuring MCP for $choice..."
-        & $destExe setup $choice
+        & $destExe setup $choice $setupParams
     }
 } elseif ($inputSelection -match "S" -or $inputSelection -match "s" -or [string]::IsNullOrWhiteSpace($inputSelection)) {
     Write-Host "Skipping MCP client setup."
@@ -310,15 +362,33 @@ if ($inputSelection -match "A" -or $inputSelection -match "a") {
         if ($idx -ge 0 -and $idx -lt $choices.Count) {
             $choice = $choices[$idx]
             Write-Host "Configuring MCP for $choice..."
-            & $destExe setup $choice
+            & $destExe setup $choice $setupParams
         }
     }
 }
 
-Write-Host ""
+# Final Completion screen & next steps summary
+Clear-Host
 Write-Host "======================================================" -ForegroundColor Green
 Write-Host "         Installation completed successfully!         " -ForegroundColor Green
 Write-Host "======================================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "Your PalAgent AI MCP Server is configured and ready." -ForegroundColor Yellow
+Write-Host "  [+] Executable folder: $installDir" -ForegroundColor DarkGray
+if ($gameTypeChoice -eq "2") {
+    Write-Host "  [+] Telemetry server: Registered on boot (Task Scheduler)" -ForegroundColor DarkGray
+} elseif ($gameTypeChoice -eq "3") {
+    Write-Host "  [+] Client connection: Pointed to $serverUrl" -ForegroundColor DarkGray
+} else {
+    Write-Host "  [+] Mode: Local Singleplayer / Co-op" -ForegroundColor DarkGray
+}
+Write-Host ""
+Write-Host "------------------------------------------------------" -ForegroundColor Yellow
+Write-Host "  NEXT STEPS:" -ForegroundColor Yellow
+Write-Host "------------------------------------------------------" -ForegroundColor Yellow
+Write-Host "  1. Restart your chosen AI editor / CLI chat window."
+Write-Host "  2. Start asking live questions to test the connection:"
+Write-Host "     - '¿Cuáles son los IVs de mis Pals?'" -ForegroundColor Cyan
+Write-Host "     - '¿En qué cofre de mi base guardé la Madera?'" -ForegroundColor Cyan
+Write-Host "     - '¿Cómo puedo criar un Anubis con mis Pals actuales?'" -ForegroundColor Cyan
+Write-Host "     - '¿Hay algún Pal en mi campamento deprimido o hambriento?'" -ForegroundColor Cyan
 Write-Host ""
