@@ -170,7 +170,7 @@
   "game_mode_coop": "Multijugador Cooperativo (Co-op)",
   "game_mode_dedicated": "Servidor Dedicado (Dedicated Server)",
   "list_worlds_title": "PARTIDAS GUARDADAS DETECTADAS",
-  "list_worlds_header": "Índice | Última Modificación | Ruta",
+  "list_worlds_header": "Índice | Última Modificación | Nombre del Mundo | Ruta",
   "select_world_prompt": "Ingresa el índice del mundo que deseas revisar (1-{}): ",
   "invalid_selection": "Selección inválida. Procediendo con la partida más reciente.",
   "no_worlds_detected": "No se detectaron automáticamente carpetas de guardado de Palworld.",
@@ -179,6 +179,7 @@
   "base_camps": "Campamentos Base",
   "no_base_camps_found": "(No se encontraron campamentos base)",
   "guilds": "Gremios",
-  "no_guilds_found": "(No se encontraron gremios)"
+  "no_guilds_found": "(No se encontraron gremios)",
+  "unknown": "Desconocido"
 }
 

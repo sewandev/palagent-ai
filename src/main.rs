@@ -239,10 +239,12 @@ fn main() {
         println!("{}", "-".repeat(80));
         for (idx, (path, modified)) in worlds.iter().enumerate() {
             let datetime: chrono::DateTime<chrono::Local> = (*modified).into();
+            let world_name = crate::utils::get_world_name(path);
             println!(
-                " [{}] | {} | {}",
+                " [{}] | {} | {} | {}",
                 idx + 1,
                 datetime.format("%Y-%m-%d %H:%M:%S"),
+                world_name,
                 path.display()
             );
         }

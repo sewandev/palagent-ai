@@ -59,7 +59,7 @@ Use the `palagent-ai` tools when:
    - If the tools return a decompression failure or missing DLL error, guide the user to copy `oo2core_9_win64.dll` from their Palworld game directory (typically under `SteamApps/common/Palworld/Binaries/Win64/`) and place it next to their compiled `palagent-ai.exe` executable or in their user path.
 
 2. **Multiple Save Files Conflict**:
-   - If telemetry lists multiple detected game saves or fails to select one, instruct the user to run `palagent-ai.exe --list-worlds` to see all available saves or select one interactively using the `--select-world` flag.
+   - If telemetry lists multiple detected game saves or fails to select one, instruct the user to run `palagent-ai.exe --list-worlds` to see all available saves (which displays the human-readable world name read from `LevelMeta.sav` alongside the folder GUID and modification date) or select one interactively using the `--select-world` flag.
 
 ## Community Advice & Stacking Glitch Policy
 

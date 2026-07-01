@@ -83,10 +83,12 @@ pub fn select_world_interactively(worlds: &[(PathBuf, std::time::SystemTime)]) -
     println!("{}", "-".repeat(80));
     for (idx, (path, modified)) in worlds.iter().enumerate() {
         let datetime: chrono::DateTime<chrono::Local> = (*modified).into();
+        let world_name = get_world_name(path);
         println!(
-            " [{}] | {} | {}",
+            " [{}] | {} | {} | {}",
             idx + 1,
             datetime.format("%Y-%m-%d %H:%M:%S"),
+            world_name,
             path.display()
         );
     }
@@ -213,4 +215,21 @@ pub fn detect_local_player_uid() -> Result<(String, u64), String> {
     let guid = format!("{}-0000-0000-0000-000000000000", hex_str);
 
     Ok((guid, steam_id))
+}
+
+pub fn get_world_name(world_path: &Path) -> String {
+    let level_meta_sav = world_path.join("LevelMeta.sav");
+    if level_meta_sav.exists() {
+        if let Ok(bytes) = crate::decompress::decompress_gvas(&level_meta_sav) {
+            let name = crate::scanner::extract_string_prop(&bytes, b"WorldName\x00");
+            if !name.is_empty() {
+                return name;
+            }
+        }
+    }
+    // Fallback to the folder name (GUID)
+    world_path
+        .file_name()
+        .map(|s| s.to_string_lossy().into_owned())
+        .unwrap_or_else(|| i18n::t("unknown"))
 }

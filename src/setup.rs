@@ -221,6 +221,10 @@ pub fn run_setup(agent_slug: &str) {
 You have access to PalAgent AI telemetry and monitor tools via MCP.
 When the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palagent-ai MCP tools to retrieve real-time data instead of guessing.
 Always verify the game version and perform live web searches on palworld.gg or wikis to keep your information up-to-date.
+
+## Interaction and User Interface
+- **Mandatory ask_question Tool**: Whenever you need to ask the user a question with choices, options, confirmation, or clarifications, you MUST ALWAYS use the `ask_question` tool. Do not print plain-text number options (e.g. "1. Option A, 2. Option B") directly in the chat responses, as this fails to leverage the interactive UI modal.
+- **Selectable Options**: Ensure the options are formatted cleanly as the user's direct responses and translated to their preferred language.
 "#;
 
     let skill_body = r#"---
@@ -230,12 +234,13 @@ description: Extract telemetry, stats, IVs, breeding combinations, and base camp
 
 # PalAgent AI Skill
 
-This skill allows the agent to interact with the PalAgent AI MCP server and query real-time Palworld statistics.
+This skill allows the agent to interact with the PalAgent AI MCP server, CLI, and query real-time Palworld statistics.
 Use the `palagent-ai` tools when:
 - The user asks for the status of base camps or Palbox.
-- The user wants to analyze Pal IVs, stats, or passive skills.
-- The user requests breeding combinations.
+- The user wants to analyze Pal IVs, stats, or passive skills (optionally filtering by trait, level, or gender).
+- The user requests breeding combinations or wants to find a multi-generational breeding path to get a target Pal (breeding pathfinder).
 - The user needs to locate items in base chests.
+- The user wants to run multiple consecutive commands fast using the memory-cached `--interactive` console mode.
 
 ## Mandatory Data Enrichment & External Knowledge Policy
 
@@ -283,7 +288,7 @@ Use the `palagent-ai` tools when:
    - If the tools return a decompression failure or missing DLL error, guide the user to copy `oo2core_9_win64.dll` from their Palworld game directory (typically under `SteamApps/common/Palworld/Binaries/Win64/`) and place it next to their compiled `palagent-ai.exe` executable or in their user path.
 
 2. **Multiple Save Files Conflict**:
-   - If telemetry lists multiple detected game saves or fails to select one, instruct the user to run `palagent-ai.exe --list-worlds` to see all available saves or select one interactively using the `--select-world` flag.
+   - If telemetry lists multiple detected game saves or fails to select one, instruct the user to run `palagent-ai.exe --list-worlds` to see all available saves (which displays the human-readable world name read from `LevelMeta.sav` alongside the folder GUID and modification date) or select one interactively using the `--select-world` flag.
 
 ## Community Advice & Stacking Glitch Policy
 

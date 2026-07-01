@@ -10,10 +10,10 @@ If the user already has PalAgent AI installed but wants to change their running 
 Please follow these instructions step-by-step:
 
 1. FIRST TURN (Language & Action Selection):
-   Ask the user (defaulting to the language they are using to speak to you):
-   - What language they prefer to proceed in.
+   You MUST invoke the `ask_question` tool to ask the user (defaulting to the language they are using to speak to you):
+   - What language they prefer to proceed in (e.g. English, Spanish).
    - Whether they want to **Install/Re-configure** or **Uninstall/Remove** PalAgent AI.
-   *CRITICAL*: In this first turn, do NOT ask any other questions (such as AI client, editor, or game mode).
+   *CRITICAL*: In this first turn, do NOT ask any other questions (such as AI client, editor, or game mode). You must present these as interactive selectable choices.
 
 2. ACTION ROUTING:
    Once the user replies:
@@ -22,12 +22,9 @@ Please follow these instructions step-by-step:
    - If they chose **Install/Re-configure**: Proceed to the next step.
 
 3. CLARIFYING QUESTIONS (For installation/re-configuration only):
-   Ask the following clarifying questions in the selected language to determine their environment:
-   - Ask which AI developer CLI/IDE client they are using (supported clients: antigravity-cli, vscode-copilot, cursor, windsurf, opencode, claude-code, gemini-cli, codex, qwen, kiro, pi, kilocode).
-   - Ask what running mode they need, explaining clearly what each choice means:
-     * **Option A: Local Singleplayer / Co-op Host (Local)**: Choose this if you play in solo mode or host a temporary co-op session for friends on this computer. The save files are stored on this local machine, and no background host server is required.
-     * **Option B: Dedicated Server Host**: Choose this if you are hosting a persistent 24/7 dedicated server on this computer. It will configure a background telemetry host server that remains running persistently.
-     * **Option C: Remote Client (Multiplayer)**: Choose this if you play on a dedicated server hosted by someone else or on a remote machine. It will configure your local AI assistant to query the telemetry remotely via the network using its IP, port, and passcode.
+   You MUST invoke the `ask_question` tool to ask the following clarifying questions in the selected language:
+   - Which AI developer CLI/IDE client they are using (supported clients: antigravity-cli, vscode-copilot, cursor, windsurf, opencode, claude-code, gemini-cli, codex, qwen, kiro, pi, kilocode).
+   - What running mode they need (Option A: Local Singleplayer / Co-op Host, Option B: Dedicated Server Host, Option C: Remote Client (Multiplayer)). Explain the differences clearly.
 
 4. Once the user makes their installation/re-configuration choice:
    - If they chose Option A (Local Singleplayer), read and follow the setup instructions at:
