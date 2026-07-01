@@ -9,14 +9,20 @@ If the user already has PalAgent AI installed but wants to change their running 
 
 Please follow these instructions step-by-step:
 
-1. FIRST, ask the user what language they prefer to proceed in (defaulting to the language they are using to speak to you). All subsequent instructions, questions, logs, and output walkthroughs must be conducted in this selected language.
+1. FIRST TURN (Language & Action Selection):
+   Ask the user (defaulting to the language they are using to speak to you):
+   - What language they prefer to proceed in.
+   - Whether they want to **Install/Re-configure** or **Uninstall/Remove** PalAgent AI.
+   *CRITICAL*: In this first turn, do NOT ask any other questions (such as AI client, editor, or game mode).
 
-2. At the same time, ask the user whether they want to **Install/Re-configure** or **Uninstall/Remove** PalAgent AI:
-   - If they chose **Uninstall/Remove**, read and follow the clean uninstallation instructions at:
+2. ACTION ROUTING:
+   Once the user replies:
+   - If they chose **Uninstall/Remove**: Immediately skip all other questions and follow the clean uninstallation instructions at:
      https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/uninstall.md
-   - If they chose **Install/Re-configure**, proceed to the next step.
+   - If they chose **Install/Re-configure**: Proceed to the next step.
 
-3. For installation or re-configuration, ask the following clarifying questions in the selected language to determine their environment:
+3. CLARIFYING QUESTIONS (For installation/re-configuration only):
+   Ask the following clarifying questions in the selected language to determine their environment:
    - Ask which AI developer CLI/IDE client they are using (supported clients: antigravity-cli, vscode-copilot, cursor, windsurf, opencode, claude-code, gemini-cli, codex, qwen, kiro, pi, kilocode).
    - Ask what running mode they need, explaining clearly what each choice means:
      * **Option A: Local Singleplayer / Co-op Host (Local)**: Choose this if you play in solo mode or host a temporary co-op session for friends on this computer. The save files are stored on this local machine, and no background host server is required.
