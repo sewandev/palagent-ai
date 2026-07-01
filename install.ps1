@@ -176,6 +176,29 @@ Write-Host "      PalAgent AI binary installed to: $destExe" -ForegroundColor Da
 
 # Step 3: Resolving oo2core_9_win64.dll
 Write-Host "[3/4] Resolving oo2core_9_win64.dll for GVAS decompression..." -ForegroundColor Cyan
+
+$palworldFolders = @(
+    "C:\Program Files (x86)\Steam\steamapps\common\Palworld",
+    "C:\Program Files\Steam\steamapps\common\Palworld",
+    "D:\SteamLibrary\steamapps\common\Palworld",
+    "E:\SteamLibrary\steamapps\common\Palworld",
+    "F:\SteamLibrary\steamapps\common\Palworld"
+)
+
+$gameDetected = $false
+foreach ($folder in $palworldFolders) {
+    if (Test-Path $folder) {
+        $gameDetected = $true
+        break
+    }
+}
+
+if (-not $gameDetected) {
+    Write-Host "      [!] Warning: Palworld (Steam version) was not detected in standard installation paths." -ForegroundColor Yellow
+    Write-Host "          Ensure Palworld is installed on Steam on this PC, as PalAgent AI requires" -ForegroundColor Yellow
+    Write-Host "          local save files to function." -ForegroundColor Yellow
+}
+
 if (-not (Test-Path $destDll)) {
     $standardDllPaths = @(
         "C:\Program Files (x86)\Steam\steamapps\common\Palworld\Binaries\Win64\oo2core_9_win64.dll",
