@@ -28,7 +28,7 @@ Los archivos de guardado de Palworld utilizan el formato GVAS (Unreal Engine Sav
 
 ## 3. Lógica de Lectura y Mapeo en Rust Puro (Sin Tauri / Sin Python)
 
-El proyecto actual funciona como una herramienta CLI pura en [main.rs](file:///C:/workspace/palsync-ai-liveagent/src/main.rs). La lectura se realiza a nivel de análisis binario en memoria sin conversión previa a JSON:
+El proyecto actual funciona como una herramienta CLI pura en [main.rs](file:///C:/workspace/palagent-ai/src/main.rs). La lectura se realiza a nivel de análisis binario en memoria sin conversión previa a JSON:
 
 ### Paso 1: Extracción de Nicknames y Estadísticas de Personajes
 El CLI escanea los bytes de `Level.sav` buscando el patrón `NickName\x00`. Cuando localiza un nombre, retrocede en el búfer de bytes para encontrar la propiedad `PlayerUId\x00` y asocia el UID (GUID) con su apodo. También extrae propiedades como `Level\x00`, `Exp\x00`, `Hp\x00`, `MaxHp\x00`, `FullStomach\x00`, `PhysicalHealth\x00` y datos estéticos en `SkinChange\x00` (como `BodyMeshName`, `HeadMeshName`, `HairMeshName`, `VoiceID`).
