@@ -109,6 +109,16 @@ fn main() {
         std::process::exit(0);
     }
 
+    let has_update_db = args_list.iter().any(|arg| {
+        let a = arg.trim().to_lowercase();
+        a == "--update-db" || a == "--datamining"
+    });
+
+    if has_update_db {
+        crate::db::run_update_db_command(is_json);
+        std::process::exit(0);
+    }
+
     let mut world_path_arg = None;
     let mut skip_next = false;
     for arg in &args_list {

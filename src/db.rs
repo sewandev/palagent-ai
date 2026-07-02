@@ -4,6 +4,17 @@ use std::sync::OnceLock;
 
 static DB_PATH: OnceLock<PathBuf> = OnceLock::new();
 
+#[derive(serde::Deserialize)]
+struct PalworldDataJson {
+    pals: Vec<serde_json::Value>,
+    passives: Vec<serde_json::Value>,
+    items: Vec<serde_json::Value>,
+    breeding_exceptions: Vec<serde_json::Value>,
+    active_skills: Vec<serde_json::Value>,
+    recipes: Vec<serde_json::Value>,
+    pal_drops: Vec<serde_json::Value>,
+}
+
 pub fn init_database() {
     let home_dir = std::env::var("USERPROFILE")
         .or_else(|_| std::env::var("HOME"))
@@ -13,6 +24,20 @@ pub fn init_database() {
     let target_path = db_dir.join("palworld_data.db");
 
     let _ = DB_PATH.set(target_path);
+
+    let db_exists_and_populated = if let Some(conn) = get_conn() {
+        if let Ok(count) = conn.query_row("SELECT COUNT(*) FROM pals", [], |row| row.get::<_, i64>(0)) {
+            count > 0
+        } else {
+            false
+        }
+    } else {
+        false
+    };
+
+    if db_exists_and_populated {
+        return;
+    }
 
     if let Some(mut conn) = get_conn() {
         if let Ok(tx) = conn.transaction() {
@@ -1608,7 +1633,21 @@ pub fn init_database() {
                 .ok();
             }
 
-            tx.commit().ok();
+            let json_loaded = || -> Result<(), String> {
+                let json_path = db_dir.join("palworld_data.json");
+                if json_path.exists() {
+                    if let Ok(content) = std::fs::read_to_string(&json_path) {
+                        return populate_from_json_str(&tx, &content);
+                    }
+                }
+                Err("No local JSON cache".to_string())
+            }();
+
+            if json_loaded.is_ok() {
+                tx.commit().ok();
+            } else {
+                tx.commit().ok();
+            }
         }
     }
 }
@@ -1616,6 +1655,224 @@ pub fn init_database() {
 fn get_conn() -> Option<Connection> {
     let path = DB_PATH.get()?;
     Connection::open(path).ok()
+}
+
+fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(), String> {
+    let data: PalworldDataJson = serde_json::from_str(content)
+        .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+    let _ = tx.execute("DELETE FROM pals", []);
+    let _ = tx.execute("DELETE FROM passives", []);
+    let _ = tx.execute("DELETE FROM items", []);
+    let _ = tx.execute("DELETE FROM breeding_exceptions", []);
+    let _ = tx.execute("DELETE FROM active_skills", []);
+    let _ = tx.execute("DELETE FROM recipes", []);
+    let _ = tx.execute("DELETE FROM pal_drops", []);
+
+    for p in &data.pals {
+        if let Some(arr) = p.as_array() {
+            if arr.len() >= 16 {
+                let _ = tx.execute(
+                    "INSERT OR REPLACE INTO pals VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)",
+                    rusqlite::params![
+                        arr[0].as_str().unwrap_or_default(),
+                        arr[1].as_str().unwrap_or_default(),
+                        arr[2].as_str().unwrap_or_default(),
+                        arr[3].as_i64().unwrap_or(1500),
+                        arr[4].as_i64().unwrap_or(0),
+                        arr[5].as_i64().unwrap_or(0),
+                        arr[6].as_i64().unwrap_or(0),
+                        arr[7].as_i64().unwrap_or(0),
+                        arr[8].as_i64().unwrap_or(0),
+                        arr[9].as_i64().unwrap_or(0),
+                        arr[10].as_i64().unwrap_or(0),
+                        arr[11].as_i64().unwrap_or(0),
+                        arr[12].as_i64().unwrap_or(0),
+                        arr[13].as_i64().unwrap_or(0),
+                        arr[14].as_i64().unwrap_or(0),
+                        arr[15].as_i64().unwrap_or(0),
+                    ]
+                );
+            }
+        }
+    }
+
+    for p in &data.passives {
+        if let Some(arr) = p.as_array() {
+            if arr.len() >= 5 {
+                let _ = tx.execute(
+                    "INSERT OR REPLACE INTO passives VALUES (?1, ?2, ?3, ?4, ?5)",
+                    rusqlite::params![
+                        arr[0].as_str().unwrap_or_default(),
+                        arr[1].as_str().unwrap_or_default(),
+                        arr[2].as_str().unwrap_or_default(),
+                        arr[3].as_str().unwrap_or_default(),
+                        arr[4].as_str().unwrap_or_default(),
+                    ]
+                );
+            }
+        }
+    }
+
+    for i in &data.items {
+        if let Some(arr) = i.as_array() {
+            if arr.len() >= 3 {
+                let _ = tx.execute(
+                    "INSERT OR REPLACE INTO items VALUES (?1, ?2, ?3)",
+                    rusqlite::params![
+                        arr[0].as_str().unwrap_or_default(),
+                        arr[1].as_str().unwrap_or_default(),
+                        arr[2].as_str().unwrap_or_default(),
+                    ]
+                );
+            }
+        }
+    }
+
+    for e in &data.breeding_exceptions {
+        if let Some(arr) = e.as_array() {
+            if arr.len() >= 3 {
+                let _ = tx.execute(
+                    "INSERT OR REPLACE INTO breeding_exceptions VALUES (?1, ?2, ?3)",
+                    rusqlite::params![
+                        arr[0].as_str().unwrap_or_default(),
+                        arr[1].as_str().unwrap_or_default(),
+                        arr[2].as_str().unwrap_or_default(),
+                    ]
+                );
+            }
+        }
+    }
+
+    for s in &data.active_skills {
+        if let Some(arr) = s.as_array() {
+            if arr.len() >= 6 {
+                let _ = tx.execute(
+                    "INSERT OR REPLACE INTO active_skills VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    rusqlite::params![
+                        arr[0].as_str().unwrap_or_default(),
+                        arr[1].as_str().unwrap_or_default(),
+                        arr[2].as_str().unwrap_or_default(),
+                        arr[3].as_i64().unwrap_or(0),
+                        arr[4].as_i64().unwrap_or(0),
+                        arr[5].as_str().unwrap_or_default(),
+                    ]
+                );
+            }
+        }
+    }
+
+    for r in &data.recipes {
+        if let Some(arr) = r.as_array() {
+            if arr.len() >= 3 {
+                let _ = tx.execute(
+                    "INSERT OR REPLACE INTO recipes VALUES (?1, ?2, ?3)",
+                    rusqlite::params![
+                        arr[0].as_str().unwrap_or_default(),
+                        arr[1].as_str().unwrap_or_default(),
+                        arr[2].as_i64().unwrap_or(0),
+                    ]
+                );
+            }
+        }
+    }
+
+    for d in &data.pal_drops {
+        if let Some(arr) = d.as_array() {
+            if arr.len() >= 5 {
+                let _ = tx.execute(
+                    "INSERT OR REPLACE INTO pal_drops VALUES (?1, ?2, ?3, ?4, ?5)",
+                    rusqlite::params![
+                        arr[0].as_str().unwrap_or_default(),
+                        arr[1].as_str().unwrap_or_default(),
+                        arr[2].as_i64().unwrap_or(0),
+                        arr[3].as_i64().unwrap_or(0),
+                        arr[4].as_i64().unwrap_or(0),
+                    ]
+                );
+            }
+        }
+    }
+
+    Ok(())
+}
+
+pub fn run_update_db_command(is_json: bool) {
+    if !is_json {
+        println!("Updating PalAgent AI metadata database from remote datamining repository...");
+    }
+
+    let home_dir = std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .unwrap_or_else(|_| "C:\\".to_string());
+    let config_dir = std::path::Path::new(&home_dir).join(".palagent-ai");
+    let json_path = config_dir.join("palworld_data.json");
+
+    let mut content = String::new();
+    let mut success = false;
+
+    #[cfg(target_os = "windows")]
+    let curl_cmd = "curl.exe";
+    #[cfg(not(target_os = "windows"))]
+    let curl_cmd = "curl";
+
+    if let Ok(output) = std::process::Command::new(curl_cmd)
+        .arg("-s")
+        .arg("-L")
+        .arg("https://raw.githubusercontent.com/sewandev/palagent-ai/main/data/palworld_data.json")
+        .output()
+    {
+        if output.status.success() {
+            if let Ok(s) = String::from_utf8(output.stdout) {
+                if s.contains("\"pals\"") {
+                    content = s;
+                    success = true;
+                }
+            }
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    if !success {
+        if let Ok(output) = std::process::Command::new("powershell")
+            .arg("-Command")
+            .arg("[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/sewandev/palagent-ai/main/data/palworld_data.json'")
+            .output()
+        {
+            if output.status.success() {
+                if let Ok(s) = String::from_utf8(output.stdout) {
+                    if s.contains("\"pals\"") {
+                        content = s;
+                        success = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if success {
+        let _ = std::fs::write(&json_path, &content);
+        if let Some(mut conn) = get_conn() {
+            if let Ok(tx) = conn.transaction() {
+                if populate_from_json_str(&tx, &content).is_ok() {
+                    if tx.commit().is_ok() {
+                        if is_json {
+                            println!("{}", serde_json::json!({ "status": "success", "message": "Database updated successfully from datamine sources." }));
+                        } else {
+                            println!("Database updated successfully from datamine sources!");
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    if is_json {
+        println!("{}", serde_json::json!({ "status": "error", "message": "Failed to update database from remote datamine sources." }));
+    } else {
+        println!("Error: Failed to update database from remote datamine sources. Please check internet connection.");
+    }
 }
 
 pub fn translate_pal(internal_id: &str, use_es: bool) -> String {
