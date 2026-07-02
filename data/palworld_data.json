@@ -46,7 +46,21 @@
     ["Golem", "Knocklem", "Knocklem", 150, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0],
     ["BOSS_Anubis", "Anubis (Alpha)", "Anubis (Alfa)", 570, 0, 0, 0, 0, 4, 0, 0, 3, 0, 0, 2, 0],
     ["BOSS_WeaselDragon", "Chillet (Alpha)", "Chillet (Alfa)", 1010, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-    ["BOSS_Boar", "Rushoar (Alpha)", "Rushoar (Alfa)", 1120, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+    ["BOSS_Boar", "Rushoar (Alpha)", "Rushoar (Alfa)", 1120, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    ["GreenSlime", "Green Slime", "Slime verde", 1470, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+    ["BlueSlime", "Blue Slime", "Slime azul", 1460, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+    ["RedSlime", "Red Slime", "Slime rojo", 1450, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+    ["PurpleSlime", "Purple Slime", "Slime morado", 1440, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1],
+    ["IlluminantSlime", "Illuminant Slime", "Slime luminoso", 1430, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
+    ["RainbowSlime", "Rainbow Slime", "Slime arcoíris", 900, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+    ["EnchantedSword", "Enchanted Sword", "Espada encantada", 700, 0, 0, 0, 0, 2, 0, 0, 3, 0, 0, 2, 0],
+    ["CaveBat", "Cave Bat", "Murciélago de cueva", 1300, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+    ["IlluminantBat", "Illuminant Bat", "Murciélago luminoso", 1200, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0],
+    ["DemonEye", "Demon Eye", "Ojo demoníaco", 1100, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 2, 0],
+    ["EyeOfCthulhu", "Eye of Cthulhu", "Ojo de Cthulhu", 100, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0],
+    ["BOSS_EyeOfCthulhu", "Eye of Cthulhu (Alpha)", "Ojo de Cthulhu (Alfa)", 100, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0],
+    ["MoonLord", "Moon Lord", "Señor de la Luna", 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0],
+    ["BOSS_MoonLord", "Moon Lord (Alpha)", "Señor de la Luna (Alfa)", 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0]
   ],
   "passives": [
     ["Legend", "Legend", "Leyenda", "Attack +20%, Defense +20%, Movement Speed +15%", "Ataque +20%, Defensa +20%, Velocidad de movimiento +15%"],
@@ -81,7 +95,14 @@
     ["coal", "Coal", "Carbón"],
     ["sulfur", "Sulfur", "Azufre"],
     ["flame_organ", "Flame Organ", "Órgano de ignición"],
-    ["electric_organ", "Electric Organ", "Órgano de generación"]
+    ["electric_organ", "Electric Organ", "Órgano de generación"],
+    ["TerraBlade", "Terra Blade", "Filo de Terra"],
+    ["Terraprisma", "Terraprisma", "Terraprisma"],
+    ["VortexBeater", "Vortex Beater", "Batidor de vórtice"],
+    ["Nightglow", "Nightglow", "Brillo nocturno"],
+    ["Excalibur", "Excalibur", "Excalibur"],
+    ["Meowmere", "Meowmere", "Filo de miau"],
+    ["MoonLordMask", "Moon Lord Mask", "Máscara del Señor de la Luna"]
   ],
   "breeding_exceptions": [
     ["Mossanda", "Grizzbolt", "Trizer"],
