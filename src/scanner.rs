@@ -916,69 +916,7 @@ pub fn find_pattern(bytes: &[u8], pattern: &[u8], start: usize) -> Option<usize>
     None
 }
 
-pub fn extract_any_float_prop(bytes: &[u8], prop_name: &[u8]) -> f64 {
-    let mut pos = None;
-    for i in 0..bytes.len() - prop_name.len() {
-        if &bytes[i..i + prop_name.len()] == prop_name {
-            pos = Some(i);
-            break;
-        }
-    }
-    let pos = match pos {
-        Some(p) => p,
-        None => return 0.0,
-    };
-    let mut offset = pos + prop_name.len();
-    let t = read_string_at(bytes, &mut offset);
-    if t == "FloatProperty" {
-        offset += 8;
-        offset += 1;
-        if offset + 4 <= bytes.len() {
-            return f32::from_le_bytes([
-                bytes[offset],
-                bytes[offset + 1],
-                bytes[offset + 2],
-                bytes[offset + 3],
-            ]) as f64;
-        }
-    } else if t == "DoubleProperty" {
-        offset += 8;
-        offset += 1;
-        if offset + 8 <= bytes.len() {
-            return f64::from_le_bytes([
-                bytes[offset],
-                bytes[offset + 1],
-                bytes[offset + 2],
-                bytes[offset + 3],
-                bytes[offset + 4],
-                bytes[offset + 5],
-                bytes[offset + 6],
-                bytes[offset + 7],
-            ]);
-        }
-    }
-    0.0
-}
 
-pub fn extract_vector_coords_float(bytes: &[u8], offset: usize) -> (f64, f64, f64) {
-    let mut x = 0.0;
-    let mut y = 0.0;
-    let mut z = 0.0;
-    let window_end = (offset + 500).min(bytes.len());
-    let window = &bytes[offset..window_end];
-
-    if let Some(pos) = find_pattern(window, b"X\x00", 0) {
-        x = extract_any_float_prop(&window[pos..], b"X\x00");
-    }
-    if let Some(pos) = find_pattern(window, b"Y\x00", 0) {
-        y = extract_any_float_prop(&window[pos..], b"Y\x00");
-    }
-    if let Some(pos) = find_pattern(window, b"Z\x00", 0) {
-        z = extract_any_float_prop(&window[pos..], b"Z\x00");
-    }
-
-    (x, y, z)
-}
 
 pub fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
     let mut camps = Vec::new();
@@ -1010,16 +948,48 @@ pub fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
 
         let mut coords = (0.0, 0.0, 0.0);
         if let Some(loc_pos) = find_pattern(window, b"Location\x00", 0) {
-            coords = extract_vector_coords_float(window, loc_pos);
+            let mut temp_off = loc_pos + b"Location\x00".len();
+            if temp_off + 30 <= window.len() {
+                let t = read_string_at(window, &mut temp_off);
+                if t == "StructProperty" {
+                    temp_off += 8;
+                    let st_type = read_string_at(window, &mut temp_off);
+                    if st_type == "Vector" {
+                        temp_off += 16 + 1;
+                        let raw_coords = extract_vector_coords(window, &mut temp_off);
+                        coords = (raw_coords.0 as f64, raw_coords.1 as f64, raw_coords.2 as f64);
+                    }
+                }
+            }
         }
 
-        let base_camp_id = if pos >= 16 {
-            let mut g_bytes = [0u8; 16];
-            g_bytes.copy_from_slice(&bytes[pos - 16..pos]);
-            format_guid(&g_bytes)
-        } else {
-            "00000000-0000-0000-0000-000000000000".to_string()
-        };
+        let mut base_camp_id = String::new();
+        for id_pat in &[
+            &b"base_camp_id\x00"[..],
+            &b"BaseCampId\x00"[..],
+        ] {
+            if let Some(id_pos) = find_pattern(window, id_pat, 0) {
+                if let Some(guid) = extract_guid_prop(&window[id_pos..], id_pat) {
+                    base_camp_id = guid;
+                    break;
+                }
+            }
+        }
+
+        if base_camp_id.is_empty() {
+            base_camp_id = if pos >= 16 {
+                let mut g_bytes = [0u8; 16];
+                g_bytes.copy_from_slice(&bytes[pos - 16..pos]);
+                let temp_id = format_guid(&g_bytes);
+                if temp_id.contains("4e6f6e65") || temp_id.contains("05000000") {
+                    "00000000-0000-0000-0000-000000000000".to_string()
+                } else {
+                    temp_id
+                }
+            } else {
+                "00000000-0000-0000-0000-000000000000".to_string()
+            };
+        }
 
         camps.push(BaseCampSummary {
             base_camp_id,
@@ -1095,11 +1065,22 @@ pub fn scan_guilds(bytes: &[u8]) -> Vec<GuildSummary> {
             }
         }
 
-        let mut guild_id = "00000000-0000-0000-0000-000000000000".to_string();
-        if let Some(id_pos) = find_pattern(window, b"GroupId\x00", 0) {
-            if let Some(guid) = extract_guid_prop(&window[id_pos..], b"GroupId\x00") {
-                guild_id = guid;
+        let mut guild_id = String::new();
+        for id_pat in &[
+            &b"GroupId\x00"[..],
+            &b"group_id\x00"[..],
+            &b"ID\x00"[..],
+            &b"id\x00"[..],
+        ] {
+            if let Some(id_pos) = find_pattern(window, id_pat, 0) {
+                if let Some(guid) = extract_guid_prop(&window[id_pos..], id_pat) {
+                    guild_id = guid;
+                    break;
+                }
             }
+        }
+        if guild_id.is_empty() {
+            guild_id = "00000000-0000-0000-0000-000000000000".to_string();
         }
 
         guilds.push(GuildSummary {
