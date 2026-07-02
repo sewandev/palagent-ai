@@ -382,7 +382,8 @@ pub fn run_breeding_command(world_path: &Path, is_json: bool, target_uid: Option
             if char_id.is_empty() || !crate::db::is_valid_pal(&char_id) {
                 continue;
             }
-            let translated_name = i18n::t(&char_id);
+            let use_es = i18n::current_language() == i18n::Language::Es;
+            let translated_name = crate::db::translate_pal(&char_id, use_es);
 
             let gender = extract_string_prop(&char_entry.raw_data, b"Gender\x00");
             if gender.contains("Male") {
@@ -815,7 +816,7 @@ pub fn run_monitor_command(world_path: &Path, is_json: bool, target_uid: Option<
 
             pals_list.push(serde_json::json!({
                 "pal_id": char_id,
-                "pal_name": i18n::t(&char_id),
+                "pal_name": crate::db::translate_pal(&char_id, i18n::current_language() == i18n::Language::Es),
                 "hp_current": hp_cur,
                 "hp_max": hp_max,
                 "hp_percent": hp_pct,
@@ -880,7 +881,8 @@ pub fn run_monitor_command(world_path: &Path, is_json: bool, target_uid: Option<
                 satiety = extract_float_prop(&char_entry.raw_data, b"FullStomach\x00");
             }
 
-            let pal_name = i18n::t(&char_id);
+            let use_es = i18n::current_language() == i18n::Language::Es;
+            let pal_name = crate::db::translate_pal(&char_id, use_es);
 
             let mut status = i18n::t("status_excellent");
             if san_val < 50.0 {
@@ -994,7 +996,7 @@ pub fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option
 
             pals_list.push(serde_json::json!({
                 "pal_id": char_id,
-                "pal_name": i18n::t(&char_id),
+                "pal_name": crate::db::translate_pal(&char_id, i18n::current_language() == i18n::Language::Es),
                 "level": level_val,
                 "gender": gender,
                 "gender_translated": i18n::t(gender),
@@ -1089,7 +1091,8 @@ pub fn run_analyzer_command(world_path: &Path, is_json: bool, target_uid: Option
                     .join(", ")
             };
 
-            let pal_name = i18n::t(&char_id);
+            let use_es = i18n::current_language() == i18n::Language::Es;
+            let pal_name = crate::db::translate_pal(&char_id, use_es);
 
             println!(
                 " {:<15} | {:<3} | {:<6} | {:<8} | {:<9} | {:<10} | {}",
@@ -1727,7 +1730,7 @@ pub fn print_beautiful_report(output: &OutputJson) {
                 println!(
                     "    {}. {} [{} {}] ({})",
                     idx + 1,
-                    i18n::t(&pal.character_id),
+                    crate::db::translate_pal(&pal.character_id, i18n::current_language() == i18n::Language::Es),
                     i18n::t("level"),
                     pal.level,
                     i18n::t(gender_str)
@@ -1785,7 +1788,7 @@ pub fn print_beautiful_report(output: &OutputJson) {
                 println!(
                     "    {}. {} [{} {}] ({})",
                     idx + 1,
-                    i18n::t(&pal.character_id),
+                    crate::db::translate_pal(&pal.character_id, i18n::current_language() == i18n::Language::Es),
                     i18n::t("level"),
                     pal.level,
                     i18n::t(gender_str)
