@@ -197,6 +197,7 @@ If running via CLI or the Interactive Console mode, the following commands/flags
 > All agent skills, AI prompts, and code analyses MUST assume that the active, target version of Palworld is **v0.7.3.90464 (released June 2026)**.
 > 1. Web Search Exception for Game Mechanics: While you must not perform web searches to retrieve the player's personal save telemetry (which is queried locally via MCP), you MUST perform active, targeted web searches to verify game mechanics, workstation capabilities (e.g. Pal Surgery Table), patch changes, or item utilities under v0.7.3.90464, rather than assuming or guessing based on outdated pre-2026 memory.
 > 2. Do not assume or mention out-of-date information from 2024 versions (such as early pre-Sakurajima or pre-Terraria releases).
+> 3. When the user asks about recent updates, changes, patches, or version notes, you should consult the Palworld patch notes at https://steamdb.info/app/1623730/patchnotes/ to obtain accurate information.
 
 ## 🚫 Direct Response & Terminal-Friendly Formatting Policy
 
