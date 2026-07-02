@@ -947,8 +947,21 @@ pub fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
         }
 
         let mut coords = (0.0, 0.0, 0.0);
-        if let Some(loc_pos) = find_pattern(window, b"Location\x00", 0) {
-            let mut temp_off = loc_pos + b"Location\x00".len();
+        let mut found_loc = None;
+        for loc_pat in &[
+            &b"Location\x00"[..],
+            &b"location\x00"[..],
+            &b"Translation\x00"[..],
+            &b"translation\x00"[..],
+        ] {
+            if let Some(loc_pos) = find_pattern(window, loc_pat, 0) {
+                found_loc = Some((loc_pos, loc_pat.len()));
+                break;
+            }
+        }
+
+        if let Some((loc_pos, pat_len)) = found_loc {
+            let mut temp_off = loc_pos + pat_len;
             if temp_off + 30 <= window.len() {
                 let t = read_string_at(window, &mut temp_off);
                 if t == "StructProperty" {
