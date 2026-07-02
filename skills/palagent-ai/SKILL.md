@@ -190,10 +190,12 @@ If running via CLI or the Interactive Console mode, the following commands/flags
 - `help` / `h`: Show available commands help.
 - `exit` / `q`: Close interactive shell.
 
-## 🚫 Direct Response Policy (Prohibition of Artifact Creation)
+## 🚫 Direct Response & Terminal-Friendly Formatting Policy
 
 > [!IMPORTANT]
-> **No Artifact Creation for Game Inquiries**
+> **No Artifact Creation & No Markdown syntax in Terminal Responses**
 > When the user asks anything related to Palworld save files, stats, chests, Pals, breeding, or game analysis:
-> 1. **Do NOT** generate or write markdown files (artifacts) in the user's workspace (e.g. `resumen_mundo_didi.md`).
-> 2. You **MUST** display all information beautifully, structured, and formatted directly inside the chat response window itself.
+> 1. **Do NOT** generate or write markdown files (artifacts) in the user's workspace.
+> 2. You **MUST** display all information beautifully and directly inside the chat response window itself.
+> 3. **DO NOT use markdown elements** (such as bold stars `**`, headers `#`, italics `*`, or block code backticks ` ``` `) in your conversational chat replies. The terminal does not render markdown properly.
+> 4. Instead, format tables and lists using **clean plain-text ASCII elements** (e.g. pipes `|`, lines of hyphens `-`, and numbered steps).
