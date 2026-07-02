@@ -32,9 +32,8 @@ Elige el método de instalación que prefieras:
 
 | Método | Dificultad | Comando | Detalles |
 | :--- | :--- | :--- | :--- |
-| **1. Asistente de IA (Chat)** | 🟢 **Súper Fácil** | Pega este prompt en el chat de tu IA:<br>`sigue estas instrucciones https://raw.githubusercontent.com/sewandev/palagent-ai/main/instructions/system_prompt.md` | Tu asistente de desarrollo clonará, compilará y configurará la base de datos y el servidor MCP de forma automática en el chat. |
-| **2. PowerShell Interactivo** | 🟡 **Rápido y Automático** | Ejecuta en PowerShell:<br>`Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/sewandev/palagent-ai/main/install.ps1')` | Compila el binario en modo release, vincula la DLL de Oodle y ofrece un menú para configurar tus editores. |
-| **3. Compilación Manual (Rust)** | 🔴 **Avanzado** | `git clone https://github.com/sewandev/palagent-ai`<br>`cargo build --release`<br>`target/release/palagent-ai setup <editor>` | Clona, compila el binario manualmente en Rust, resuelve la DLL `oo2core_9_win64.dll`, genera la base de datos SQLite y configura los clientes MCP. |
+| **1. Instalación Fácil (PowerShell)** | 🟢 **Súper Fácil** | Ejecuta en PowerShell:<br>`irm https://raw.githubusercontent.com/sewandev/palagent-ai/main/install.ps1 \| iex` | Instala automáticamente el ejecutable, copia oo2core_9_win64.dll y configura los clientes MCP de forma interactiva. |
+| **2. Compilación Manual (Rust)** | 🔴 **Avanzado** | `git clone https://github.com/sewandev/palagent-ai`<br>`cargo build --release`<br>`target/release/palagent-ai setup <editor>` | Clona, compila el binario manualmente en Rust, resuelve la DLL `oo2core_9_win64.dll`, genera la base de datos SQLite y configura los clientes MCP. |
 
 ---
 
