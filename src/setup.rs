@@ -148,7 +148,10 @@ pub fn run_setup(agent_slug: &str) {
             let _ = std::fs::remove_file(&old_exe);
             if std::fs::rename(&dest_exe, &old_exe).is_ok() {
                 if let Err(err) = std::fs::copy(&current_exe, &dest_exe) {
-                    let warn_msg = format!("Could not copy executable to permanent folder (even after rename): {}", err);
+                    let warn_msg = format!(
+                        "Could not copy executable to permanent folder (even after rename): {}",
+                        err
+                    );
                     crate::utils::log_message("WARNING", &warn_msg);
                     println!("Warning: {}", warn_msg);
                 } else {
@@ -237,116 +240,28 @@ pub fn run_setup(agent_slug: &str) {
 # PalAgent AI Rules
 You have access to PalAgent AI telemetry and monitor tools via MCP.
 When the user asks about Palworld save files, in-game stats, Pals, inventory, bases, or breeding, use the palagent-ai MCP tools to retrieve real-time data immediately instead of guessing.
-Do NOT perform web searches, verify game versions online, or search external sites unless the required telemetry data is completely missing from the MCP tools or the user explicitly requests an online lookup.
-Prioritize fast, direct responses using only the local MCP telemetry.
+Do NOT perform web searches for the player's personal save telemetry (which must be retrieved locally via MCP). However, for any gameplay mechanics, items, drop rates, recipes, or patch updates up to v0.7.3.90464, you MUST perform targeted web searches to ensure the information is always up-to-date and accurate, rather than guessing or assuming.
+Prioritize local database and MCP telemetry first, but use online searches as a hybrid extension to verify game mechanics.
 
 ## Interaction and User Interface
 - **Mandatory ask_question Tool**: Whenever you need to ask the user a question with choices, options, confirmation, or clarifications, you MUST ALWAYS use the `ask_question` tool. Do not print plain-text number options (e.g. "1. Option A, 2. Option B") directly in the chat responses, as this fails to leverage the interactive UI modal.
 - **Selectable Options**: Ensure the options are formatted cleanly as the user's direct responses and translated to their preferred language.
+- **Direct Meta-Focused Style**: Never be patronizing or condescending, but do not coddle the player or agree with incorrect views. If the player's opinion or preference contradicts technical analysis, database values, or game data, state clearly and objectively that the analysis does not support their view, explain the mathematical/technical reasons why, and focus strictly on achieving the optimal game meta.
+
+## 🎮 Palworld Active Version Context
+All agent skills, AI prompts, and code analyses MUST assume that the active, target version of Palworld is v0.7.3.90464 (released June 2026).
+1. Web Search Exception for Game Mechanics: While you must not perform web searches to retrieve the player's personal save telemetry (which is queried locally via MCP), you MUST perform active, targeted web searches to verify game mechanics, workstation capabilities (e.g. Pal Surgery Table), patch changes, or item utilities under v0.7.3.90464, rather than assuming or guessing based on outdated pre-2026 memory.
+2. Do not assume or mention out-of-date information from 2024 versions.
+
+## 🚫 Direct Response & Terminal-Friendly Formatting Policy
+When the user asks anything related to Palworld save files, stats, chests, Pals, breeding, or game analysis:
+1. Do NOT generate or write markdown files (artifacts) in the user's workspace.
+2. You MUST display all information beautifully and directly inside the chat response window itself.
+3. DO NOT use markdown elements (such as bold stars **, headers #, italics *, or block code backticks) in your conversational chat replies. The terminal does not render markdown properly.
+4. Instead, format tables and lists using clean plain-text ASCII elements (e.g. pipes |, lines of hyphens -, and numbered steps).
 "#;
 
-    let skill_body = r#"---
-name: palagent-ai
-description: Extract telemetry, stats, IVs, breeding combinations, and base camps from Palworld save files.
----
-
-# PalAgent AI Skill
-
-This skill allows the agent to interact with the PalAgent AI MCP server, CLI, and query real-time Palworld statistics.
-Use the `palagent-ai` tools when:
-- The user asks for the status of base camps or Palbox.
-- The user wants to analyze Pal IVs, stats, or passive skills (optionally filtering by trait, level, or gender).
-- The user requests breeding combinations or wants to find a breeding path.
-- The user needs to locate items in base chests.
-- The user wants to run multiple consecutive commands fast using the memory-cached `--interactive` console mode.
-
-## Direct Response Policy
-
-1. **No External Web Searches**:
-   - Do NOT run web searches (`search_web`) or browse external websites (like wikis or palworld.gg) for general queries.
-   - Rely solely on the telemetry data returned by the local MCP server tools.
-   - If the user asks a question, call the appropriate MCP tool immediately and format the response for the user.
-
-2. **Context Window & Performance Optimization**:
-   - For Dedicated Servers or multiplayer worlds, the global save database contains data for all players and guilds.
-   - Do not invoke `query_full` (which lists all players, bases, and guilds) unless explicitly requested by the user. It can return massive JSON payloads.
-   - Always prefer targeted query tools: `monitor_pals`, `query_progress`, `query_analyzer`, and `query_breeding` using the optional `player_uid` argument.
-
-3. **Troubleshooting & Decompression Support**:
-   - The save parser depends on `oo2core_9_win64.dll` for decompressed memory signature scanning.
-   - If the tools return a decompression failure or missing DLL error, guide the user to copy `oo2core_9_win64.dll` from their Palworld game directory (typically under `SteamApps/common/Palworld/Binaries/Win64/`) and place it next to their compiled `palagent-ai.exe` executable or in their user path.
-
-## MCP Server Tools Reference
-
-The PalAgent AI MCP server exposes the following tools:
-
-1. **`list_worlds`**:
-   - Description: List all detected Palworld save worlds and their paths.
-   - Parameters: None.
-
-2. **`query_time`**:
-   - Description: Get current in-game day, time, and cycle (day/night).
-   - Parameters: None.
-
-4. **`search_chest`**:
-   - Description: Locate specific items across all base chests.
-   - Parameters:
-     - `query` (string, required): Item name to search (e.g. "Berries", "Wood").
-
-5. **`query_breeding`**:
-   - Description: Analyze available gender combos and potential breeding offspring.
-   - Parameters:
-     - `player_uid` (string, optional): Optional Player UID to isolate breeding team.
-
-6. **`query_progress`**:
-   - Description: Check player notes found, fast travel unlocks, and capture progress.
-   - Parameters:
-     - `player_uid` (string, optional): Optional Player UID to isolate progress.
-
-7. **`monitor_pals`**:
-   - Description: Get real-time sanity (SAN), satiety (hunger), and HP levels of base/active Pals.
-   - Parameters:
-     - `player_uid` (string, optional): Optional Player UID to isolate monitored Pals.
-
-8. **`query_analyzer`**:
-   - Description: Analyze Pal talent IV stats (HP/Atk/Def bonuses) and passive skills.
-   - Parameters:
-     - `player_uid` (string, optional): Optional Player UID to isolate Pals.
-
-9. **`query_full`**:
-   - Description: Retrieve the complete world telemetry report including bases, players, and guilds.
-   - Parameters:
-     - `player_uid` (string, optional): Optional Player UID to isolate report details.
-
-10. **`query_recipes`**:
-    - Description: Query crafting recipes for items like Pal Spheres.
-    - Parameters:
-      - `item_id` (string, optional): Optional Item ID to query (e.g. palsphere, palsphere_mega, palsphere_giga).
-
-11. **`query_active_skills`**:
-    - Description: Query combat active skill stats like power, cooldown, and element.
-    - Parameters:
-      - `skill_id` (string, optional): Optional Skill ID to query (e.g. AirCanon, HydroLaser, FireBlast).
-
-12. **`query_target_breeding`**:
-    - Description: Query all parent combinations that produce a specific child Pal.
-    - Parameters:
-      - `target_pal` (string, required): Target child Pal name (e.g. Anubis, Jetragon).
-
-13. **`query_drops`**:
-    - Description: Query drops of a Pal or locate which Pals drop a specific item.
-    - Parameters:
-      - `pal_name` (string, optional): Pal name to query drops (e.g. Lamball, Foxsparks).
-      - `item_name` (string, optional): Item name to query dropping Pals (e.g. wool, flame_organ).
-
-14. **`calculate_capture_rate`**:
-    - Description: Calculate capture rate percentages based on creature level, HP, sphere types, and Lifmunk statue level.
-    - Parameters:
-      - `pal_level` (integer, required): Creature level.
-      - `current_hp` (integer, optional): Current HP.
-      - `max_hp` (integer, optional): Maximum HP.
-      - `lifmunk_level` (integer, optional): Player Lifmunk capture bonus level (0 to 10).
-"#;
+    let skill_body = include_str!("../skills/palagent-ai/SKILL.md");
 
     match agent_slug {
         "antigravity-cli" => {

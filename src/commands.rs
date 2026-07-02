@@ -1731,7 +1731,10 @@ pub fn print_beautiful_report(output: &OutputJson) {
                 println!(
                     "    {}. {} [{} {}] ({})",
                     idx + 1,
-                    crate::db::translate_pal(&pal.character_id, i18n::current_language() == i18n::Language::Es),
+                    crate::db::translate_pal(
+                        &pal.character_id,
+                        i18n::current_language() == i18n::Language::Es
+                    ),
                     i18n::t("level"),
                     pal.level,
                     i18n::t(gender_str)
@@ -1789,7 +1792,10 @@ pub fn print_beautiful_report(output: &OutputJson) {
                 println!(
                     "    {}. {} [{} {}] ({})",
                     idx + 1,
-                    crate::db::translate_pal(&pal.character_id, i18n::current_language() == i18n::Language::Es),
+                    crate::db::translate_pal(
+                        &pal.character_id,
+                        i18n::current_language() == i18n::Language::Es
+                    ),
                     i18n::t("level"),
                     pal.level,
                     i18n::t(gender_str)

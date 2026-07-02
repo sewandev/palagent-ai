@@ -288,8 +288,8 @@ if ($menuSelection -eq "2") {
     # 2. Clean MCP configuration server entries
     Write-Host $t.unMCPConfigs -ForegroundColor Cyan
     $mcpConfigs = @(
-        Join-Path $env:USERPROFILE ".gemini\config\mcp_config.json",
-        Join-Path $env:USERPROFILE ".gemini\antigravity-cli\mcp_config.json"
+        (Join-Path $env:USERPROFILE ".gemini\config\mcp_config.json"),
+        (Join-Path $env:USERPROFILE ".gemini\antigravity-cli\mcp_config.json")
     )
 
     foreach ($configPath in $mcpConfigs) {
@@ -311,8 +311,8 @@ if ($menuSelection -eq "2") {
     # 3. Remove agent skills
     Write-Host $t.unSkills -ForegroundColor Cyan
     $skillPaths = @(
-        Join-Path $env:USERPROFILE ".gemini\config\skills\palagent-ai",
-        Join-Path $env:USERPROFILE ".gemini\antigravity-cli\skills\palagent-ai"
+        (Join-Path $env:USERPROFILE ".gemini\config\skills\palagent-ai"),
+        (Join-Path $env:USERPROFILE ".gemini\antigravity-cli\skills\palagent-ai")
     )
     foreach ($skillPath in $skillPaths) {
         if (Test-Path $skillPath) {

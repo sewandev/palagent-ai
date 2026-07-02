@@ -132,6 +132,15 @@ pub fn extract_int_prop(bytes: &[u8], prop_name: &[u8]) -> i32 {
     };
     let mut offset = pos + prop_name.len();
     let t = read_string_at(bytes, &mut offset);
+    if t == "ByteProperty" {
+        offset += 8; // skip size
+        let enum_type = read_string_at(bytes, &mut offset);
+        offset += 1; // separator
+        if enum_type == "None" && offset < bytes.len() {
+            return bytes[offset] as i32;
+        }
+        return 0;
+    }
     if t != "IntProperty" {
         return 0;
     }
@@ -916,8 +925,6 @@ pub fn find_pattern(bytes: &[u8], pattern: &[u8], start: usize) -> Option<usize>
     None
 }
 
-
-
 pub fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
     let mut camps = Vec::new();
     let pattern = b"BaseCampSaveData\x00";
@@ -970,17 +977,18 @@ pub fn scan_base_camps(bytes: &[u8]) -> Vec<BaseCampSummary> {
                     if st_type == "Vector" {
                         temp_off += 16 + 1;
                         let raw_coords = extract_vector_coords(window, &mut temp_off);
-                        coords = (raw_coords.0 as f64, raw_coords.1 as f64, raw_coords.2 as f64);
+                        coords = (
+                            raw_coords.0 as f64,
+                            raw_coords.1 as f64,
+                            raw_coords.2 as f64,
+                        );
                     }
                 }
             }
         }
 
         let mut base_camp_id = String::new();
-        for id_pat in &[
-            &b"base_camp_id\x00"[..],
-            &b"BaseCampId\x00"[..],
-        ] {
+        for id_pat in &[&b"base_camp_id\x00"[..], &b"BaseCampId\x00"[..]] {
             if let Some(id_pos) = find_pattern(window, id_pat, 0) {
                 if let Some(guid) = extract_guid_prop(&window[id_pos..], id_pat) {
                     base_camp_id = guid;

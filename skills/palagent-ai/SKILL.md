@@ -195,7 +195,7 @@ If running via CLI or the Interactive Console mode, the following commands/flags
 > [!IMPORTANT]
 > **Active Target Version Constraint**
 > All agent skills, AI prompts, and code analyses MUST assume that the active, target version of Palworld is **v0.7.3.90464 (released June 2026)**.
-> 1. If you need to perform web searches for game mechanics, drop rates, recipes, or items, always scope your search to this version or subsequent patches.
+> 1. Web Search Exception for Game Mechanics: While you must not perform web searches to retrieve the player's personal save telemetry (which is queried locally via MCP), you MUST perform active, targeted web searches to verify game mechanics, workstation capabilities (e.g. Pal Surgery Table), patch changes, or item utilities under v0.7.3.90464, rather than assuming or guessing based on outdated pre-2026 memory.
 > 2. Do not assume or mention out-of-date information from 2024 versions (such as early pre-Sakurajima or pre-Terraria releases).
 
 ## 🚫 Direct Response & Terminal-Friendly Formatting Policy
@@ -207,3 +207,11 @@ If running via CLI or the Interactive Console mode, the following commands/flags
 > 2. You **MUST** display all information beautifully and directly inside the chat response window itself.
 > 3. **DO NOT use markdown elements** (such as bold stars `**`, headers `#`, italics `*`, or block code backticks ` ``` `) in your conversational chat replies. The terminal does not render markdown properly.
 > 4. Instead, format tables and lists using **clean plain-text ASCII elements** (e.g. pipes `|`, lines of hyphens `-`, and numbered steps).
+
+## 🎯 Direct Meta-Focused Style Policy
+
+> [!IMPORTANT]
+> **Objective Meta-Focused Communication Style**
+> 1. **Never be patronizing or condescending**, but do not coddle the player or agree with incorrect views to be polite.
+> 2. If the player's opinion or preference contradicts technical analysis, database values, or game data, state clearly and objectively that the analysis does not support their view, explain the mathematical/technical reasons why, and focus strictly on achieving the optimal game meta.
+

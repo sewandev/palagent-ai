@@ -26,7 +26,11 @@ pub fn init_database() {
     let _ = DB_PATH.set(target_path);
 
     let db_exists_and_populated = if let Some(conn) = get_conn() {
-        if let Ok(count) = conn.query_row("SELECT COUNT(*) FROM pals", [], |row| row.get::<_, i64>(0)) {
+        if let Ok(count) = conn.query_row(
+            "SELECT COUNT(*) FROM pals WHERE internal_id = 'BlackPuppy'",
+            [],
+            |row| row.get::<_, i64>(0),
+        ) {
             count > 0
         } else {
             false
@@ -1164,25 +1168,439 @@ pub fn init_database() {
                     0,
                 ),
                 (
-                    "WhiteAlienDragon", "Xenogard", "Xenogard", 110, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0,
+                    "WhiteAlienDragon",
+                    "Xenogard",
+                    "Xenogard",
+                    110,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    4,
+                    0,
+                    0,
+                    0,
+                    0,
                 ),
                 (
-                    "DarkAlien", "Xenovader", "Xenovader", 420, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 2, 0,
+                    "DarkAlien",
+                    "Xenovader",
+                    "Xenovader",
+                    420,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    2,
+                    2,
+                    2,
+                    0,
+                    0,
+                    2,
+                    0,
                 ),
                 (
-                    "NightLady", "Selyne", "Selyne", 120, 0, 0, 0, 3, 3, 0, 0, 0, 3, 0, 0, 0,
+                    "NightLady",
+                    "Selyne",
+                    "Selyne",
+                    120,
+                    0,
+                    0,
+                    0,
+                    3,
+                    3,
+                    0,
+                    0,
+                    0,
+                    3,
+                    0,
+                    0,
+                    0,
                 ),
                 (
                     "FrogMan", "Croajiro", "Croajiro", 1200, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
                 ),
                 (
-                    "FlowerGentle", "Lullu", "Lullu", 1150, 0, 0, 2, 0, 0, 1, 0, 0, 2, 0, 0, 0,
+                    "FlowerGentle",
+                    "Lullu",
+                    "Lullu",
+                    1150,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
                 ),
                 (
-                    "MushroomDino", "Shroomer", "Shroomer", 900, 0, 0, 2, 0, 0, 1, 2, 0, 0, 0, 0, 0,
+                    "MushroomDino",
+                    "Shroomer",
+                    "Shroomer",
+                    900,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    1,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
                 ),
                 (
                     "Golem", "Knocklem", "Knocklem", 150, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0,
+                ),
+                (
+                    "PinkRabbit",
+                    "Ribbonun",
+                    "Ribbonun",
+                    1230,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                ),
+                (
+                    "FlameBuffalo",
+                    "Arsox",
+                    "Arsox",
+                    800,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ),
+                (
+                    "CatBat", "Tombat", "Tombat", 950, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 2, 0,
+                ),
+                (
+                    "Serpent", "Surfent", "Surfent", 660, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                ),
+                (
+                    "Ronin", "Bushi", "Bushi", 680, 2, 0, 0, 0, 1, 1, 3, 0, 0, 0, 2, 0,
+                ),
+                (
+                    "LazyCatfish",
+                    "Dumud",
+                    "Dumud",
+                    1010,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                ),
+                (
+                    "HawkBird", "Nitewing", "Nitewing", 650, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0,
+                ),
+                (
+                    "RobinHood",
+                    "Robinquill",
+                    "Robinquill",
+                    810,
+                    0,
+                    0,
+                    2,
+                    0,
+                    2,
+                    1,
+                    1,
+                    0,
+                    1,
+                    0,
+                    2,
+                    0,
+                ),
+                (
+                    "CatMage", "Katress", "Katress", 770, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 2, 0,
+                ),
+                (
+                    "ThunderDog",
+                    "Rayhound",
+                    "Rayhound",
+                    740,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ),
+                (
+                    "NegativeKoala",
+                    "Depresso",
+                    "Depresso",
+                    1240,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                ),
+                (
+                    "WoolFox", "Cremis", "Cremis", 1450, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1,
+                ),
+                (
+                    "HadesBird",
+                    "Helzephyr",
+                    "Helzephyr",
+                    600,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    3,
+                    0,
+                ),
+                (
+                    "WeaselDragon_Fire",
+                    "Chillet Ignis",
+                    "Chillet Ignis",
+                    1010,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ),
+                (
+                    "CatVampire",
+                    "Felbat",
+                    "Felbat",
+                    720,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    3,
+                    0,
+                    0,
+                    0,
+                ),
+                (
+                    "KendoFrog",
+                    "Ribbunny",
+                    "Ribbunny",
+                    1200,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                ),
+                (
+                    "MoonQueen",
+                    "Lunaris",
+                    "Lunaris",
+                    830,
+                    0,
+                    0,
+                    0,
+                    0,
+                    3,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                ),
+                (
+                    "SkyDragon_Grass",
+                    "Quivern Botan",
+                    "Quivern Botan",
+                    500,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ),
+                (
+                    "CaptainPenguin",
+                    "Penking",
+                    "Penking",
+                    520,
+                    0,
+                    2,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    2,
+                    0,
+                    2,
+                    2,
+                    0,
+                ),
+                (
+                    "Suzaku_Water",
+                    "Suzaku Aqua",
+                    "Suzaku Aqua",
+                    400,
+                    0,
+                    3,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ),
+                (
+                    "NightFox", "Nox", "Nox", 1180, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+                ),
+                (
+                    "Ganesha", "Grintale", "Grintale", 670, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                ),
+                (
+                    "IceFox", "Foxcicle", "Foxcicle", 910, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
+                ),
+                (
+                    "DarkCrow", "Cawgnito", "Cawgnito", 970, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                ),
+                (
+                    "MopBaby", "Swee", "Swee", 1250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                ),
+                (
+                    "DarkScorpion",
+                    "Menasting",
+                    "Menasting",
+                    400,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    3,
+                    0,
+                    0,
+                    0,
+                    0,
+                ),
+                (
+                    "FlyingManta",
+                    "Celeray",
+                    "Celeray",
+                    1020,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    3,
+                    0,
+                ),
+                (
+                    "WeaselDragon",
+                    "Chillet",
+                    "Chillet",
+                    1010,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
                 ),
             ];
 
@@ -1475,6 +1893,118 @@ pub fn init_database() {
                     "Player Stamina +20%",
                     "Resistencia al Hielo o resistencia general del jugador",
                 ),
+                (
+                    "ElementBoost_Dragon_2_PAL",
+                    "Divine Dragon",
+                    "Dragón Divino",
+                    "Dragon damage +20%",
+                    "Daño de tipo Dragón +20%",
+                ),
+                (
+                    "ElementBoost_Aqua_2_PAL",
+                    "Lord of the Sea",
+                    "Señor del Agua",
+                    "Water damage +20%",
+                    "Daño de tipo Agua +20%",
+                ),
+                (
+                    "Test_PalEgg_HatchingSpeed_Up",
+                    "Egg Hatcher",
+                    "Acelerador de huevos",
+                    "Egg hatching speed +100%",
+                    "Velocidad de eclosión de huevos +100%",
+                ),
+                (
+                    "TrainerWorkSpeed_UP_1",
+                    "Motivator",
+                    "Líder motivador",
+                    "Player work speed +25%",
+                    "Velocidad de trabajo del jugador +25% cuando está en el equipo",
+                ),
+                (
+                    "PAL_oraora",
+                    "Vanguard",
+                    "Vanguardia",
+                    "Player attack +10%",
+                    "Ataque del jugador +10% cuando está en el equipo",
+                ),
+                (
+                    "PAL_sadist",
+                    "Sadist",
+                    "Sádico",
+                    "Attack +15%, Defense -15%",
+                    "Ataque +15%, Defensa -15%",
+                ),
+                (
+                    "ElementResist_Ice_1_PAL",
+                    "Cold Resistant",
+                    "Cuerpo gélido",
+                    "Ice damage resistance +10%",
+                    "Resistencia al daño de tipo Hielo +10%",
+                ),
+                (
+                    "ElementBoost_Earth_2_PAL",
+                    "Lord of Earth",
+                    "Señor de la Tierra",
+                    "Earth damage +20%",
+                    "Daño de tipo Tierra +20%",
+                ),
+                (
+                    "PAL_FullStomach_Up_2",
+                    "Glutton",
+                    "Glotón",
+                    "Satiety drops 15% faster",
+                    "El hambre aumenta un 15% más rápido",
+                ),
+                (
+                    "Noukin",
+                    "Musclehead",
+                    "Musculoso",
+                    "Attack +30%, Work Speed -50%",
+                    "Ataque +30%, Velocidad de trabajo -50%",
+                ),
+                (
+                    "ElementBoost_Leaf_1_PAL",
+                    "Grass Boost (10%)",
+                    "Amante de plantas",
+                    "Grass damage +10%",
+                    "Daño de tipo Planta +10%",
+                ),
+                (
+                    "ElementResist_Aqua_1_PAL",
+                    "Water Resistant",
+                    "Cuerpo acuático",
+                    "Water damage resistance +10%",
+                    "Resistencia al daño de tipo Agua +10%",
+                ),
+                (
+                    "TrainerATK_UP_1",
+                    "Vanguard",
+                    "Vanguardia",
+                    "Player attack +10%",
+                    "Ataque del jugador +10% cuando está en el equipo",
+                ),
+                (
+                    "PAL_Sanity_Down_2",
+                    "Neurotic",
+                    "Neurótico",
+                    "Sanity drops 15% faster",
+                    "Disminución de SAN un 15% más rápida",
+                ),
+                (
+                    "CoolTimeReduction_Down_1",
+                    "Clumsy",
+                    "Torpe",
+                    "Active skill cooldown +10%",
+                    "Tiempo de enfriamiento de habilidades +10%",
+                ),
+                (
+                    "PAL_FullStomach_Down_1",
+                    "Diet Lover",
+                    "Poco comedor",
+                    "Satiety drops 10% slower",
+                    "El hambre aumenta un 10% más lento",
+                ),
             ];
 
             for p in passives_data {
@@ -1643,11 +2173,8 @@ pub fn init_database() {
                 Err("No local JSON cache".to_string())
             }();
 
-            if json_loaded.is_ok() {
-                tx.commit().ok();
-            } else {
-                tx.commit().ok();
-            }
+            let _ = json_loaded;
+            tx.commit().ok();
         }
     }
 }
@@ -1658,8 +2185,8 @@ fn get_conn() -> Option<Connection> {
 }
 
 fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(), String> {
-    let data: PalworldDataJson = serde_json::from_str(content)
-        .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+    let data: PalworldDataJson =
+        serde_json::from_str(content).map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
     let _ = tx.execute("DELETE FROM pals", []);
     let _ = tx.execute("DELETE FROM passives", []);
@@ -1708,7 +2235,7 @@ fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(
                         arr[2].as_str().unwrap_or_default(),
                         arr[3].as_str().unwrap_or_default(),
                         arr[4].as_str().unwrap_or_default(),
-                    ]
+                    ],
                 );
             }
         }
@@ -1723,7 +2250,7 @@ fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(
                         arr[0].as_str().unwrap_or_default(),
                         arr[1].as_str().unwrap_or_default(),
                         arr[2].as_str().unwrap_or_default(),
-                    ]
+                    ],
                 );
             }
         }
@@ -1738,7 +2265,7 @@ fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(
                         arr[0].as_str().unwrap_or_default(),
                         arr[1].as_str().unwrap_or_default(),
                         arr[2].as_str().unwrap_or_default(),
-                    ]
+                    ],
                 );
             }
         }
@@ -1756,7 +2283,7 @@ fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(
                         arr[3].as_i64().unwrap_or(0),
                         arr[4].as_i64().unwrap_or(0),
                         arr[5].as_str().unwrap_or_default(),
-                    ]
+                    ],
                 );
             }
         }
@@ -1771,7 +2298,7 @@ fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(
                         arr[0].as_str().unwrap_or_default(),
                         arr[1].as_str().unwrap_or_default(),
                         arr[2].as_i64().unwrap_or(0),
-                    ]
+                    ],
                 );
             }
         }
@@ -1788,7 +2315,7 @@ fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(
                         arr[2].as_i64().unwrap_or(0),
                         arr[3].as_i64().unwrap_or(0),
                         arr[4].as_i64().unwrap_or(0),
-                    ]
+                    ],
                 );
             }
         }
@@ -1801,12 +2328,10 @@ pub fn run_update_db_command(is_json: bool) {
     let args: Vec<String> = std::env::args().collect();
     let mut local_path = None;
     for (idx, arg) in args.iter().enumerate() {
-        if arg == "--update-db" || arg == "--datamining" {
-            if idx + 1 < args.len() {
-                let next_arg = &args[idx + 1];
-                if !next_arg.starts_with('-') {
-                    local_path = Some(next_arg.clone());
-                }
+        if (arg == "--update-db" || arg == "--datamining") && idx + 1 < args.len() {
+            let next_arg = &args[idx + 1];
+            if !next_arg.starts_with('-') {
+                local_path = Some(next_arg.clone());
             }
         }
     }
@@ -1825,22 +2350,29 @@ pub fn run_update_db_command(is_json: bool) {
         if let Ok(content) = std::fs::read_to_string(&path_str) {
             if let Some(mut conn) = get_conn() {
                 if let Ok(tx) = conn.transaction() {
-                    if populate_from_json_str(&tx, &content).is_ok() {
-                        if tx.commit().is_ok() {
-                            let _ = std::fs::write(&json_path, &content);
-                            if is_json {
-                                println!("{}", serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local file: {}", path_str) }));
-                            } else {
-                                println!("Database updated successfully from local file: {}!", path_str);
-                            }
-                            return;
+                    if populate_from_json_str(&tx, &content).is_ok() && tx.commit().is_ok() {
+                        let _ = std::fs::write(&json_path, &content);
+                        if is_json {
+                            println!(
+                                    "{}",
+                                    serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local file: {}", path_str) })
+                                );
+                        } else {
+                            println!(
+                                    "Database updated successfully from local file: {}!",
+                                    path_str
+                                );
                         }
+                        return;
                     }
                 }
             }
         }
         if is_json {
-            println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to read local file: {}", path_str) }));
+            println!(
+                "{}",
+                serde_json::json!({ "status": "error", "message": format!("Failed to read local file: {}", path_str) })
+            );
         } else {
             println!("Error: Failed to read local file: {}", path_str);
         }
@@ -1862,16 +2394,20 @@ pub fn run_update_db_command(is_json: bool) {
         if let Ok(content) = std::fs::read_to_string(&path_str) {
             if let Some(mut conn) = get_conn() {
                 if let Ok(tx) = conn.transaction() {
-                    if populate_from_json_str(&tx, &content).is_ok() {
-                        if tx.commit().is_ok() {
-                            let _ = std::fs::write(&json_path, &content);
-                            if is_json {
-                                println!("{}", serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local fallback: {}", path_str) }));
-                            } else {
-                                println!("Database updated successfully from local fallback: {}!", path_str);
-                            }
-                            return;
+                    if populate_from_json_str(&tx, &content).is_ok() && tx.commit().is_ok() {
+                        let _ = std::fs::write(&json_path, &content);
+                        if is_json {
+                            println!(
+                                    "{}",
+                                    serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local fallback: {}", path_str) })
+                                );
+                        } else {
+                            println!(
+                                    "Database updated successfully from local fallback: {}!",
+                                    path_str
+                                );
                         }
+                        return;
                     }
                 }
             }
@@ -1929,22 +2465,23 @@ pub fn run_update_db_command(is_json: bool) {
         let _ = std::fs::write(&json_path, &content);
         if let Some(mut conn) = get_conn() {
             if let Ok(tx) = conn.transaction() {
-                if populate_from_json_str(&tx, &content).is_ok() {
-                    if tx.commit().is_ok() {
-                        if is_json {
-                            println!("{}", serde_json::json!({ "status": "success", "message": "Database updated successfully from datamine sources." }));
-                        } else {
-                            println!("Database updated successfully from datamine sources!");
-                        }
-                        return;
+                if populate_from_json_str(&tx, &content).is_ok() && tx.commit().is_ok() {
+                    if is_json {
+                        println!("{}", serde_json::json!({ "status": "success", "message": "Database updated successfully from datamine sources." }));
+                    } else {
+                        println!("Database updated successfully from datamine sources!");
                     }
+                    return;
                 }
             }
         }
     }
 
     if is_json {
-        println!("{}", serde_json::json!({ "status": "error", "message": "Failed to update database. Verify your internet connection or supply a local file path." }));
+        println!(
+            "{}",
+            serde_json::json!({ "status": "error", "message": "Failed to update database. Verify your internet connection or supply a local file path." })
+        );
     } else {
         println!("Error: Failed to update database. Please check your internet connection or supply a local JSON file path: palagent-ai.exe --update-db [path_to_json]");
     }
