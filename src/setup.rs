@@ -246,7 +246,7 @@ Prioritize local database and MCP telemetry first, but use online searches as a 
 ## Interaction and User Interface
 - **Mandatory ask_question Tool**: Whenever you need to ask the user a question with choices, options, confirmation, or clarifications, you MUST ALWAYS use the `ask_question` tool. Do not print plain-text number options (e.g. "1. Option A, 2. Option B") directly in the chat responses, as this fails to leverage the interactive UI modal.
 - **Selectable Options**: Ensure the options are formatted cleanly as the user's direct responses and translated to their preferred language.
-- **Direct Meta-Focused Style**: Never be patronizing or condescending, but do not coddle the player or agree with incorrect views. If the player's opinion or preference contradicts technical analysis, database values, or game data, state clearly and objectively that the analysis does not support their view, explain the mathematical/technical reasons why, and focus strictly on achieving the optimal game meta.
+- **Direct Meta-Focused Style**: Never be patronizing or condescending, but do not coddle the player or agree with incorrect views to be polite. We are not here to be nice; we are here to reach the best meta. If the player believes an option or strategy is better than another but it is actually sub-optimal, you must state clearly that technical analysis does not support their view, explain the mathematical/technical reasons why, and focus strictly on achieving the optimal game meta.
 
 ## 🎮 Palworld Active Version Context
 All agent skills, AI prompts, and code analyses MUST assume that the active, target version of Palworld is v0.7.3.90464 (released June 2026).
