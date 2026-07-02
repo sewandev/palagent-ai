@@ -1606,6 +1606,7 @@ pub fn print_beautiful_report(output: &OutputJson) {
     println!();
 
     for player in &output.players {
+        let use_es = i18n::current_language() == i18n::Language::Es;
         let profile_label = format!("{}: {}", i18n::t("player_profile"), player.nickname);
         let separator = "-".repeat(profile_label.len() + 4);
         println!("{}", separator);
@@ -1834,9 +1835,10 @@ pub fn print_beautiful_report(output: &OutputJson) {
             println!("    {}", i18n::t("no_weapons_equipped"));
         } else {
             for item in &player.weapons {
+                let translated_item = crate::db::translate_item(&item.item_id, use_es);
                 println!(
                     "    * Slot {}: {} (x{})",
-                    item.slot_index, item.item_id, item.count
+                    item.slot_index, translated_item, item.count
                 );
             }
         }
@@ -1847,9 +1849,10 @@ pub fn print_beautiful_report(output: &OutputJson) {
             println!("    {}", i18n::t("no_armor_equipped"));
         } else {
             for item in &player.armor {
+                let translated_item = crate::db::translate_item(&item.item_id, use_es);
                 println!(
                     "    * Slot {}: {} (x{})",
-                    item.slot_index, item.item_id, item.count
+                    item.slot_index, translated_item, item.count
                 );
             }
         }
@@ -1860,9 +1863,10 @@ pub fn print_beautiful_report(output: &OutputJson) {
             println!("    {}", i18n::t("backpack_empty"));
         } else {
             for item in &player.common_inventory {
+                let translated_item = crate::db::translate_item(&item.item_id, use_es);
                 println!(
                     "    * Slot {}: {} (x{})",
-                    item.slot_index, item.item_id, item.count
+                    item.slot_index, translated_item, item.count
                 );
             }
         }

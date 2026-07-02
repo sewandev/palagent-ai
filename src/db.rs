@@ -1138,6 +1138,27 @@ pub fn init_database() {
                     0,
                     0,
                 ),
+                (
+                    "WhiteAlienDragon", "Xenogard", "Xenogard", 110, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0,
+                ),
+                (
+                    "DarkAlien", "Xenovader", "Xenovader", 420, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 2, 0,
+                ),
+                (
+                    "NightLady", "Selyne", "Selyne", 120, 0, 0, 0, 3, 3, 0, 0, 0, 3, 0, 0, 0,
+                ),
+                (
+                    "FrogMan", "Croajiro", "Croajiro", 1200, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
+                ),
+                (
+                    "FlowerGentle", "Lullu", "Lullu", 1150, 0, 0, 2, 0, 0, 1, 0, 0, 2, 0, 0, 0,
+                ),
+                (
+                    "MushroomDino", "Shroomer", "Shroomer", 900, 0, 0, 2, 0, 0, 1, 2, 0, 0, 0, 0, 0,
+                ),
+                (
+                    "Golem", "Knocklem", "Knocklem", 150, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0,
+                ),
             ];
 
             for p in pals_data {
