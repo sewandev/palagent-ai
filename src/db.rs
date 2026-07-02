@@ -1798,8 +1798,17 @@ fn populate_from_json_str(tx: &rusqlite::Transaction, content: &str) -> Result<(
 }
 
 pub fn run_update_db_command(is_json: bool) {
-    if !is_json {
-        println!("Updating PalAgent AI metadata database from remote datamining repository...");
+    let args: Vec<String> = std::env::args().collect();
+    let mut local_path = None;
+    for (idx, arg) in args.iter().enumerate() {
+        if arg == "--update-db" || arg == "--datamining" {
+            if idx + 1 < args.len() {
+                let next_arg = &args[idx + 1];
+                if !next_arg.starts_with('-') {
+                    local_path = Some(next_arg.clone());
+                }
+            }
+        }
     }
 
     let home_dir = std::env::var("USERPROFILE")
@@ -1807,6 +1816,72 @@ pub fn run_update_db_command(is_json: bool) {
         .unwrap_or_else(|_| "C:\\".to_string());
     let config_dir = std::path::Path::new(&home_dir).join(".palagent-ai");
     let json_path = config_dir.join("palworld_data.json");
+
+    // Case A: Explicit local file path provided
+    if let Some(path_str) = local_path {
+        if !is_json {
+            println!("Updating database from local file: {}...", path_str);
+        }
+        if let Ok(content) = std::fs::read_to_string(&path_str) {
+            if let Some(mut conn) = get_conn() {
+                if let Ok(tx) = conn.transaction() {
+                    if populate_from_json_str(&tx, &content).is_ok() {
+                        if tx.commit().is_ok() {
+                            let _ = std::fs::write(&json_path, &content);
+                            if is_json {
+                                println!("{}", serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local file: {}", path_str) }));
+                            } else {
+                                println!("Database updated successfully from local file: {}!", path_str);
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        if is_json {
+            println!("{}", serde_json::json!({ "status": "error", "message": format!("Failed to read local file: {}", path_str) }));
+        } else {
+            println!("Error: Failed to read local file: {}", path_str);
+        }
+        return;
+    }
+
+    // Case B: Search for local fallback files in current directory or data/
+    let mut local_fallback = None;
+    if std::path::Path::new("data/palworld_data.json").exists() {
+        local_fallback = Some("data/palworld_data.json".to_string());
+    } else if std::path::Path::new("palworld_data.json").exists() {
+        local_fallback = Some("palworld_data.json".to_string());
+    }
+
+    if let Some(path_str) = local_fallback {
+        if !is_json {
+            println!("Updating database from local fallback: {}...", path_str);
+        }
+        if let Ok(content) = std::fs::read_to_string(&path_str) {
+            if let Some(mut conn) = get_conn() {
+                if let Ok(tx) = conn.transaction() {
+                    if populate_from_json_str(&tx, &content).is_ok() {
+                        if tx.commit().is_ok() {
+                            let _ = std::fs::write(&json_path, &content);
+                            if is_json {
+                                println!("{}", serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local fallback: {}", path_str) }));
+                            } else {
+                                println!("Database updated successfully from local fallback: {}!", path_str);
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Case C: Remote fallback download
+    if !is_json {
+        println!("Updating PalAgent AI metadata database from remote datamining repository...");
+    }
 
     let mut content = String::new();
     let mut success = false;
@@ -1869,9 +1944,9 @@ pub fn run_update_db_command(is_json: bool) {
     }
 
     if is_json {
-        println!("{}", serde_json::json!({ "status": "error", "message": "Failed to update database from remote datamine sources." }));
+        println!("{}", serde_json::json!({ "status": "error", "message": "Failed to update database. Verify your internet connection or supply a local file path." }));
     } else {
-        println!("Error: Failed to update database from remote datamine sources. Please check internet connection.");
+        println!("Error: Failed to update database. Please check your internet connection or supply a local JSON file path: palagent-ai.exe --update-db [path_to_json]");
     }
 }
 
