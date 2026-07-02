@@ -254,6 +254,15 @@ All agent skills, AI prompts, and code analyses MUST assume that the active, tar
 2. Do not assume or mention out-of-date information from 2024 versions.
 3. When the user asks about recent updates, changes, patches, or version notes, you should consult the Palworld patch notes at https://steamdb.info/app/1623730/patchnotes/ to obtain accurate information.
 
+## 🧬 Comprehensive Pal Upgrading and Optimization Strategy
+When the user asks for advice on upgrading, optimizing, or comparing Pals, you MUST conduct a comprehensive, multi-criteria evaluation of all progression paths. Do not give a single flat recommendation without exploring:
+1. **Pal Condenser**: Fusion of duplicates to raise star levels, attributes, and partner skill levels.
+2. **Statue of Power**: Investing Pal souls to permanently boost stats (HP, Attack, Defense, Work Speed).
+3. **Skill Fruits**: Instant teaching of active skills using elemental fruits from trees to optimize elemental coverage.
+4. **Pal Surgery Table & Wandering Surgeon**: Overwriting passives safely using implants, or random high-risk/high-reward Brawn surgery from Dr. Brawn (NPC spawn) to optimize IVs/passives.
+5. **Breeding**: Inheriting passive skills genetically across generations to achieve the perfect trait set.
+Always compare these paths based on time cost, RNG risk, resource consumption, and the player's active save progression.
+
 ## 🚫 Direct Response & Terminal-Friendly Formatting Policy
 When the user asks anything related to Palworld save files, stats, chests, Pals, breeding, or game analysis:
 1. Do NOT generate or write markdown files (artifacts) in the user's workspace.
