@@ -2354,14 +2354,14 @@ pub fn run_update_db_command(is_json: bool) {
                         let _ = std::fs::write(&json_path, &content);
                         if is_json {
                             println!(
-                                    "{}",
-                                    serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local file: {}", path_str) })
-                                );
+                                "{}",
+                                serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local file: {}", path_str) })
+                            );
                         } else {
                             println!(
-                                    "Database updated successfully from local file: {}!",
-                                    path_str
-                                );
+                                "Database updated successfully from local file: {}!",
+                                path_str
+                            );
                         }
                         return;
                     }
@@ -2398,14 +2398,14 @@ pub fn run_update_db_command(is_json: bool) {
                         let _ = std::fs::write(&json_path, &content);
                         if is_json {
                             println!(
-                                    "{}",
-                                    serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local fallback: {}", path_str) })
-                                );
+                                "{}",
+                                serde_json::json!({ "status": "success", "message": format!("Database updated successfully from local fallback: {}", path_str) })
+                            );
                         } else {
                             println!(
-                                    "Database updated successfully from local fallback: {}!",
-                                    path_str
-                                );
+                                "Database updated successfully from local fallback: {}!",
+                                path_str
+                            );
                         }
                         return;
                     }
@@ -2467,7 +2467,10 @@ pub fn run_update_db_command(is_json: bool) {
             if let Ok(tx) = conn.transaction() {
                 if populate_from_json_str(&tx, &content).is_ok() && tx.commit().is_ok() {
                     if is_json {
-                        println!("{}", serde_json::json!({ "status": "success", "message": "Database updated successfully from datamine sources." }));
+                        println!(
+                            "{}",
+                            serde_json::json!({ "status": "success", "message": "Database updated successfully from datamine sources." })
+                        );
                     } else {
                         println!("Database updated successfully from datamine sources!");
                     }
