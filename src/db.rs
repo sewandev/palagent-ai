@@ -1602,6 +1602,24 @@ pub fn init_database() {
                     0,
                     0,
                 ),
+                (
+                    "LegendDeer",
+                    "Hartalis",
+                    "Hartalis",
+                    120,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    3,
+                    4,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ),
             ];
 
             for p in pals_data {
@@ -2033,6 +2051,70 @@ pub fn init_database() {
                 ("sulfur", "Sulfur", "Azufre"),
                 ("flame_organ", "Flame Organ", "Órgano de ignición"),
                 ("electric_organ", "Electric Organ", "Órgano de generación"),
+                (
+                    "OctaviaRevolver",
+                    "Marksman Revolver",
+                    "Revólver de tirador",
+                ),
+                (
+                    "OctaviaShotgun",
+                    "Core Eject Shotgun",
+                    "Escopeta de eyección de núcleo",
+                ),
+                ("Octavia001_Armor", "V1 Armor", "Armadura V1"),
+                ("Octavia002_Armor", "V2 Armor", "Armadura V2"),
+                ("PalSummon_LegendDeer", "Hartalis Slab", "Losa de Hartalis"),
+                (
+                    "PalSummon_LegendDeer_Ultra",
+                    "Hartalis Slab (Ultra)",
+                    "Losa de Hartalis (Ultra)",
+                ),
+                (
+                    "PalSummon_LegendDeer_Parts",
+                    "Hartalis Slab Fragment",
+                    "Fragmento de losa de Hartalis",
+                ),
+                ("Chromite", "Chromite", "Cromita"),
+                ("HexoliteQuartz", "Hexolite Quartz", "Cuarzo de hexolita"),
+                ("MetalDetector", "Metal Detector", "Detector de metales"),
+                (
+                    "DoubleJumpBoots",
+                    "Double Jump Boots",
+                    "Botas de doble salto",
+                ),
+                ("AirDashBoots", "Air Dash Boots", "Botas de impulso aéreo"),
+                ("RevivalPotion", "Revival Potion", "Poción de revivir"),
+                ("WingPack", "Wing Pack", "Mochila de alas"),
+                (
+                    "PalPassiveSkillChange_CraftSpeed_up2",
+                    "Artisan Implant",
+                    "Implante de artesano",
+                ),
+                (
+                    "PalPassiveSkillChange_MineForeman",
+                    "Mine Foreman Implant",
+                    "Implante de capataz de mina",
+                ),
+                (
+                    "PalPassiveSkillChange_LoggingForeman",
+                    "Logging Foreman Implant",
+                    "Implante de capataz de tala",
+                ),
+                (
+                    "PalPassiveSkillChange_FineFurs",
+                    "Fine Furs Implant",
+                    "Implante de pieles finas",
+                ),
+                (
+                    "PalPassiveSkillChange_SleekStroke",
+                    "Sleek Stroke Implant",
+                    "Implante de golpe elegante",
+                ),
+                (
+                    "PalPassiveSkillChange_WorkSlave",
+                    "Work Slave Implant",
+                    "Implante de esclavo del trabajo",
+                ),
             ];
 
             for i in items_data {
@@ -2109,6 +2191,30 @@ pub fn init_database() {
                     "Earth",
                 ),
                 ("IceMissile", "Ice Missile", "Misil de Hielo", 30, 3, "Ice"),
+                (
+                    "DivineWing",
+                    "Divine Wing",
+                    "Ala divina",
+                    140,
+                    35,
+                    "Neutral",
+                ),
+                (
+                    "SacredRain",
+                    "Sacred Rain",
+                    "Lluvia sagrada",
+                    200,
+                    60,
+                    "Neutral",
+                ),
+                (
+                    "PurifyingLight",
+                    "Purifying Light",
+                    "Luz purificadora",
+                    250,
+                    100,
+                    "Neutral",
+                ),
             ];
 
             for s in skills_data {
