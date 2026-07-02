@@ -190,6 +190,14 @@ If running via CLI or the Interactive Console mode, the following commands/flags
 - `help` / `h`: Show available commands help.
 - `exit` / `q`: Close interactive shell.
 
+## 🎮 Palworld Active Version Context
+
+> [!IMPORTANT]
+> **Active Target Version Constraint**
+> All agent skills, AI prompts, and code analyses MUST assume that the active, target version of Palworld is **v0.7.3.90464 (released June 2026)**.
+> 1. If you need to perform web searches for game mechanics, drop rates, recipes, or items, always scope your search to this version or subsequent patches.
+> 2. Do not assume or mention out-of-date information from 2024 versions (such as early pre-Sakurajima or pre-Terraria releases).
+
 ## 🚫 Direct Response & Terminal-Friendly Formatting Policy
 
 > [!IMPORTANT]
